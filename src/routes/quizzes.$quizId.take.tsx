@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Loader2, Timer, CheckCircle2, XCircle, Send, AlertTriangle } from "lucide-react";
+import { Loader2, Timer, CheckCircle2, XCircle, Send } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/quizzes/$quizId/take")({
@@ -44,7 +44,6 @@ function QuizRunner() {
   const [loading, setLoading] = useState(true);
   const [attemptId, setAttemptId] = useState<string | null>(null);
   const [attemptNumber, setAttemptNumber] = useState(1);
-  const [exhausted, setExhausted] = useState(false);
 
   // answers state: questionId -> { choiceIds[], text }
   const [answers, setAnswers] = useState<Record<string, { choiceIds: string[]; text: string }>>({});
@@ -84,7 +83,6 @@ function QuizRunner() {
         .select("id, attempt_number, submitted_at")
         .eq("quiz_id", quizId).eq("learner_id", user.id);
       const submitted = (prior ?? []).filter((p: any) => p.submitted_at).length;
-      if (submitted >= 3) { setExhausted(true); setLoading(false); return; }
       const nextNum = submitted + 1;
       setAttemptNumber(nextNum);
 
@@ -187,20 +185,6 @@ function QuizRunner() {
     );
   }
 
-  if (exhausted) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-background p-6">
-        <Card className="max-w-md">
-          <CardContent className="space-y-4 py-10 text-center">
-            <AlertTriangle className="mx-auto h-10 w-10 text-destructive" />
-            <p className="text-lg font-semibold">No attempts left</p>
-            <p className="text-sm text-muted-foreground">You've already used all 3 attempts for this quiz.</p>
-            {quiz && <Button asChild><Link to="/quizzes/$courseId" params={{ courseId: quiz.course_id }}>Back to quizzes</Link></Button>}
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
   if (!quiz) {
     return <div className="p-10 text-center">Quiz not found.</div>;
@@ -286,7 +270,7 @@ function QuizRunner() {
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-3 px-4 py-3">
           <div className="min-w-0">
             <h1 className="truncate text-base font-bold md:text-lg">{quiz.title}</h1>
-            <p className="text-xs text-muted-foreground">Attempt {attemptNumber} of 3 · {answeredCount}/{questions.length} answered</p>
+            <p className="text-xs text-muted-foreground">Attempt {attemptNumber} · {answeredCount}/{questions.length} answered</p>
           </div>
           <div className={`flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-mono font-bold ${lowTime ? "bg-destructive text-destructive-foreground animate-pulse" : "bg-primary text-primary-foreground"}`}>
             <Timer className="h-4 w-4" />
