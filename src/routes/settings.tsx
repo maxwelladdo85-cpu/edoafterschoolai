@@ -12,6 +12,7 @@ import { User, Mail, Shield, Calendar, BookOpen, GraduationCap, Users, Camera, L
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CLASS_GROUPS } from "@/lib/classes";
+import { EDO_LGAS } from "@/lib/lgas";
 import { toast } from "sonner";
 import { PageHero } from "@/components/PageHero";
 import heroSettings from "@/assets/hero-settings.jpg";
@@ -42,6 +43,30 @@ function ClassEditor({ initial, onSave }: { initial: string; onSave: (val: strin
   );
 }
 
+function LgaEditor({ initial, onSave }: { initial: string; onSave: (val: string) => Promise<void> }) {
+  const [val, setVal] = useState(initial);
+  const [saving, setSaving] = useState(false);
+  useEffect(() => { setVal(initial); }, [initial]);
+  return (
+    <div className="flex flex-wrap items-end gap-2">
+      <div className="flex-1 min-w-[220px]">
+        <Select value={val} onValueChange={setVal}>
+          <SelectTrigger><SelectValue placeholder="Select your local government" /></SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectLabel>Edo State LGAs</SelectLabel>
+              {EDO_LGAS.map((l) => <SelectItem key={l} value={l}>{l}</SelectItem>)}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      </div>
+      <Button size="sm" disabled={saving || val.trim() === initial.trim() || !val} onClick={async () => { setSaving(true); try { await onSave(val.trim()); } finally { setSaving(false); } }}>
+        {saving ? "Saving…" : "Save"}
+      </Button>
+    </div>
+  );
+}
+
 export const Route = createFileRoute("/settings")({
   component: SettingsPage,
 });
@@ -49,7 +74,7 @@ export const Route = createFileRoute("/settings")({
 function SettingsPage() {
   const { user, role, loading } = useAuth();
   const nav = useNavigate();
-  const [profile, setProfile] = useState<{ full_name: string | null; email: string | null; created_at: string; avatar_url: string | null; class_level: string | null } | null>(null);
+  const [profile, setProfile] = useState<{ full_name: string | null; email: string | null; created_at: string; avatar_url: string | null; class_level: string | null; lga: string | null } | null>(null);
   const [stats, setStats] = useState<{ label: string; value: number; icon: any }[]>([]);
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -64,7 +89,7 @@ function SettingsPage() {
   useEffect(() => {
     const load = async () => {
       if (!user || !role) return;
-      const { data: p } = await supabase.from("profiles").select("full_name,email,created_at,avatar_url,class_level" as any).eq("id", user.id).maybeSingle();
+      const { data: p } = await supabase.from("profiles").select("full_name,email,created_at,avatar_url,class_level,lga" as any).eq("id", user.id).maybeSingle();
       setProfile(p as any);
       setFullName((p as any)?.full_name ?? "");
       setEmail((p as any)?.email ?? user.email ?? "");
@@ -273,6 +298,24 @@ function SettingsPage() {
                       if (error) { toast.error(error.message); return; }
                       setProfile((prev) => prev ? { ...prev, class_level: val || null } : prev);
                       toast.success("Class saved");
+                    }}
+                  />
+                </CardContent>
+              </Card>
+            )}
+
+            {(role === "learner" || role === "teacher") && (
+              <Card className="border-border/60" style={{ boxShadow: "var(--shadow-card)" }}>
+                <CardHeader><CardTitle>Local Government</CardTitle></CardHeader>
+                <CardContent className="space-y-3">
+                  <p className="text-sm text-muted-foreground">Select your Local Government Area in Edo State.</p>
+                  <LgaEditor
+                    initial={profile?.lga ?? ""}
+                    onSave={async (val) => {
+                      const { error } = await supabase.from("profiles").update({ lga: val || null } as any).eq("id", user.id);
+                      if (error) { toast.error(error.message); return; }
+                      setProfile((prev) => prev ? { ...prev, lga: val || null } : prev);
+                      toast.success("Local Government saved");
                     }}
                   />
                 </CardContent>
