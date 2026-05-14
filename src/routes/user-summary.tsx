@@ -10,6 +10,7 @@ import {
   GraduationCap, FileText, Video, Music, FileType2, FolderPlus,
   ImageIcon, BookOpen, ClipboardList, CheckCircle2, UserPlus,
 } from "lucide-react";
+import { PageHero } from "@/components/PageHero";
 
 type Activity = {
   id: string;
