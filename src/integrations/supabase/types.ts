@@ -453,6 +453,17 @@ export type Database = {
         }
         Returns: boolean
       }
+      list_learner_classes: {
+        Args: never
+        Returns: {
+          class_level: string
+          learner_count: number
+        }[]
+      }
+      send_class_announcement: {
+        Args: { p_class_level: string; p_message: string; p_title: string }
+        Returns: number
+      }
     }
     Enums: {
       app_role: "admin" | "teacher" | "learner"
