@@ -44,7 +44,6 @@ function QuizRunner() {
   const [loading, setLoading] = useState(true);
   const [attemptId, setAttemptId] = useState<string | null>(null);
   const [attemptNumber, setAttemptNumber] = useState(1);
-  const [exhausted, setExhausted] = useState(false);
 
   // answers state: questionId -> { choiceIds[], text }
   const [answers, setAnswers] = useState<Record<string, { choiceIds: string[]; text: string }>>({});
