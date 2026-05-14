@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User, Mail, Shield, Calendar, BookOpen, GraduationCap, Users, Camera, Loader2, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { CLASS_GROUPS } from "@/lib/classes";
 import { toast } from "sonner";
 import { PageHero } from "@/components/PageHero";
 import heroSettings from "@/assets/hero-settings.jpg";
@@ -20,10 +22,20 @@ function ClassEditor({ initial, onSave }: { initial: string; onSave: (val: strin
   useEffect(() => { setVal(initial); }, [initial]);
   return (
     <div className="flex flex-wrap items-end gap-2">
-      <div className="flex-1 min-w-[200px]">
-        <Input value={val} onChange={(e) => setVal(e.target.value)} placeholder="e.g. JSS 1" maxLength={50} />
+      <div className="flex-1 min-w-[220px]">
+        <Select value={val} onValueChange={setVal}>
+          <SelectTrigger><SelectValue placeholder="Select your class" /></SelectTrigger>
+          <SelectContent>
+            {CLASS_GROUPS.map((g) => (
+              <SelectGroup key={g.label}>
+                <SelectLabel>{g.label}</SelectLabel>
+                {g.classes.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+              </SelectGroup>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
-      <Button size="sm" disabled={saving || val.trim() === initial.trim()} onClick={async () => { setSaving(true); try { await onSave(val.trim()); } finally { setSaving(false); } }}>
+      <Button size="sm" disabled={saving || val.trim() === initial.trim() || !val} onClick={async () => { setSaving(true); try { await onSave(val.trim()); } finally { setSaving(false); } }}>
         {saving ? "Saving…" : "Save"}
       </Button>
     </div>
