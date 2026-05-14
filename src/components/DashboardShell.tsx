@@ -16,7 +16,7 @@ export function DashboardShell({ title, children }: { title?: string; children: 
               <NotificationBell />
             </div>
           </header>
-          <main className="flex-1 p-6 md:p-8">{children}</main>
+          <main className="flex-1 p-4 sm:p-6 md:p-8 overflow-x-hidden">{children}</main>
         </div>
       </div>
     </SidebarProvider>
