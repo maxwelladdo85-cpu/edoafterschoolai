@@ -13,9 +13,9 @@ import { Switch } from "@/components/ui/switch";
 import { Plus, BookOpen, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
-interface Course { id: string; title: string; subject: string | null; description: string | null; is_active: boolean; created_at: string; }
+interface Course { id: string; title: string; subject: string | null; description: string | null; is_active: boolean; created_at: string; class_level: string | null; teacher_name: string | null; }
 
-const emptyForm = { title: "", subject: "", description: "", is_active: true };
+const emptyForm = { title: "", subject: "", description: "", is_active: true, class_level: "", teacher_name: "" };
 
 export function TeacherDashboard() {
   const { user } = useAuth();
