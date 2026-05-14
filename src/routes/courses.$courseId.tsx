@@ -6,7 +6,8 @@ import { DashboardShell } from "@/components/DashboardShell";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ChevronLeft, ChevronRight, FileText, Film, Headphones, Loader2, NotebookPen, PlayCircle } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { ChevronLeft, ChevronRight, FileText, Film, Headphones, Loader2, NotebookPen, PlayCircle, CheckCircle2, Circle } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/courses/$courseId")({
