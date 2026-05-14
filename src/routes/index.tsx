@@ -30,7 +30,7 @@ function Index() {
 
           <section className="mx-auto max-w-6xl px-6 pt-0 pb-10 text-center">
             <span className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-gold/20 backdrop-blur px-3 py-1 text-xs font-medium text-foreground">
-              <Sparkles className="h-3 w-3" /> Edo State SUBEB · Quality Education For All
+              <Sparkles className="h-3 w-3" /> EdoSUBEB · Quality Education For All
             </span>
             <h1 className="mt-6 text-6xl font-extrabold tracking-tight md:text-7xl lg:text-8xl">
               Edo After School <span className="text-primary">AI</span>
