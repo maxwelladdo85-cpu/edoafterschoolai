@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, BookOpen, Users, Bell, LogOut, GraduationCap, PlusSquare, UserCircle, Settings } from "lucide-react";
+import { LayoutDashboard, BookOpen, Users, Bell, LogOut, GraduationCap, PlusSquare, UserCircle, Settings, ClipboardCheck } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
   SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem,
@@ -19,6 +19,7 @@ const NAV: Record<AppRole, { title: string; url: string; icon: any }[]> = {
   teacher: [
     { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
     { title: "Courses", url: "/my-courses", icon: GraduationCap },
+    { title: "Assessments", url: "/assessments", icon: ClipboardCheck },
     { title: "Course Library", url: "/courses", icon: BookOpen },
     { title: "User Summary", url: "/user-summary", icon: UserCircle },
     { title: "Settings", url: "/settings", icon: Settings },
@@ -26,6 +27,7 @@ const NAV: Record<AppRole, { title: string; url: string; icon: any }[]> = {
   admin: [
     { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
     { title: "Course Library", url: "/courses", icon: BookOpen },
+    { title: "Assessments", url: "/assessments", icon: ClipboardCheck },
     { title: "User Summary", url: "/user-summary", icon: UserCircle },
     { title: "Users", url: "/dashboard", icon: Users },
     { title: "Settings", url: "/settings", icon: Settings },
