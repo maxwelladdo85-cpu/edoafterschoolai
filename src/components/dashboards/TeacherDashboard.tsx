@@ -72,8 +72,8 @@ export function TeacherDashboard() {
     <div className="space-y-6">
       <header className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Teacher Workspace</h1>
-          <p className="text-muted-foreground">Manage and publish your courses.</p>
+          <h1 className="text-4xl font-bold">Teacher Workspace</h1>
+          <p className="text-lg text-muted-foreground">Manage and publish your courses.</p>
         </div>
         <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setEditingId(null); setForm(emptyForm); } }}>
           <DialogTrigger asChild>
@@ -103,9 +103,9 @@ export function TeacherDashboard() {
       </header>
 
       <section>
-        <h2 className="mb-3 text-xl font-semibold">My Courses</h2>
+        <h2 className="mb-3 text-2xl font-semibold">My Courses</h2>
         {courses.length === 0 ? (
-          <Card><CardContent className="flex flex-col items-center gap-3 py-12 text-center text-muted-foreground">
+          <Card><CardContent className="flex flex-col items-center gap-3 py-12 text-center text-base text-muted-foreground">
             <BookOpen className="h-10 w-10" />
             <p>No courses yet — click "Create New Course" to get started.</p>
           </CardContent></Card>
@@ -115,16 +115,16 @@ export function TeacherDashboard() {
               <Card key={c.id}>
                 <CardHeader>
                   <div className="flex items-start justify-between gap-2">
-                    <CardTitle className="text-base">{c.title}</CardTitle>
+                    <CardTitle className="text-lg">{c.title}</CardTitle>
                     <Badge variant={c.is_active ? "default" : "secondary"}>{c.is_active ? "Active" : "Draft"}</Badge>
                   </div>
-                  <CardDescription>{[c.subject, c.class_level].filter(Boolean).join(" · ")}</CardDescription>
+                  <CardDescription className="text-base">{[c.subject, c.class_level].filter(Boolean).join(" · ")}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {c.teacher_name && (
-                    <p className="text-sm font-medium text-foreground">Teacher: <span className="text-muted-foreground font-normal">{c.teacher_name}</span></p>
+                    <p className="text-base font-medium text-foreground">Teacher: <span className="text-muted-foreground font-normal">{c.teacher_name}</span></p>
                   )}
-                  <p className="text-sm text-muted-foreground line-clamp-3">{c.description}</p>
+                  <p className="text-base text-muted-foreground line-clamp-3">{c.description}</p>
                   <div className="flex justify-end gap-2">
                     <Button size="sm" variant="outline" onClick={() => openEdit(c)}><Pencil className="mr-1 h-3.5 w-3.5" />Edit</Button>
                     <AlertDialog>
