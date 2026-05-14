@@ -3,7 +3,7 @@ import logo from "@/assets/edo-subeb-logo.png";
 export function Logo({ className = "", showText = true }: { className?: string; showText?: boolean }) {
   return (
     <div className={`flex items-center gap-3 ${className}`}>
-      <img src={logo} alt="Edo SUBEB logo" className="h-11 w-11 object-contain" />
+      <img src={logo} alt="Edo SUBEB logo" width={44} height={44} loading="eager" decoding="async" className="h-11 w-11 object-contain" />
       {showText && (
         <div className="leading-tight">
           <div className="text-base font-extrabold tracking-tight">Digital Learning at Home</div>
