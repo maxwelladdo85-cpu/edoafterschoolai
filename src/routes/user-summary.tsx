@@ -305,6 +305,8 @@ function UserSummaryPage() {
               backgroundImage={heroSummary}
             />
 
+            {role === "learner" && <BadgesPanel learnerId={user.id} />}
+
             {busy ? (
               <p className="text-muted-foreground">Loading activity…</p>
             ) : activity.length === 0 ? (
