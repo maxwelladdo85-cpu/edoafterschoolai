@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
+import { NotificationBell } from "@/components/NotificationBell";
 import { LearnerDashboard } from "@/components/dashboards/LearnerDashboard";
 import { TeacherSummary } from "@/components/dashboards/TeacherSummary";
 import { AdminDashboard } from "@/components/dashboards/AdminDashboard";
