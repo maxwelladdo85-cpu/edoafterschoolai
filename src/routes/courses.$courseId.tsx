@@ -123,6 +123,9 @@ function CoursePlayer() {
             <h2 className="text-lg font-bold">{course.title}</h2>
             {course.subject && <p className="text-xs text-muted-foreground">{course.subject}</p>}
           </div>
+          <Button variant="outline" size="sm" asChild className="w-full">
+            <Link to="/quizzes/$courseId" params={{ courseId }}>Quizzes & assessments</Link>
+          </Button>
           {modules.length === 0 ? (
             <Card><CardContent className="py-6 text-sm text-muted-foreground text-center">
               No modules yet. Check back soon.

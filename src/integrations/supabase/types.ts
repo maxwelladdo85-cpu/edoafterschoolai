@@ -14,6 +14,58 @@ export type Database = {
   }
   public: {
     Tables: {
+      attempt_answers: {
+        Row: {
+          attempt_id: string
+          id: string
+          is_correct: boolean | null
+          points_awarded: number
+          question_id: string
+          selected_choice_id: string | null
+          text_answer: string | null
+        }
+        Insert: {
+          attempt_id: string
+          id?: string
+          is_correct?: boolean | null
+          points_awarded?: number
+          question_id: string
+          selected_choice_id?: string | null
+          text_answer?: string | null
+        }
+        Update: {
+          attempt_id?: string
+          id?: string
+          is_correct?: boolean | null
+          points_awarded?: number
+          question_id?: string
+          selected_choice_id?: string | null
+          text_answer?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attempt_answers_attempt_id_fkey"
+            columns: ["attempt_id"]
+            isOneToOne: false
+            referencedRelation: "quiz_attempts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attempt_answers_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attempt_answers_selected_choice_id_fkey"
+            columns: ["selected_choice_id"]
+            isOneToOne: false
+            referencedRelation: "question_choices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       courses: {
         Row: {
           created_at: string
@@ -200,6 +252,158 @@ export type Database = {
         }
         Relationships: []
       }
+      question_choices: {
+        Row: {
+          id: string
+          is_correct: boolean
+          label: string
+          position: number
+          question_id: string
+        }
+        Insert: {
+          id?: string
+          is_correct?: boolean
+          label: string
+          position?: number
+          question_id: string
+        }
+        Update: {
+          id?: string
+          is_correct?: boolean
+          label?: string
+          position?: number
+          question_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "question_choices_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      questions: {
+        Row: {
+          correct_short_answer: string | null
+          created_at: string
+          feedback: string | null
+          id: string
+          points: number
+          position: number
+          prompt: string
+          quiz_id: string
+          type: Database["public"]["Enums"]["question_type"]
+        }
+        Insert: {
+          correct_short_answer?: string | null
+          created_at?: string
+          feedback?: string | null
+          id?: string
+          points?: number
+          position?: number
+          prompt: string
+          quiz_id: string
+          type: Database["public"]["Enums"]["question_type"]
+        }
+        Update: {
+          correct_short_answer?: string | null
+          created_at?: string
+          feedback?: string | null
+          id?: string
+          points?: number
+          position?: number
+          prompt?: string
+          quiz_id?: string
+          type?: Database["public"]["Enums"]["question_type"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "questions_quiz_id_fkey"
+            columns: ["quiz_id"]
+            isOneToOne: false
+            referencedRelation: "quizzes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quiz_attempts: {
+        Row: {
+          attempt_number: number
+          id: string
+          learner_id: string
+          max_score: number
+          quiz_id: string
+          score: number
+          started_at: string
+          submitted_at: string | null
+        }
+        Insert: {
+          attempt_number?: number
+          id?: string
+          learner_id: string
+          max_score?: number
+          quiz_id: string
+          score?: number
+          started_at?: string
+          submitted_at?: string | null
+        }
+        Update: {
+          attempt_number?: number
+          id?: string
+          learner_id?: string
+          max_score?: number
+          quiz_id?: string
+          score?: number
+          started_at?: string
+          submitted_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quiz_attempts_quiz_id_fkey"
+            columns: ["quiz_id"]
+            isOneToOne: false
+            referencedRelation: "quizzes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quizzes: {
+        Row: {
+          course_id: string
+          created_at: string
+          description: string | null
+          id: string
+          time_limit_minutes: number
+          title: string
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          time_limit_minutes?: number
+          title: string
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          time_limit_minutes?: number
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quizzes_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -237,6 +441,7 @@ export type Database = {
     Enums: {
       app_role: "admin" | "teacher" | "learner"
       lesson_content_type: "video" | "pdf" | "audio" | "text"
+      question_type: "mcq" | "true_false" | "short_answer"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -366,6 +571,7 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "teacher", "learner"],
       lesson_content_type: ["video", "pdf", "audio", "text"],
+      question_type: ["mcq", "true_false", "short_answer"],
     },
   },
 } as const
