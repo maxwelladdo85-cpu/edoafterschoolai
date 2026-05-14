@@ -12,6 +12,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Switch } from "@/components/ui/switch";
 import { Plus, BookOpen, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { MaterialUploader } from "@/components/dashboards/MaterialUploader";
 
 interface Course { id: string; title: string; subject: string | null; description: string | null; is_active: boolean; created_at: string; class_level: string | null; teacher_name: string | null; }
 
@@ -125,7 +126,8 @@ export function TeacherDashboard() {
                     <p className="text-base font-medium text-foreground">Teacher: <span className="text-muted-foreground font-normal">{c.teacher_name}</span></p>
                   )}
                   <p className="text-base text-muted-foreground line-clamp-3">{c.description}</p>
-                  <div className="flex justify-end gap-2">
+                  <div className="flex flex-wrap justify-end gap-2">
+                    <MaterialUploader courseId={c.id} />
                     <Button size="sm" variant="outline" onClick={() => openEdit(c)}><Pencil className="mr-1 h-3.5 w-3.5" />Edit</Button>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
