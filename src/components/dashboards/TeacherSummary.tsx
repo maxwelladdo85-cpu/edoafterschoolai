@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, GraduationCap, Users, FileText, Plus, Sparkles, ArrowRight } from "lucide-react";
+import { BookOpen, GraduationCap, Users, FileText, Plus, Sparkles, ArrowRight, ClipboardCheck } from "lucide-react";
 
 interface CourseRow {
   id: string;
@@ -22,6 +22,7 @@ export function TeacherSummary() {
   const [courses, setCourses] = useState<CourseRow[]>([]);
   const [enrollments, setEnrollments] = useState(0);
   const [lessons, setLessons] = useState(0);
+  const [assessments, setAssessments] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -37,11 +38,13 @@ export function TeacherSummary() {
       setCourses(list);
       const ids = list.map((c) => c.id);
       if (ids.length) {
-        const [{ count: ec }, { data: mods }] = await Promise.all([
+        const [{ count: ec }, { data: mods }, { count: qc }] = await Promise.all([
           supabase.from("enrollments").select("id", { count: "exact", head: true }).in("course_id", ids),
           supabase.from("modules").select("id").in("course_id", ids),
+          supabase.from("quizzes").select("id", { count: "exact", head: true }).in("course_id", ids),
         ]);
         setEnrollments(ec ?? 0);
+        setAssessments(qc ?? 0);
         const modIds = (mods ?? []).map((m) => m.id);
         if (modIds.length) {
           const { count: lc } = await supabase.from("lessons").select("id", { count: "exact", head: true }).in("module_id", modIds);
@@ -50,6 +53,7 @@ export function TeacherSummary() {
       } else {
         setEnrollments(0);
         setLessons(0);
+        setAssessments(0);
       }
       setLoading(false);
     };
@@ -64,6 +68,7 @@ export function TeacherSummary() {
     { label: "Active", value: active, icon: BookOpen, tint: "from-emerald-500/15 to-emerald-500/5", iconClass: "bg-primary/10 text-primary" },
     { label: "Drafts", value: drafts, icon: FileText, tint: "from-gold/20 to-gold/5", iconClass: "bg-gold/15 text-gold-foreground" },
     { label: "Enrollments", value: enrollments, icon: Users, tint: "from-destructive/15 to-destructive/5", iconClass: "bg-destructive/10 text-destructive" },
+    { label: "Assessments", value: assessments, icon: ClipboardCheck, tint: "from-sky-500/15 to-sky-500/5", iconClass: "bg-sky-500/10 text-sky-600" },
   ];
 
   const firstName = (user?.user_metadata?.full_name as string | undefined)?.split(" ")[0] ?? "Teacher";
@@ -102,7 +107,7 @@ export function TeacherSummary() {
       </section>
 
       {/* Stats */}
-      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         {stats.map((s) => (
           <Card
             key={s.label}

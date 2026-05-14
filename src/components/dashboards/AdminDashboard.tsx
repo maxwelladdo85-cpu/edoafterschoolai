@@ -3,20 +3,22 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Users, BookOpen, GraduationCap } from "lucide-react";
+import { Users, BookOpen, GraduationCap, ClipboardCheck } from "lucide-react";
 
 interface UserRow { id: string; email: string | null; full_name: string | null; created_at: string; roles: string[]; }
 
 export function AdminDashboard() {
   const [users, setUsers] = useState<UserRow[]>([]);
   const [activeCourses, setActiveCourses] = useState(0);
+  const [assessments, setAssessments] = useState(0);
 
   useEffect(() => {
     (async () => {
-      const [{ data: profiles }, { data: roles }, { count: courseCount }] = await Promise.all([
+      const [{ data: profiles }, { data: roles }, { count: courseCount }, { count: quizCount }] = await Promise.all([
         supabase.from("profiles").select("*").order("created_at", { ascending: false }),
         supabase.from("user_roles").select("user_id, role"),
         supabase.from("courses").select("*", { count: "exact", head: true }).eq("is_active", true),
+        supabase.from("quizzes").select("*", { count: "exact", head: true }),
       ]);
       const rolesByUser: Record<string, string[]> = {};
       (roles ?? []).forEach((r: any) => {
@@ -24,6 +26,7 @@ export function AdminDashboard() {
       });
       setUsers((profiles ?? []).map((p: any) => ({ ...p, roles: rolesByUser[p.id] ?? [] })));
       setActiveCourses(courseCount ?? 0);
+      setAssessments(quizCount ?? 0);
     })();
   }, []);
 
@@ -43,10 +46,11 @@ export function AdminDashboard() {
         </div>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-3">
+      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Stat icon={<Users />} label="Total Users" value={users.length} tint="from-primary/15 to-primary/5" />
         <Stat icon={<BookOpen />} label="Active Courses" value={activeCourses} tint="from-emerald-500/15 to-emerald-500/5" />
         <Stat icon={<GraduationCap />} label="Teachers" value={users.filter((u) => u.roles.includes("teacher")).length} tint="from-gold/20 to-gold/5" />
+        <Stat icon={<ClipboardCheck />} label="Assessments" value={assessments} tint="from-sky-500/15 to-sky-500/5" />
       </section>
 
       <section>
