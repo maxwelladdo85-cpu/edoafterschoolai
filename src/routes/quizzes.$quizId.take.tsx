@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Loader2, Timer, CheckCircle2, XCircle, Send, AlertTriangle } from "lucide-react";
+import { Loader2, Timer, CheckCircle2, XCircle, Send } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/quizzes/$quizId/take")({
