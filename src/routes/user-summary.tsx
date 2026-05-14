@@ -22,6 +22,8 @@ type Activity = {
   detail?: string;
   badge?: string;
   href?: string;
+  actor?: string;
+  actorRole?: string;
 };
 
 export const Route = createFileRoute("/user-summary")({
