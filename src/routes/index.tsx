@@ -5,6 +5,7 @@ import { GraduationCap, Users, Sparkles, BookOpen } from "lucide-react";
 import learnersImg from "@/assets/learners.jpg";
 import teachersImg from "@/assets/teachers.jpg";
 import adminsImg from "@/assets/admins.jpg";
+import heroBg from "@/assets/hero-bg.jpg";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -12,30 +13,44 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-gold/10">
-      <header className="mx-auto flex max-w-6xl items-center justify-between p-6">
-        <Logo />
-        <Link to="/login"><Button variant="default">Sign in</Button></Link>
-      </header>
+    <div className="min-h-screen bg-background">
+      <div className="relative">
+        <img
+          src={heroBg}
+          alt="An African child learning on a smartphone"
+          width={1920}
+          height={1280}
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/85 via-background/70 to-background" />
+
+        <div className="relative">
+          <header className="mx-auto flex max-w-6xl items-center justify-between p-6">
+            <Logo />
+            <Link to="/login"><Button variant="default">Sign in</Button></Link>
+          </header>
+
+          <section className="mx-auto max-w-6xl px-6 py-24 text-center">
+            <span className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-gold/20 backdrop-blur px-3 py-1 text-xs font-medium text-foreground">
+              <Sparkles className="h-3 w-3" /> Edo State SUBEB · Quality Education For All
+            </span>
+            <h1 className="mt-6 text-5xl font-bold tracking-tight md:text-6xl">
+              Edo After School <span className="text-primary">AI</span>
+            </h1>
+            <p className="mx-auto mt-4 max-w-2xl text-lg text-foreground/80">
+              An AI-powered learning management platform for Learners, Teachers and Administrators across Edo State.
+            </p>
+            <div className="mt-8 flex justify-center gap-3">
+              <Link to="/login"><Button size="lg">Get started</Button></Link>
+              <Link to="/login"><Button size="lg" variant="outline">I have an account</Button></Link>
+            </div>
+          </section>
+        </div>
+      </div>
 
       <main className="mx-auto max-w-6xl px-6 py-16">
-        <section className="text-center">
-          <span className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-gold/10 px-3 py-1 text-xs font-medium text-foreground">
-            <Sparkles className="h-3 w-3" /> Edo State SUBEB · Quality Education For All
-          </span>
-          <h1 className="mt-6 text-5xl font-bold tracking-tight md:text-6xl">
-            Edo After School <span className="text-primary">AI</span>
-          </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
-            An AI-powered learning management platform for Learners, Teachers and Administrators across Edo State.
-          </p>
-          <div className="mt-8 flex justify-center gap-3">
-            <Link to="/login"><Button size="lg">Get started</Button></Link>
-            <Link to="/login"><Button size="lg" variant="outline">I have an account</Button></Link>
-          </div>
-        </section>
 
-        <section className="mt-20 grid gap-6 md:grid-cols-3">
+        <section className="grid gap-6 md:grid-cols-3">
           {[
             { icon: BookOpen, title: "For Learners", body: "Track enrolled courses, progress, and notifications in one place.", img: learnersImg },
             { icon: GraduationCap, title: "For Teachers", body: "Create and publish courses for your students with one click.", img: teachersImg },
