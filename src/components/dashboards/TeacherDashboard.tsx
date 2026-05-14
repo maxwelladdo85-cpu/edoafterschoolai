@@ -224,6 +224,7 @@ export function TeacherDashboard() {
               </form>
             </DialogContent>
           </Dialog>
+          </div>
         }
       />
 
