@@ -158,6 +158,27 @@ export type Database = {
         }
         Relationships: []
       }
+      lesson_views: {
+        Row: {
+          id: string
+          learner_id: string
+          lesson_id: string
+          viewed_at: string
+        }
+        Insert: {
+          id?: string
+          learner_id: string
+          lesson_id: string
+          viewed_at?: string
+        }
+        Update: {
+          id?: string
+          learner_id?: string
+          lesson_id?: string
+          viewed_at?: string
+        }
+        Relationships: []
+      }
       lessons: {
         Row: {
           content_text: string | null
@@ -166,6 +187,7 @@ export type Database = {
           created_at: string
           id: string
           module_id: string
+          notes: string | null
           position: number
           title: string
         }
@@ -176,6 +198,7 @@ export type Database = {
           created_at?: string
           id?: string
           module_id: string
+          notes?: string | null
           position?: number
           title: string
         }
@@ -186,6 +209,7 @@ export type Database = {
           created_at?: string
           id?: string
           module_id?: string
+          notes?: string | null
           position?: number
           title?: string
         }
