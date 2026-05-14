@@ -11,6 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User, Mail, Shield, Calendar, BookOpen, GraduationCap, Users, Camera, Loader2, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { PageHero } from "@/components/PageHero";
 
 function ClassEditor({ initial, onSave }: { initial: string; onSave: (val: string) => Promise<void> }) {
   const [val, setVal] = useState(initial);
