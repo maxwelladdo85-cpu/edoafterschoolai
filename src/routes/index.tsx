@@ -33,7 +33,7 @@ function Index() {
               <Sparkles className="h-3 w-3" /> EdoSUBEB · Quality Education For All
             </span>
             <h1 className="mt-6 text-6xl font-extrabold tracking-tight md:text-7xl lg:text-8xl">
-              Edo After School <span className="text-primary">AI</span>
+              Digital Learning <span className="text-primary">at Home</span>
             </h1>
             <p className="mx-auto mt-6 max-w-3xl text-xl font-bold text-foreground/90 md:text-2xl">
               An AI-powered learning management platform for Learners, Teachers and Administrators across Edo State.
