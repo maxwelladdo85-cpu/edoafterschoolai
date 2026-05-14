@@ -6,7 +6,7 @@ export function Logo({ className = "", showText = true }: { className?: string; 
       <img src={logo} alt="Edo SUBEB logo" className="h-11 w-11 object-contain" />
       {showText && (
         <div className="leading-tight">
-          <div className="text-sm font-bold">Edo After School AI</div>
+          <div className="text-base font-extrabold tracking-tight">Edo After School AI</div>
           <div className="text-[10px] uppercase tracking-wider opacity-70">SUBEB · Quality Education For All</div>
         </div>
       )}
