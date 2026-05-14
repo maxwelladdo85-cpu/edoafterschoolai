@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, BookOpen, Users, Bell, LogOut, GraduationCap, PlusSquare, UserCircle } from "lucide-react";
+import { LayoutDashboard, BookOpen, Users, Bell, LogOut, GraduationCap, PlusSquare, UserCircle, Settings } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
   SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem,
