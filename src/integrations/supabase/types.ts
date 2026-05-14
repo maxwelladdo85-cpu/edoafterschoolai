@@ -240,6 +240,7 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          class_level: string | null
           created_at: string
           email: string | null
           full_name: string | null
@@ -247,6 +248,7 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          class_level?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
@@ -254,6 +256,7 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          class_level?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
@@ -439,6 +442,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      enroll_class_in_course: {
+        Args: { p_class_level: string; p_course_id: string }
+        Returns: number
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
