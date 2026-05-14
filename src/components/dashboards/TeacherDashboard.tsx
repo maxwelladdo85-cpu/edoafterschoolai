@@ -205,11 +205,36 @@ export function TeacherDashboard() {
       </header>
 
       <section>
-        <h2 className="mb-3 text-2xl font-semibold">My Courses</h2>
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-2xl font-semibold">My Courses</h2>
+          <div className="flex flex-wrap gap-2">
+            <Select value={subjectFilter} onValueChange={setSubjectFilter}>
+              <SelectTrigger className="w-[180px]"><SelectValue placeholder="Subject" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All subjects</SelectItem>
+                {subjectOptions.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            <Select value={classFilter} onValueChange={setClassFilter}>
+              <SelectTrigger className="w-[180px]"><SelectValue placeholder="Class" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All classes</SelectItem>
+                {classOptions.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            {(subjectFilter !== "all" || classFilter !== "all") && (
+              <Button variant="ghost" size="sm" onClick={() => { setSubjectFilter("all"); setClassFilter("all"); }}>Clear</Button>
+            )}
+          </div>
+        </div>
         {courses.length === 0 ? (
           <Card><CardContent className="flex flex-col items-center gap-3 py-12 text-center text-base text-muted-foreground">
             <BookOpen className="h-10 w-10" />
             <p>No courses yet — click "Create New Course" to get started.</p>
+          </CardContent></Card>
+        ) : filteredCourses.length === 0 ? (
+          <Card><CardContent className="py-12 text-center text-base text-muted-foreground">
+            No courses match the selected filters.
           </CardContent></Card>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
