@@ -13,7 +13,7 @@ export const Route = createFileRoute("/courses/$courseId")({
   component: CoursePlayer,
 });
 
-type ContentType = "video" | "pdf" | "audio" | "text";
+type ContentType = "video" | "pdf" | "audio" | "text" | "doc";
 interface Lesson {
   id: string;
   module_id: string;
