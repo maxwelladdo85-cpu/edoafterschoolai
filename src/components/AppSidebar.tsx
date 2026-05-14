@@ -18,7 +18,7 @@ const NAV: Record<AppRole, { title: string; url: string; icon: any }[]> = {
   ],
   teacher: [
     { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-    { title: "My Courses", url: "/my-courses", icon: GraduationCap },
+    { title: "Courses", url: "/my-courses", icon: GraduationCap },
     { title: "Course Library", url: "/courses", icon: BookOpen },
     { title: "User Summary", url: "/user-summary", icon: UserCircle },
     { title: "Settings", url: "/settings", icon: Settings },

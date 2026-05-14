@@ -50,7 +50,7 @@ export function LearnerDashboard() {
       </section>
 
       <section>
-        <h2 className="mb-3 text-xl font-semibold">My Courses</h2>
+        <h2 className="mb-3 text-xl font-semibold">Courses</h2>
         {enrollments.length === 0 ? (
           <Card><CardContent className="py-8 text-center text-muted-foreground">You aren't enrolled in any courses yet.</CardContent></Card>
         ) : (
