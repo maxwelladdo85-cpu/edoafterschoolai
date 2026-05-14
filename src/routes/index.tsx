@@ -46,7 +46,7 @@ function Index() {
         </div>
       </div>
 
-      <main className="mx-auto max-w-6xl px-6 py-16">
+      <main className="mx-auto max-w-6xl px-6 pt-2 pb-16">
 
         <section className="grid gap-6 md:grid-cols-3">
           {[
