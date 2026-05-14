@@ -77,7 +77,7 @@ function AnnouncementsPage() {
     const { data, error } = await supabase.rpc("send_class_announcement", {
       p_class_level: form.class_level,
       p_title: form.title.trim(),
-      p_message: form.message.trim() || null,
+      p_message: form.message.trim() || "",
     });
     setSending(false);
     if (error) { toast.error(error.message); return; }
