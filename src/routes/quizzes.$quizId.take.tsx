@@ -270,7 +270,7 @@ function QuizRunner() {
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-3 px-4 py-3">
           <div className="min-w-0">
             <h1 className="truncate text-base font-bold md:text-lg">{quiz.title}</h1>
-            <p className="text-xs text-muted-foreground">Attempt {attemptNumber} of 3 · {answeredCount}/{questions.length} answered</p>
+            <p className="text-xs text-muted-foreground">Attempt {attemptNumber} · {answeredCount}/{questions.length} answered</p>
           </div>
           <div className={`flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-mono font-bold ${lowTime ? "bg-destructive text-destructive-foreground animate-pulse" : "bg-primary text-primary-foreground"}`}>
             <Timer className="h-4 w-4" />
