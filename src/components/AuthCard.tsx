@@ -74,6 +74,17 @@ export function AuthCard() {
                   <Label htmlFor="p1">Password</Label>
                   <Input id="p1" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
                 </div>
+                <div className="space-y-1">
+                  <Label>Sign in as</Label>
+                  <Select value={role} onValueChange={(v) => setRole(v as any)}>
+                    <SelectTrigger><SelectValue placeholder="Select your role" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="learner">Learner</SelectItem>
+                      <SelectItem value="teacher">Teacher</SelectItem>
+                      <SelectItem value="admin">Admin</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
                 <Button type="submit" disabled={loading} className="w-full">Sign In</Button>
               </form>
               <p className="mt-4 text-center text-sm text-muted-foreground">
