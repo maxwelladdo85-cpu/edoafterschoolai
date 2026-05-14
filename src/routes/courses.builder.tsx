@@ -330,12 +330,12 @@ function BuilderPage() {
                       key={m.id}
                       module={m}
                       index={mi}
-                      onChange={(p) => updateModule(m.id, p)}
+                      onChange={(p: Partial<DraftModule>) => updateModule(m.id, p)}
                       onRemove={() => removeModule(m.id)}
                       onAddLesson={() => addLesson(m.id)}
                       onLessonDragEnd={onLessonDragEnd(m.id)}
-                      onLessonChange={(lid, p) => updateLesson(m.id, lid, p)}
-                      onLessonRemove={(lid) => removeLesson(m.id, lid)}
+                      onLessonChange={(lid: string, p: Partial<DraftLesson>) => updateLesson(m.id, lid, p)}
+                      onLessonRemove={(lid: string) => removeLesson(m.id, lid)}
                       sensors={sensors}
                     />
                   ))}
