@@ -9,6 +9,24 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { Logo } from "@/components/Logo";
+import { Eye, EyeOff } from "lucide-react";
+
+function PasswordInput({ id, value, onChange, minLength }: { id: string; value: string; onChange: (v: string) => void; minLength?: number }) {
+  const [show, setShow] = useState(false);
+  return (
+    <div className="relative">
+      <Input id={id} type={show ? "text" : "password"} required minLength={minLength} value={value} onChange={(e) => onChange(e.target.value)} className="pr-10" />
+      <button
+        type="button"
+        onClick={() => setShow((s) => !s)}
+        aria-label={show ? "Hide password" : "Show password"}
+        className="absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground hover:text-foreground"
+      >
+        {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+      </button>
+    </div>
+  );
+}
 
 export function AuthCard() {
   const nav = useNavigate();
@@ -73,7 +91,7 @@ export function AuthCard() {
                 </div>
                 <div className="space-y-1">
                   <Label htmlFor="p1">Password</Label>
-                  <Input id="p1" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+                  <PasswordInput id="p1" value={password} onChange={setPassword} />
                 </div>
                 <div className="space-y-1">
                   <Label>Sign in as</Label>
@@ -107,7 +125,7 @@ export function AuthCard() {
                 </div>
                 <div className="space-y-1">
                   <Label htmlFor="p2">Password</Label>
-                  <Input id="p2" type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} />
+                  <PasswordInput id="p2" value={password} onChange={setPassword} minLength={6} />
                 </div>
                 <div className="space-y-1">
                   <Label>I am a</Label>
