@@ -2,6 +2,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
 import { GraduationCap, Users, Sparkles, BookOpen } from "lucide-react";
+import learnersImg from "@/assets/learners.jpg";
+import teachersImg from "@/assets/teachers.jpg";
+import adminsImg from "@/assets/admins.jpg";
 
 export const Route = createFileRoute("/")({
   component: Index,
