@@ -14,7 +14,7 @@ import { Plus, BookOpen, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { MaterialUploader } from "@/components/dashboards/MaterialUploader";
 
-interface Course { id: string; title: string; subject: string | null; description: string | null; is_active: boolean; created_at: string; class_level: string | null; teacher_name: string | null; }
+interface Course { id: string; title: string; subject: string | null; description: string | null; is_active: boolean; created_at: string; class_level: string | null; teacher_name: string | null; thumbnail_url: string | null; }
 
 const emptyForm = { title: "", subject: "", description: "", is_active: true, class_level: "", teacher_name: "" };
 
@@ -24,6 +24,7 @@ export function TeacherDashboard() {
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
+  const [thumbFile, setThumbFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
 
   const load = async () => {
@@ -36,30 +37,61 @@ export function TeacherDashboard() {
   const openCreate = () => {
     setEditingId(null);
     setForm(emptyForm);
+    setThumbFile(null);
     setOpen(true);
   };
 
   const openEdit = (c: Course) => {
     setEditingId(c.id);
     setForm({ title: c.title, subject: c.subject ?? "", description: c.description ?? "", is_active: c.is_active, class_level: c.class_level ?? "", teacher_name: c.teacher_name ?? "" });
+    setThumbFile(null);
     setOpen(true);
+  };
+
+  const uploadThumb = async (courseId: string, file: File) => {
+    const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+    const path = `${courseId}/thumb-${Date.now()}.${ext}`;
+    const { error: upErr } = await supabase.storage
+      .from("course-materials")
+      .upload(path, file, { contentType: file.type, upsert: true });
+    if (upErr) throw upErr;
+    const { data: pub } = supabase.storage.from("course-materials").getPublicUrl(path);
+    return pub.publicUrl;
   };
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
+    if (thumbFile && !thumbFile.type.startsWith("image/")) return toast.error("Thumbnail must be an image");
+    if (thumbFile && thumbFile.size > 5 * 1024 * 1024) return toast.error("Thumbnail must be under 5 MB");
     setSaving(true);
-    const payload = { title: form.title, subject: form.subject, description: form.description, is_active: form.is_active, class_level: form.class_level || null, teacher_name: form.teacher_name || null };
-    const { error } = editingId
-      ? await supabase.from("courses").update(payload).eq("id", editingId)
-      : await supabase.from("courses").insert({ ...payload, teacher_id: user.id });
-    setSaving(false);
-    if (error) return toast.error(error.message);
-    toast.success(editingId ? "Course updated" : "Course created");
-    setOpen(false);
-    setEditingId(null);
-    setForm(emptyForm);
-    load();
+    try {
+      const payload: any = { title: form.title, subject: form.subject, description: form.description, is_active: form.is_active, class_level: form.class_level || null, teacher_name: form.teacher_name || null };
+      let courseId = editingId;
+      if (editingId) {
+        const { error } = await supabase.from("courses").update(payload).eq("id", editingId);
+        if (error) throw error;
+      } else {
+        const { data, error } = await supabase.from("courses").insert({ ...payload, teacher_id: user.id }).select("id").single();
+        if (error) throw error;
+        courseId = data.id;
+      }
+      if (thumbFile && courseId) {
+        const url = await uploadThumb(courseId, thumbFile);
+        const { error: tErr } = await supabase.from("courses").update({ thumbnail_url: url }).eq("id", courseId);
+        if (tErr) throw tErr;
+      }
+      toast.success(editingId ? "Course updated" : "Course created");
+      setOpen(false);
+      setEditingId(null);
+      setForm(emptyForm);
+      setThumbFile(null);
+      load();
+    } catch (err: any) {
+      toast.error(err.message ?? "Save failed");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const remove = async (id: string) => {
@@ -93,6 +125,11 @@ export function TeacherDashboard() {
               </div>
               <div className="space-y-1"><Label>Teacher name</Label><Input value={form.teacher_name} onChange={(e) => setForm({ ...form, teacher_name: e.target.value })} placeholder="Mr. / Mrs. / Ms. / Miss Adaeze Okoro" autoCapitalize="words" autoComplete="name" spellCheck={false} maxLength={100} /></div>
               <div className="space-y-1"><Label>Description</Label><Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
+              <div className="space-y-1">
+                <Label>Thumbnail image</Label>
+                <Input type="file" accept="image/*" onChange={(e) => setThumbFile(e.target.files?.[0] ?? null)} />
+                <p className="text-xs text-muted-foreground">Shown as the card background. JPG/PNG, under 5 MB.{editingId ? " Leave empty to keep the current image." : ""}</p>
+              </div>
               <div className="flex items-center justify-between rounded-md border px-3 py-2">
                 <div><Label>Active</Label><p className="text-xs text-muted-foreground">Visible to learners in the Course Library</p></div>
                 <Switch checked={form.is_active} onCheckedChange={(v) => setForm({ ...form, is_active: v })} />
@@ -113,14 +150,23 @@ export function TeacherDashboard() {
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {courses.map((c) => (
-              <Card key={c.id}>
-                <CardHeader>
-                  <div className="flex items-start justify-between gap-2">
-                    <CardTitle className="text-lg">{c.title}</CardTitle>
-                    <Badge variant={c.is_active ? "default" : "secondary"}>{c.is_active ? "Active" : "Draft"}</Badge>
+              <Card key={c.id} className="overflow-hidden flex flex-col">
+                <div
+                  className="relative aspect-[16/9] w-full bg-muted"
+                  style={c.thumbnail_url ? { backgroundImage: `url(${c.thumbnail_url})`, backgroundSize: "cover", backgroundPosition: "center" } : undefined}
+                >
+                  {!c.thumbnail_url && (
+                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/20 via-gold/20 to-accent/20">
+                      <BookOpen className="h-10 w-10 text-primary/60" />
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                  <Badge className="absolute right-2 top-2" variant={c.is_active ? "default" : "secondary"}>{c.is_active ? "Active" : "Draft"}</Badge>
+                  <div className="absolute bottom-0 left-0 right-0 p-3">
+                    <h3 className="text-lg font-semibold leading-tight text-white drop-shadow">{c.title}</h3>
+                    <p className="text-sm text-white/85">{[c.subject, c.class_level].filter(Boolean).join(" · ")}</p>
                   </div>
-                  <CardDescription className="text-base">{[c.subject, c.class_level].filter(Boolean).join(" · ")}</CardDescription>
-                </CardHeader>
+                </div>
                 <CardContent className="space-y-3">
                   {c.teacher_name && (
                     <p className="text-base font-medium text-foreground">Teacher: <span className="text-muted-foreground font-normal">{c.teacher_name}</span></p>
