@@ -185,20 +185,6 @@ function QuizRunner() {
     );
   }
 
-  if (exhausted) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-background p-6">
-        <Card className="max-w-md">
-          <CardContent className="space-y-4 py-10 text-center">
-            <AlertTriangle className="mx-auto h-10 w-10 text-destructive" />
-            <p className="text-lg font-semibold">No attempts left</p>
-            <p className="text-sm text-muted-foreground">You've already used all 3 attempts for this quiz.</p>
-            {quiz && <Button asChild><Link to="/quizzes/$courseId" params={{ courseId: quiz.course_id }}>Back to quizzes</Link></Button>}
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
   if (!quiz) {
     return <div className="p-10 text-center">Quiz not found.</div>;
