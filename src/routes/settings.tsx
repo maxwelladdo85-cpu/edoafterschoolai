@@ -133,22 +133,30 @@ function SettingsPage() {
             <SidebarTrigger />
             <span className="text-sm font-medium text-muted-foreground">Settings</span>
           </header>
-          <main className="flex-1 space-y-6 p-6 md:p-8">
-            <header>
-              <h1 className="text-4xl font-bold">Settings</h1>
-              <p className="text-lg text-muted-foreground">Your account details and overall stats.</p>
-            </header>
+          <main className="flex-1 space-y-8 p-6 md:p-8">
+            <PageHero
+              eyebrow="Account"
+              EyebrowIcon={User}
+              title="Settings"
+              description="Your profile, preferences and account stats."
+            />
 
-            <Card>
-              <CardHeader><CardTitle>Profile</CardTitle></CardHeader>
-              <CardContent className="space-y-6">
-                <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
-                  <Avatar className="h-24 w-24">
+            <Card className="border-border/60 overflow-hidden" style={{ boxShadow: "var(--shadow-card)" }}>
+              <div
+                className="h-24 w-full"
+                style={{ backgroundImage: "var(--gradient-hero)" }}
+              />
+              <CardContent className="space-y-6 -mt-12">
+                <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-end">
+                  <Avatar className="h-24 w-24 ring-4 ring-background shadow-lg">
                     {profile?.avatar_url && <AvatarImage src={profile.avatar_url} alt={displayName} />}
-                    <AvatarFallback className="text-2xl">{initials || "U"}</AvatarFallback>
+                    <AvatarFallback className="text-2xl bg-gold/20 text-gold-foreground">{initials || "U"}</AvatarFallback>
                   </Avatar>
-                  <div className="space-y-2">
-                    <p className="text-sm text-muted-foreground">Profile picture — JPG/PNG, under 5 MB.</p>
+                  <div className="flex-1 space-y-2 pt-2">
+                    <div>
+                      <p className="text-2xl font-bold tracking-tight">{displayName}</p>
+                      <p className="text-sm text-muted-foreground">Profile picture — JPG/PNG, under 5 MB.</p>
+                    </div>
                     <div className="flex flex-wrap gap-2">
                       <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={onPickAvatar} />
                       <Button size="sm" onClick={() => fileRef.current?.click()} disabled={uploading}>
@@ -163,22 +171,22 @@ function SettingsPage() {
                   </div>
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="flex items-start gap-3">
-                    <User className="mt-1 h-4 w-4 text-muted-foreground" />
-                    <div><p className="text-sm text-muted-foreground">Full name</p><p className="font-medium">{displayName}</p></div>
+                  <div className="flex items-start gap-3 rounded-lg border bg-muted/30 p-3">
+                    <User className="mt-1 h-4 w-4 text-primary" />
+                    <div><p className="text-xs uppercase tracking-wide text-muted-foreground">Full name</p><p className="font-medium">{displayName}</p></div>
                   </div>
-                  <div className="flex items-start gap-3">
-                    <Mail className="mt-1 h-4 w-4 text-muted-foreground" />
-                    <div><p className="text-sm text-muted-foreground">Email</p><p className="font-medium break-all">{profile?.email || user.email}</p></div>
+                  <div className="flex items-start gap-3 rounded-lg border bg-muted/30 p-3">
+                    <Mail className="mt-1 h-4 w-4 text-primary" />
+                    <div><p className="text-xs uppercase tracking-wide text-muted-foreground">Email</p><p className="font-medium break-all">{profile?.email || user.email}</p></div>
                   </div>
-                  <div className="flex items-start gap-3">
-                    <Shield className="mt-1 h-4 w-4 text-muted-foreground" />
-                    <div><p className="text-sm text-muted-foreground">Role</p><Badge className="capitalize">{role ?? "—"}</Badge></div>
+                  <div className="flex items-start gap-3 rounded-lg border bg-muted/30 p-3">
+                    <Shield className="mt-1 h-4 w-4 text-primary" />
+                    <div><p className="text-xs uppercase tracking-wide text-muted-foreground">Role</p><Badge className="capitalize">{role ?? "—"}</Badge></div>
                   </div>
-                  <div className="flex items-start gap-3">
-                    <Calendar className="mt-1 h-4 w-4 text-muted-foreground" />
+                  <div className="flex items-start gap-3 rounded-lg border bg-muted/30 p-3">
+                    <Calendar className="mt-1 h-4 w-4 text-primary" />
                     <div>
-                      <p className="text-sm text-muted-foreground">Member since</p>
+                      <p className="text-xs uppercase tracking-wide text-muted-foreground">Member since</p>
                       <p className="font-medium">{profile?.created_at ? new Date(profile.created_at).toLocaleDateString() : "—"}</p>
                     </div>
                   </div>
@@ -187,7 +195,7 @@ function SettingsPage() {
             </Card>
 
             {role === "learner" && (
-              <Card>
+              <Card className="border-border/60" style={{ boxShadow: "var(--shadow-card)" }}>
                 <CardHeader><CardTitle>My class</CardTitle></CardHeader>
                 <CardContent className="space-y-3">
                   <p className="text-sm text-muted-foreground">Set your class so teachers can assign courses to you (e.g. "JSS 1", "Primary 4").</p>
@@ -206,15 +214,20 @@ function SettingsPage() {
 
             {stats.length > 0 && (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {stats.map((s) => (
-                  <Card key={s.label}>
-                    <CardHeader className="flex flex-row items-center justify-between pb-2">
-                      <CardTitle className="text-sm font-medium text-muted-foreground">{s.label}</CardTitle>
-                      <s.icon className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent><div className="text-3xl font-bold">{s.value}</div></CardContent>
-                  </Card>
-                ))}
+                {stats.map((s, i) => {
+                  const tints = ["from-primary/15 to-primary/5", "from-emerald-500/15 to-emerald-500/5", "from-gold/20 to-gold/5"];
+                  return (
+                    <Card key={s.label} className={`border-0 bg-gradient-to-br ${tints[i % tints.length]}`} style={{ boxShadow: "var(--shadow-card)" }}>
+                      <CardHeader className="flex flex-row items-center justify-between pb-2">
+                        <CardTitle className="text-sm font-medium text-muted-foreground">{s.label}</CardTitle>
+                        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary">
+                          <s.icon className="h-4 w-4" />
+                        </div>
+                      </CardHeader>
+                      <CardContent><div className="text-4xl font-bold tracking-tight">{s.value}</div></CardContent>
+                    </Card>
+                  );
+                })}
               </div>
             )}
           </main>
