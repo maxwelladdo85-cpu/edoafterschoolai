@@ -152,58 +152,60 @@ export function TeacherDashboard() {
   };
 
   return (
-    <div className="space-y-6">
-      <header className="flex items-end justify-between gap-4">
-        <div>
-          <h1 className="text-4xl font-bold">Teacher Workspace</h1>
-          <p className="text-lg text-muted-foreground">Manage and publish your courses.</p>
-        </div>
-        <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setEditingId(null); setForm(emptyForm); } }}>
-          <DialogTrigger asChild>
-            <Button className="gap-2" onClick={openCreate}><Plus className="h-4 w-4" /> Create New Course</Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>{editingId ? "Edit course" : "New course"}</DialogTitle>
-              <DialogDescription>{editingId ? "Update your course details." : "Add a course your learners can enroll in."}</DialogDescription>
-            </DialogHeader>
-            <form onSubmit={save} className="space-y-3">
-              <div className="space-y-1"><Label>Title</Label><Input required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} /></div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1"><Label>Subject</Label><Input value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} placeholder="Mathematics, English…" /></div>
-                <div className="space-y-1"><Label>Class</Label><Input value={form.class_level} onChange={(e) => setForm({ ...form, class_level: e.target.value })} placeholder="JSS 1, Primary 4…" /></div>
-              </div>
-              <div className="space-y-1"><Label>Teacher name</Label><Input value={form.teacher_name} onChange={(e) => setForm({ ...form, teacher_name: e.target.value })} placeholder="Mr. / Mrs. / Ms. / Miss Adaeze Okoro" autoCapitalize="words" autoComplete="name" spellCheck={false} maxLength={100} /></div>
-              <div className="space-y-1"><Label>Description</Label><Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
-              <div className="space-y-1">
-                <Label>Thumbnail image</Label>
-                <Input type="file" accept="image/*" onChange={(e) => setThumbFile(e.target.files?.[0] ?? null)} />
-                <p className="text-xs text-muted-foreground">Shown as the card background. JPG/PNG, under 5 MB.{editingId ? " Leave empty to keep the current image." : ""}</p>
-              </div>
-              <div className="space-y-1">
-                <Label>Course materials</Label>
-                <Input
-                  type="file"
-                  multiple
-                  accept="video/*,audio/*,application/pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                  onChange={(e) => setMaterialFiles(Array.from(e.target.files ?? []))}
-                />
-                <p className="text-xs text-muted-foreground">Optional. Upload videos, audio, PDFs, or Word docs (max 100 MB each). You can add more later.</p>
-                {materialFiles.length > 0 && (
-                  <ul className="mt-1 list-disc pl-5 text-xs text-muted-foreground">
-                    {materialFiles.map((f) => <li key={f.name}>{f.name}</li>)}
-                  </ul>
-                )}
-              </div>
-              <div className="flex items-center justify-between rounded-md border px-3 py-2">
-                <div><Label>Active</Label><p className="text-xs text-muted-foreground">Visible to learners in the Course Library</p></div>
-                <Switch checked={form.is_active} onCheckedChange={(v) => setForm({ ...form, is_active: v })} />
-              </div>
-              <DialogFooter><Button type="submit" disabled={saving}>{editingId ? "Save changes" : "Publish"}</Button></DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
-      </header>
+    <div className="space-y-8">
+      <PageHero
+        eyebrow="Teacher workspace"
+        EyebrowIcon={GraduationCap}
+        title="Teacher Workspace"
+        description="Manage and publish your courses with style."
+        actions={
+          <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setEditingId(null); setForm(emptyForm); } }}>
+            <DialogTrigger asChild>
+              <Button className="gap-2 bg-gold text-gold-foreground hover:opacity-90" onClick={openCreate}><Plus className="h-4 w-4" /> Create New Course</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>{editingId ? "Edit course" : "New course"}</DialogTitle>
+                <DialogDescription>{editingId ? "Update your course details." : "Add a course your learners can enroll in."}</DialogDescription>
+              </DialogHeader>
+              <form onSubmit={save} className="space-y-3">
+                <div className="space-y-1"><Label>Title</Label><Input required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} /></div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1"><Label>Subject</Label><Input value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} placeholder="Mathematics, English…" /></div>
+                  <div className="space-y-1"><Label>Class</Label><Input value={form.class_level} onChange={(e) => setForm({ ...form, class_level: e.target.value })} placeholder="JSS 1, Primary 4…" /></div>
+                </div>
+                <div className="space-y-1"><Label>Teacher name</Label><Input value={form.teacher_name} onChange={(e) => setForm({ ...form, teacher_name: e.target.value })} placeholder="Mr. / Mrs. / Ms. / Miss Adaeze Okoro" autoCapitalize="words" autoComplete="name" spellCheck={false} maxLength={100} /></div>
+                <div className="space-y-1"><Label>Description</Label><Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
+                <div className="space-y-1">
+                  <Label>Thumbnail image</Label>
+                  <Input type="file" accept="image/*" onChange={(e) => setThumbFile(e.target.files?.[0] ?? null)} />
+                  <p className="text-xs text-muted-foreground">Shown as the card background. JPG/PNG, under 5 MB.{editingId ? " Leave empty to keep the current image." : ""}</p>
+                </div>
+                <div className="space-y-1">
+                  <Label>Course materials</Label>
+                  <Input
+                    type="file"
+                    multiple
+                    accept="video/*,audio/*,application/pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                    onChange={(e) => setMaterialFiles(Array.from(e.target.files ?? []))}
+                  />
+                  <p className="text-xs text-muted-foreground">Optional. Upload videos, audio, PDFs, or Word docs (max 100 MB each). You can add more later.</p>
+                  {materialFiles.length > 0 && (
+                    <ul className="mt-1 list-disc pl-5 text-xs text-muted-foreground">
+                      {materialFiles.map((f) => <li key={f.name}>{f.name}</li>)}
+                    </ul>
+                  )}
+                </div>
+                <div className="flex items-center justify-between rounded-md border px-3 py-2">
+                  <div><Label>Active</Label><p className="text-xs text-muted-foreground">Visible to learners in the Course Library</p></div>
+                  <Switch checked={form.is_active} onCheckedChange={(v) => setForm({ ...form, is_active: v })} />
+                </div>
+                <DialogFooter><Button type="submit" disabled={saving}>{editingId ? "Save changes" : "Publish"}</Button></DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        }
+      />
 
       <section>
         <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
