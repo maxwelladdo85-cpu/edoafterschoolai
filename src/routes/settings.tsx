@@ -53,6 +53,8 @@ function SettingsPage() {
       if (!user || !role) return;
       const { data: p } = await supabase.from("profiles").select("full_name,email,created_at,avatar_url,class_level" as any).eq("id", user.id).maybeSingle();
       setProfile(p as any);
+      setFullName((p as any)?.full_name ?? "");
+      setEmail((p as any)?.email ?? user.email ?? "");
 
       if (role === "teacher") {
         const { data: cs } = await supabase.from("courses").select("id,is_active").eq("teacher_id", user.id);
