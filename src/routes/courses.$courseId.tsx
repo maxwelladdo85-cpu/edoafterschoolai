@@ -88,6 +88,12 @@ function CoursePlayer() {
     })();
   }, [courseId, user]);
 
+  // Attendance: log when a learner opens a lesson
+  useEffect(() => {
+    if (!user || !activeId) return;
+    supabase.from("lesson_views").insert({ learner_id: user.id, lesson_id: activeId }).then(() => {});
+  }, [user, activeId]);
+
   const flatLessons = useMemo(() => modules.flatMap((m) => m.lessons), [modules]);
   const activeLesson = flatLessons.find((l) => l.id === activeId) ?? null;
   const activeIdx = flatLessons.findIndex((l) => l.id === activeId);
