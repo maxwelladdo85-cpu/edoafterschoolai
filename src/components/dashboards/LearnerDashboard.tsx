@@ -5,6 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Bell, BookOpen, GraduationCap } from "lucide-react";
+import { PageHero } from "@/components/PageHero";
+import dashboardHero from "@/assets/dashboard-hero.jpg";
 
 interface Enrollment {
   id: string;
