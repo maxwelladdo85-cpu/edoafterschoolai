@@ -83,7 +83,6 @@ function QuizRunner() {
         .select("id, attempt_number, submitted_at")
         .eq("quiz_id", quizId).eq("learner_id", user.id);
       const submitted = (prior ?? []).filter((p: any) => p.submitted_at).length;
-      if (submitted >= 3) { setExhausted(true); setLoading(false); return; }
       const nextNum = submitted + 1;
       setAttemptNumber(nextNum);
 
