@@ -149,8 +149,7 @@ export function AuthCard() {
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="learner">Learner</SelectItem>
-                      <SelectItem value="teacher">Teacher</SelectItem>
-                      <SelectItem value="admin">Admin</SelectItem>
+                      <SelectItem value="teacher">Teacher (requires admin approval)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
