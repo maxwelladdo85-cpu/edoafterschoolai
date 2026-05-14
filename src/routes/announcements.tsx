@@ -47,40 +47,25 @@ function AnnouncementsPage() {
   const load = async () => {
     if (!user || !isStaff) return;
     setLoading(true);
-    // Load distinct class levels from learner profiles
-    const { data: rolesRows } = await supabase
-      .from("user_roles").select("user_id").eq("role", "learner");
-    const learnerIds = (rolesRows ?? []).map((r) => r.user_id);
-    if (learnerIds.length) {
-      const { data: profs } = await supabase
-        .from("profiles").select("class_level").in("id", learnerIds);
-      const levels = Array.from(new Set((profs ?? [])
-        .map((p) => (p.class_level ?? "").trim())
-        .filter((c) => c.length > 0))).sort();
-      setClassLevels(levels);
-      if (!form.class_level && levels.length) setForm((f) => ({ ...f, class_level: levels[0] }));
-    } else {
-      setClassLevels([]);
-    }
+    const { data, error } = await supabase.rpc("list_learner_classes");
+    if (error) { toast.error(error.message); setClassLevels([]); setLoading(false); return; }
+    const rows = (data ?? []) as { class_level: string; learner_count: number }[];
+    const levels = rows.map((r) => r.class_level);
+    setClassLevels(levels);
+    if (!form.class_level && levels.length) setForm((f) => ({ ...f, class_level: levels[0] }));
+    // map class -> count for recipient hint
+    (window as any).__classCounts = Object.fromEntries(rows.map((r) => [r.class_level, Number(r.learner_count)]));
     setLoading(false);
   };
 
   useEffect(() => { load(); /* eslint-disable-next-line */ }, [user, role]);
 
-  // Compute recipient count when class changes
+  // Recipient count comes from the cached RPC result
   useEffect(() => {
-    const run = async () => {
-      if (!form.class_level) { setRecipientCount(null); return; }
-      const { data: profs } = await supabase
-        .from("profiles").select("id").eq("class_level", form.class_level);
-      const ids = (profs ?? []).map((p) => p.id);
-      if (!ids.length) { setRecipientCount(0); return; }
-      const { data: rolesRows } = await supabase
-        .from("user_roles").select("user_id").eq("role", "learner").in("user_id", ids);
-      setRecipientCount((rolesRows ?? []).length);
-    };
-    run();
-  }, [form.class_level]);
+    if (!form.class_level) { setRecipientCount(null); return; }
+    const counts = (window as any).__classCounts as Record<string, number> | undefined;
+    setRecipientCount(counts?.[form.class_level] ?? null);
+  }, [form.class_level, classLevels]);
 
   const send = async () => {
     if (!form.class_level) { toast.error("Select a class"); return; }
@@ -89,32 +74,17 @@ function AnnouncementsPage() {
     if (form.message.length > 2000) { toast.error("Message too long (max 2000)"); return; }
 
     setSending(true);
-    // Resolve recipients: learners in selected class
-    const { data: profs, error: pErr } = await supabase
-      .from("profiles").select("id").eq("class_level", form.class_level);
-    if (pErr) { setSending(false); toast.error(pErr.message); return; }
-    const candidateIds = (profs ?? []).map((p) => p.id);
-    if (!candidateIds.length) {
-      setSending(false); toast.error("No learners in that class"); return;
-    }
-    const { data: rolesRows } = await supabase
-      .from("user_roles").select("user_id").eq("role", "learner").in("user_id", candidateIds);
-    const recipients = Array.from(new Set((rolesRows ?? []).map((r) => r.user_id)));
-    if (!recipients.length) {
-      setSending(false); toast.error("No learners in that class"); return;
-    }
-
-    const rows = recipients.map((uid) => ({
-      user_id: uid,
-      title: form.title.trim(),
-      message: form.message.trim() || null,
-    }));
-    const { error } = await supabase.from("notifications").insert(rows);
+    const { data, error } = await supabase.rpc("send_class_announcement", {
+      p_class_level: form.class_level,
+      p_title: form.title.trim(),
+      p_message: form.message.trim() || null,
+    });
     setSending(false);
     if (error) { toast.error(error.message); return; }
-    toast.success(`Announcement sent to ${recipients.length} learner${recipients.length === 1 ? "" : "s"}`);
+    const count = Number(data ?? 0);
+    if (count === 0) { toast.error("No learners in that class"); return; }
+    toast.success(`Announcement sent to ${count} learner${count === 1 ? "" : "s"}`);
 
-    // Append to recent (one preview row)
     setRecentSent((prev) => [{
       id: crypto.randomUUID(),
       title: form.title.trim(),
