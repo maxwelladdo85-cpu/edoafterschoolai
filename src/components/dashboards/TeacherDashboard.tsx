@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
@@ -10,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Switch } from "@/components/ui/switch";
-import { Plus, BookOpen, Pencil, Trash2, GraduationCap } from "lucide-react";
+import { Plus, BookOpen, Pencil, Trash2, GraduationCap, Wand2 } from "lucide-react";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AssignClassButton } from "@/components/dashboards/AssignClassButton";
 import { CLASS_GROUPS } from "@/lib/classes";
@@ -163,9 +164,11 @@ export function TeacherDashboard() {
         description="Manage and publish your courses with style."
         backgroundImage={dashboardHero}
         actions={
-          <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setEditingId(null); setForm(emptyForm); } }}>
+          <div className="flex flex-wrap gap-2">
+            <Button asChild variant="outline" className="gap-2"><Link to="/courses/builder">{<Wand2 className="h-4 w-4" />} Course Builder</Link></Button>
+            <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setEditingId(null); setForm(emptyForm); } }}>
             <DialogTrigger asChild>
-              <Button className="gap-2 bg-gold text-gold-foreground hover:opacity-90" onClick={openCreate}><Plus className="h-4 w-4" /> Create New Course</Button>
+              <Button className="gap-2 bg-gold text-gold-foreground hover:opacity-90" onClick={openCreate}><Plus className="h-4 w-4" /> Quick Create</Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
@@ -221,6 +224,7 @@ export function TeacherDashboard() {
               </form>
             </DialogContent>
           </Dialog>
+          </div>
         }
       />
 
@@ -284,6 +288,7 @@ export function TeacherDashboard() {
                   <div className="flex flex-wrap justify-end gap-2">
                     <MaterialUploader courseId={c.id} />
                     <AssignClassButton courseId={c.id} defaultClass={c.class_level} />
+                    <Button size="sm" variant="outline" asChild><Link to="/courses/builder" search={{ id: c.id }}><Wand2 className="mr-1 h-3.5 w-3.5" />Builder</Link></Button>
                     <Button size="sm" variant="outline" onClick={() => openEdit(c)}><Pencil className="mr-1 h-3.5 w-3.5" />Edit</Button>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
