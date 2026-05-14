@@ -72,8 +72,8 @@ export function TeacherDashboard() {
     <div className="space-y-6">
       <header className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Teacher Workspace</h1>
-          <p className="text-muted-foreground">Manage and publish your courses.</p>
+          <h1 className="text-4xl font-bold">Teacher Workspace</h1>
+          <p className="text-lg text-muted-foreground">Manage and publish your courses.</p>
         </div>
         <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setEditingId(null); setForm(emptyForm); } }}>
           <DialogTrigger asChild>
