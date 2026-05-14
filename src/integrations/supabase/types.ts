@@ -137,6 +137,27 @@ export type Database = {
           },
         ]
       }
+      lesson_completions: {
+        Row: {
+          completed_at: string
+          id: string
+          learner_id: string
+          lesson_id: string
+        }
+        Insert: {
+          completed_at?: string
+          id?: string
+          learner_id: string
+          lesson_id: string
+        }
+        Update: {
+          completed_at?: string
+          id?: string
+          learner_id?: string
+          lesson_id?: string
+        }
+        Relationships: []
+      }
       lessons: {
         Row: {
           content_text: string | null

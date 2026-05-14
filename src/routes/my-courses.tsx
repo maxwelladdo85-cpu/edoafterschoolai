@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
+import { NotificationBell } from "@/components/NotificationBell";
 import { TeacherDashboard } from "@/components/dashboards/TeacherDashboard";
 
 export const Route = createFileRoute("/my-courses")({
@@ -30,6 +31,7 @@ function MyCoursesPage() {
           <header className="flex h-14 items-center gap-2 border-b bg-card px-4">
             <SidebarTrigger />
             <span className="text-sm font-medium text-muted-foreground">Courses</span>
+            <div className="ml-auto"><NotificationBell /></div>
           </header>
           <main className="flex-1 p-6 md:p-8">
             <TeacherDashboard />

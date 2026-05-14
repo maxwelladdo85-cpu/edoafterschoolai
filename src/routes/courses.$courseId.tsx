@@ -6,7 +6,8 @@ import { DashboardShell } from "@/components/DashboardShell";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ChevronLeft, ChevronRight, FileText, Film, Headphones, Loader2, NotebookPen, PlayCircle } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { ChevronLeft, ChevronRight, FileText, Film, Headphones, Loader2, NotebookPen, PlayCircle, CheckCircle2, Circle } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/courses/$courseId")({
@@ -35,6 +36,8 @@ function CoursePlayer() {
   const [modules, setModules] = useState<Module[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [completed, setCompleted] = useState<Set<string>>(new Set());
+  const [savingComplete, setSavingComplete] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) nav({ to: "/login" });
@@ -68,6 +71,19 @@ function CoursePlayer() {
       }));
       setModules(mods);
       setActiveId(mods.flatMap((m) => m.lessons)[0]?.id ?? null);
+
+      // Load this learner's completions for these lessons
+      const lessonIds = lessons.map((l) => l.id);
+      if (lessonIds.length) {
+        const { data: comps } = await supabase
+          .from("lesson_completions")
+          .select("lesson_id")
+          .eq("learner_id", user.id)
+          .in("lesson_id", lessonIds);
+        setCompleted(new Set((comps ?? []).map((c: any) => c.lesson_id)));
+      } else {
+        setCompleted(new Set());
+      }
       setLoading(false);
     })();
   }, [courseId, user]);
@@ -75,10 +91,14 @@ function CoursePlayer() {
   const flatLessons = useMemo(() => modules.flatMap((m) => m.lessons), [modules]);
   const activeLesson = flatLessons.find((l) => l.id === activeId) ?? null;
   const activeIdx = flatLessons.findIndex((l) => l.id === activeId);
+  const totalLessons = flatLessons.length;
+  const completedCount = flatLessons.filter((l) => completed.has(l.id)).length;
+  const progressPct = totalLessons === 0 ? 0 : Math.round((completedCount / totalLessons) * 100);
+  const isActiveCompleted = activeLesson ? completed.has(activeLesson.id) : false;
 
-  const updateProgress = async (newIdx: number) => {
-    if (!user || flatLessons.length === 0) return;
-    const pct = Math.round(((newIdx + 1) / flatLessons.length) * 100);
+  const syncEnrollmentProgress = async (next: Set<string>) => {
+    if (!user || totalLessons === 0) return;
+    const pct = Math.round((Array.from(next).filter((id) => flatLessons.some((l) => l.id === id)).length / totalLessons) * 100);
     await supabase
       .from("enrollments")
       .update({ progress: pct })
@@ -86,11 +106,41 @@ function CoursePlayer() {
       .eq("course_id", courseId);
   };
 
+  const toggleComplete = async () => {
+    if (!user || !activeLesson || savingComplete) return;
+    setSavingComplete(true);
+    const next = new Set(completed);
+    try {
+      if (next.has(activeLesson.id)) {
+        const { error } = await supabase
+          .from("lesson_completions")
+          .delete()
+          .eq("learner_id", user.id)
+          .eq("lesson_id", activeLesson.id);
+        if (error) throw error;
+        next.delete(activeLesson.id);
+        toast.message("Lesson marked incomplete");
+      } else {
+        const { error } = await supabase
+          .from("lesson_completions")
+          .insert({ learner_id: user.id, lesson_id: activeLesson.id });
+        if (error) throw error;
+        next.add(activeLesson.id);
+        toast.success("Lesson completed");
+      }
+      setCompleted(next);
+      await syncEnrollmentProgress(next);
+    } catch (err: any) {
+      toast.error(err.message ?? "Could not save completion");
+    } finally {
+      setSavingComplete(false);
+    }
+  };
+
   const goTo = (idx: number) => {
     const target = flatLessons[idx];
     if (!target) return;
     setActiveId(target.id);
-    updateProgress(idx);
   };
 
   if (loading) {
@@ -123,6 +173,15 @@ function CoursePlayer() {
             <h2 className="text-lg font-bold">{course.title}</h2>
             {course.subject && <p className="text-xs text-muted-foreground">{course.subject}</p>}
           </div>
+          {totalLessons > 0 && (
+            <div className="space-y-1.5 rounded-lg border bg-muted/30 p-3">
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-medium">Course progress</span>
+                <span className="text-muted-foreground">{completedCount}/{totalLessons} · {progressPct}%</span>
+              </div>
+              <Progress value={progressPct} className="h-2" />
+            </div>
+          )}
           <Button variant="outline" size="sm" asChild className="w-full">
             <Link to="/quizzes/$courseId" params={{ courseId }}>Quizzes & assessments</Link>
           </Button>
@@ -150,16 +209,21 @@ function CoursePlayer() {
                             : l.content_type === "audio" ? Headphones
                             : NotebookPen;
                           const isActive = l.id === activeId;
+                          const isDone = completed.has(l.id);
                           return (
                             <li key={l.id}>
                               <button
-                                onClick={() => { setActiveId(l.id); updateProgress(flatLessons.findIndex((x) => x.id === l.id)); }}
+                                onClick={() => setActiveId(l.id)}
                                 className={`flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-sm transition ${
                                   isActive ? "bg-primary text-primary-foreground" : "hover:bg-muted"
                                 }`}
                               >
-                                <Icon className="h-4 w-4 shrink-0" />
-                                <span className="line-clamp-2">{l.title}</span>
+                                {isDone ? (
+                                  <CheckCircle2 className={`h-4 w-4 shrink-0 ${isActive ? "text-primary-foreground" : "text-emerald-600"}`} />
+                                ) : (
+                                  <Icon className="h-4 w-4 shrink-0" />
+                                )}
+                                <span className={`line-clamp-2 flex-1 ${isDone && !isActive ? "text-muted-foreground line-through" : ""}`}>{l.title}</span>
                               </button>
                             </li>
                           );
@@ -193,8 +257,31 @@ function CoursePlayer() {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-6">
                 <LessonContent lesson={activeLesson} />
+                <div className="flex flex-wrap items-center justify-between gap-3 border-t pt-4">
+                  <p className="text-xs text-muted-foreground">
+                    Lesson {activeIdx + 1} of {totalLessons}
+                  </p>
+                  <div className="flex gap-2">
+                    <Button
+                      variant={isActiveCompleted ? "outline" : "default"}
+                      onClick={toggleComplete}
+                      disabled={savingComplete}
+                    >
+                      {isActiveCompleted ? (
+                        <><CheckCircle2 className="mr-2 h-4 w-4 text-emerald-600" /> Completed — undo</>
+                      ) : (
+                        <><Circle className="mr-2 h-4 w-4" /> Mark as complete</>
+                      )}
+                    </Button>
+                    {activeIdx < flatLessons.length - 1 && (
+                      <Button variant="secondary" onClick={() => goTo(activeIdx + 1)}>
+                        Next lesson <ChevronRight className="ml-1 h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
               </CardContent>
             </Card>
           ) : (
