@@ -446,7 +446,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "teacher" | "learner"
-      lesson_content_type: "video" | "pdf" | "audio" | "text"
+      lesson_content_type: "video" | "pdf" | "audio" | "text" | "doc"
       question_type: "mcq" | "true_false" | "short_answer"
     }
     CompositeTypes: {
@@ -576,7 +576,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "teacher", "learner"],
-      lesson_content_type: ["video", "pdf", "audio", "text"],
+      lesson_content_type: ["video", "pdf", "audio", "text", "doc"],
       question_type: ["mcq", "true_false", "short_answer"],
     },
   },
