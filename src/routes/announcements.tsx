@@ -37,6 +37,8 @@ function AnnouncementsPage() {
   const [form, setForm] = useState({ class_level: "", title: "", message: "" });
   const [recipientCount, setRecipientCount] = useState<number | null>(null);
   const [open, setOpen] = useState(false);
+  const [schedule, setSchedule] = useState(false);
+  const [sendAt, setSendAt] = useState("");
 
   useEffect(() => { if (!authLoading && !user) nav({ to: "/login" }); }, [authLoading, user, nav]);
 
