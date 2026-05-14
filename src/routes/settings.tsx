@@ -124,24 +124,46 @@ function SettingsPage() {
 
             <Card>
               <CardHeader><CardTitle>Profile</CardTitle></CardHeader>
-              <CardContent className="grid gap-4 sm:grid-cols-2">
-                <div className="flex items-start gap-3">
-                  <User className="mt-1 h-4 w-4 text-muted-foreground" />
-                  <div><p className="text-sm text-muted-foreground">Full name</p><p className="font-medium">{displayName}</p></div>
+              <CardContent className="space-y-6">
+                <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
+                  <Avatar className="h-24 w-24">
+                    {profile?.avatar_url && <AvatarImage src={profile.avatar_url} alt={displayName} />}
+                    <AvatarFallback className="text-2xl">{initials || "U"}</AvatarFallback>
+                  </Avatar>
+                  <div className="space-y-2">
+                    <p className="text-sm text-muted-foreground">Profile picture — JPG/PNG, under 5 MB.</p>
+                    <div className="flex flex-wrap gap-2">
+                      <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={onPickAvatar} />
+                      <Button size="sm" onClick={() => fileRef.current?.click()} disabled={uploading}>
+                        {uploading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Uploading…</> : <><Camera className="mr-2 h-4 w-4" />{profile?.avatar_url ? "Change picture" : "Upload picture"}</>}
+                      </Button>
+                      {profile?.avatar_url && (
+                        <Button size="sm" variant="outline" onClick={removeAvatar} disabled={uploading}>
+                          <Trash2 className="mr-2 h-4 w-4" />Remove
+                        </Button>
+                      )}
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-start gap-3">
-                  <Mail className="mt-1 h-4 w-4 text-muted-foreground" />
-                  <div><p className="text-sm text-muted-foreground">Email</p><p className="font-medium break-all">{profile?.email || user.email}</p></div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <Shield className="mt-1 h-4 w-4 text-muted-foreground" />
-                  <div><p className="text-sm text-muted-foreground">Role</p><Badge className="capitalize">{role ?? "—"}</Badge></div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <Calendar className="mt-1 h-4 w-4 text-muted-foreground" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">Member since</p>
-                    <p className="font-medium">{profile?.created_at ? new Date(profile.created_at).toLocaleDateString() : "—"}</p>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="flex items-start gap-3">
+                    <User className="mt-1 h-4 w-4 text-muted-foreground" />
+                    <div><p className="text-sm text-muted-foreground">Full name</p><p className="font-medium">{displayName}</p></div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <Mail className="mt-1 h-4 w-4 text-muted-foreground" />
+                    <div><p className="text-sm text-muted-foreground">Email</p><p className="font-medium break-all">{profile?.email || user.email}</p></div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <Shield className="mt-1 h-4 w-4 text-muted-foreground" />
+                    <div><p className="text-sm text-muted-foreground">Role</p><Badge className="capitalize">{role ?? "—"}</Badge></div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <Calendar className="mt-1 h-4 w-4 text-muted-foreground" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">Member since</p>
+                      <p className="font-medium">{profile?.created_at ? new Date(profile.created_at).toLocaleDateString() : "—"}</p>
+                    </div>
                   </div>
                 </div>
               </CardContent>
