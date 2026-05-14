@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { ChevronLeft, ChevronRight, FileText, Film, Headphones, Loader2, NotebookPen, PlayCircle, CheckCircle2, Circle } from "lucide-react";
 import { toast } from "sonner";
+import { AiTutorWidget } from "@/components/AiTutorWidget";
 
 export const Route = createFileRoute("/courses/$courseId")({
   component: CoursePlayer,
@@ -298,6 +299,7 @@ function CoursePlayer() {
           )}
         </section>
       </div>
+      <AiTutorWidget courseId={courseId} courseTitle={course.title} />
     </DashboardShell>
   );
 }
