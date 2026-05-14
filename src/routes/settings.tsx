@@ -9,7 +9,24 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User, Mail, Shield, Calendar, BookOpen, GraduationCap, Users, Camera, Loader2, Trash2 } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+
+function ClassEditor({ initial, onSave }: { initial: string; onSave: (val: string) => Promise<void> }) {
+  const [val, setVal] = useState(initial);
+  const [saving, setSaving] = useState(false);
+  useEffect(() => { setVal(initial); }, [initial]);
+  return (
+    <div className="flex flex-wrap items-end gap-2">
+      <div className="flex-1 min-w-[200px]">
+        <Input value={val} onChange={(e) => setVal(e.target.value)} placeholder="e.g. JSS 1" maxLength={50} />
+      </div>
+      <Button size="sm" disabled={saving || val.trim() === initial.trim()} onClick={async () => { setSaving(true); try { await onSave(val.trim()); } finally { setSaving(false); } }}>
+        {saving ? "Saving…" : "Save"}
+      </Button>
+    </div>
+  );
+}
 
 export const Route = createFileRoute("/settings")({
   component: SettingsPage,
@@ -18,7 +35,7 @@ export const Route = createFileRoute("/settings")({
 function SettingsPage() {
   const { user, role, loading } = useAuth();
   const nav = useNavigate();
-  const [profile, setProfile] = useState<{ full_name: string | null; email: string | null; created_at: string; avatar_url: string | null } | null>(null);
+  const [profile, setProfile] = useState<{ full_name: string | null; email: string | null; created_at: string; avatar_url: string | null; class_level: string | null } | null>(null);
   const [stats, setStats] = useState<{ label: string; value: number; icon: any }[]>([]);
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -30,8 +47,8 @@ function SettingsPage() {
   useEffect(() => {
     const load = async () => {
       if (!user || !role) return;
-      const { data: p } = await supabase.from("profiles").select("full_name,email,created_at,avatar_url").eq("id", user.id).maybeSingle();
-      setProfile(p);
+      const { data: p } = await supabase.from("profiles").select("full_name,email,created_at,avatar_url,class_level" as any).eq("id", user.id).maybeSingle();
+      setProfile(p as any);
 
       if (role === "teacher") {
         const { data: cs } = await supabase.from("courses").select("id,is_active").eq("teacher_id", user.id);
@@ -168,6 +185,24 @@ function SettingsPage() {
                 </div>
               </CardContent>
             </Card>
+
+            {role === "learner" && (
+              <Card>
+                <CardHeader><CardTitle>My class</CardTitle></CardHeader>
+                <CardContent className="space-y-3">
+                  <p className="text-sm text-muted-foreground">Set your class so teachers can assign courses to you (e.g. "JSS 1", "Primary 4").</p>
+                  <ClassEditor
+                    initial={profile?.class_level ?? ""}
+                    onSave={async (val) => {
+                      const { error } = await supabase.from("profiles").update({ class_level: val || null } as any).eq("id", user.id);
+                      if (error) { toast.error(error.message); return; }
+                      setProfile((prev) => prev ? { ...prev, class_level: val || null } : prev);
+                      toast.success("Class saved");
+                    }}
+                  />
+                </CardContent>
+              </Card>
+            )}
 
             {stats.length > 0 && (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
