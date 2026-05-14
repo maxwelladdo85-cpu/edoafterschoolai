@@ -150,14 +150,23 @@ export function TeacherDashboard() {
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {courses.map((c) => (
-              <Card key={c.id}>
-                <CardHeader>
-                  <div className="flex items-start justify-between gap-2">
-                    <CardTitle className="text-lg">{c.title}</CardTitle>
-                    <Badge variant={c.is_active ? "default" : "secondary"}>{c.is_active ? "Active" : "Draft"}</Badge>
+              <Card key={c.id} className="overflow-hidden flex flex-col">
+                <div
+                  className="relative aspect-[16/9] w-full bg-muted"
+                  style={c.thumbnail_url ? { backgroundImage: `url(${c.thumbnail_url})`, backgroundSize: "cover", backgroundPosition: "center" } : undefined}
+                >
+                  {!c.thumbnail_url && (
+                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/20 via-gold/20 to-accent/20">
+                      <BookOpen className="h-10 w-10 text-primary/60" />
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                  <Badge className="absolute right-2 top-2" variant={c.is_active ? "default" : "secondary"}>{c.is_active ? "Active" : "Draft"}</Badge>
+                  <div className="absolute bottom-0 left-0 right-0 p-3">
+                    <h3 className="text-lg font-semibold leading-tight text-white drop-shadow">{c.title}</h3>
+                    <p className="text-sm text-white/85">{[c.subject, c.class_level].filter(Boolean).join(" · ")}</p>
                   </div>
-                  <CardDescription className="text-base">{[c.subject, c.class_level].filter(Boolean).join(" · ")}</CardDescription>
-                </CardHeader>
+                </div>
                 <CardContent className="space-y-3">
                   {c.teacher_name && (
                     <p className="text-base font-medium text-foreground">Teacher: <span className="text-muted-foreground font-normal">{c.teacher_name}</span></p>
