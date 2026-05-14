@@ -125,7 +125,7 @@ export function AuthCard() {
                 </div>
                 <div className="space-y-1">
                   <Label htmlFor="p2">Password</Label>
-                  <Input id="p2" type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} />
+                  <PasswordInput id="p2" value={password} onChange={setPassword} minLength={6} />
                 </div>
                 <div className="space-y-1">
                   <Label>I am a</Label>
