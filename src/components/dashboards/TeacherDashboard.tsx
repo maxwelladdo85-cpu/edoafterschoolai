@@ -238,7 +238,7 @@ export function TeacherDashboard() {
           </CardContent></Card>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {courses.map((c) => (
+            {filteredCourses.map((c) => (
               <Card key={c.id} className="overflow-hidden flex flex-col">
                 <div
                   className="relative aspect-[16/9] w-full bg-muted"
