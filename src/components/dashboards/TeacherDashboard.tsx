@@ -10,11 +10,12 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Switch } from "@/components/ui/switch";
-import { Plus, BookOpen, Pencil, Trash2 } from "lucide-react";
+import { Plus, BookOpen, Pencil, Trash2, GraduationCap } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AssignClassButton } from "@/components/dashboards/AssignClassButton";
 import { toast } from "sonner";
 import { MaterialUploader } from "@/components/dashboards/MaterialUploader";
+import { PageHero } from "@/components/PageHero";
 
 interface Course { id: string; title: string; subject: string | null; description: string | null; is_active: boolean; created_at: string; class_level: string | null; teacher_name: string | null; thumbnail_url: string | null; }
 
