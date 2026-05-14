@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
-import { Users, BookOpen, GraduationCap, Video, Search, Check, X, UserCog } from "lucide-react";
+import { Users, BookOpen, GraduationCap, Video, Search, Check, X, UserCog, Download } from "lucide-react";
 import { PageHero } from "@/components/PageHero";
 import dashboardHero from "@/assets/dashboard-hero.jpg";
 import { toast } from "sonner";
