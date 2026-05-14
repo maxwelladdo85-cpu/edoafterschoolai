@@ -79,6 +79,7 @@ export function TeacherDashboard() {
     setEditingId(c.id);
     setForm({ title: c.title, subject: c.subject ?? "", description: c.description ?? "", is_active: c.is_active, class_level: c.class_level ?? "", teacher_name: c.teacher_name ?? "" });
     setThumbFile(null);
+    setMaterialFiles([]);
     setOpen(true);
   };
 
