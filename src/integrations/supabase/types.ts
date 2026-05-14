@@ -503,6 +503,42 @@ export type Database = {
         }
         Relationships: []
       }
+      vark_results: {
+        Row: {
+          answers: Json
+          aural: number
+          created_at: string
+          dominant: string
+          id: string
+          kinesthetic: number
+          learner_id: string
+          read_write: number
+          visual: number
+        }
+        Insert: {
+          answers?: Json
+          aural?: number
+          created_at?: string
+          dominant: string
+          id?: string
+          kinesthetic?: number
+          learner_id: string
+          read_write?: number
+          visual?: number
+        }
+        Update: {
+          answers?: Json
+          aural?: number
+          created_at?: string
+          dominant?: string
+          id?: string
+          kinesthetic?: number
+          learner_id?: string
+          read_write?: number
+          visual?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
