@@ -506,6 +506,41 @@ export type Database = {
         }
         Relationships: []
       }
+      tutor_messages: {
+        Row: {
+          content: string
+          course_id: string
+          created_at: string
+          id: string
+          learner_id: string
+          role: string
+        }
+        Insert: {
+          content: string
+          course_id: string
+          created_at?: string
+          id?: string
+          learner_id: string
+          role: string
+        }
+        Update: {
+          content?: string
+          course_id?: string
+          created_at?: string
+          id?: string
+          learner_id?: string
+          role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tutor_messages_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
