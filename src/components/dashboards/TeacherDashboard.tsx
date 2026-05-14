@@ -169,6 +169,21 @@ export function TeacherDashboard() {
                 <Input type="file" accept="image/*" onChange={(e) => setThumbFile(e.target.files?.[0] ?? null)} />
                 <p className="text-xs text-muted-foreground">Shown as the card background. JPG/PNG, under 5 MB.{editingId ? " Leave empty to keep the current image." : ""}</p>
               </div>
+              <div className="space-y-1">
+                <Label>Course materials</Label>
+                <Input
+                  type="file"
+                  multiple
+                  accept="video/*,audio/*,application/pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                  onChange={(e) => setMaterialFiles(Array.from(e.target.files ?? []))}
+                />
+                <p className="text-xs text-muted-foreground">Optional. Upload videos, audio, PDFs, or Word docs (max 100 MB each). You can add more later.</p>
+                {materialFiles.length > 0 && (
+                  <ul className="mt-1 list-disc pl-5 text-xs text-muted-foreground">
+                    {materialFiles.map((f) => <li key={f.name}>{f.name}</li>)}
+                  </ul>
+                )}
+              </div>
               <div className="flex items-center justify-between rounded-md border px-3 py-2">
                 <div><Label>Active</Label><p className="text-xs text-muted-foreground">Visible to learners in the Course Library</p></div>
                 <Switch checked={form.is_active} onCheckedChange={(v) => setForm({ ...form, is_active: v })} />
