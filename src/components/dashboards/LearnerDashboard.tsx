@@ -27,28 +27,33 @@ export function LearnerDashboard() {
 
   useEffect(() => {
     if (!user) return;
+    let cancelled = false;
     (async () => {
-      const { data: e } = await supabase
-        .from("enrollments")
-        .select("id, progress, course:courses(title, subject, description)")
-        .eq("learner_id", user.id);
-      setEnrollments((e as any) ?? []);
-      const { data: n } = await supabase
-        .from("notifications")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false })
-        .limit(5);
-      setNotifications(n ?? []);
-      const { data: v } = await supabase
-        .from("vark_results")
-        .select("id, dominant, created_at")
-        .eq("learner_id", user.id)
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      setVark((v as any) ?? null);
+      const [eRes, nRes, vRes] = await Promise.all([
+        supabase
+          .from("enrollments")
+          .select("id, progress, course:courses(title, subject, description)")
+          .eq("learner_id", user.id),
+        supabase
+          .from("notifications")
+          .select("*")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false })
+          .limit(5),
+        supabase
+          .from("vark_results")
+          .select("id, dominant, created_at")
+          .eq("learner_id", user.id)
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle(),
+      ]);
+      if (cancelled) return;
+      setEnrollments((eRes.data as any) ?? []);
+      setNotifications(nRes.data ?? []);
+      setVark((vRes.data as any) ?? null);
     })();
+    return () => { cancelled = true; };
   }, [user]);
 
   const firstName = (user?.user_metadata?.full_name as string | undefined)?.split(" ")[0] ?? "Learner";
