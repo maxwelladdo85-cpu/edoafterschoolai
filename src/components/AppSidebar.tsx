@@ -44,14 +44,14 @@ export function AppSidebar() {
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="text-sidebar-foreground/60">
+          <SidebarGroupLabel className="text-sidebar-foreground/60 text-2xl h-auto py-2">
             {role ? role.charAt(0).toUpperCase() + role.slice(1) : "Menu"}
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item, i) => (
                 <SidebarMenuItem key={i}>
-                  <SidebarMenuButton asChild isActive={path === item.url}>
+                  <SidebarMenuButton asChild isActive={path === item.url} className="text-base h-auto py-3 [&>svg]:!size-5">
                     <Link to={item.url}>
                       <item.icon />
                       <span>{item.title}</span>
