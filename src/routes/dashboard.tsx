@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { LearnerDashboard } from "@/components/dashboards/LearnerDashboard";
-import { TeacherDashboard } from "@/components/dashboards/TeacherDashboard";
+import { TeacherSummary } from "@/components/dashboards/TeacherSummary";
 import { AdminDashboard } from "@/components/dashboards/AdminDashboard";
 
 export const Route = createFileRoute("/dashboard")({
