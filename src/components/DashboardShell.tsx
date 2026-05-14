@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
+import { NotificationBell } from "@/components/NotificationBell";
 
 export function DashboardShell({ title, children }: { title?: string; children: ReactNode }) {
   return (
@@ -11,6 +12,9 @@ export function DashboardShell({ title, children }: { title?: string; children: 
           <header className="flex h-14 items-center gap-2 border-b bg-card px-4">
             <SidebarTrigger />
             {title && <span className="text-sm font-medium text-muted-foreground">{title}</span>}
+            <div className="ml-auto">
+              <NotificationBell />
+            </div>
           </header>
           <main className="flex-1 p-6 md:p-8">{children}</main>
         </div>
