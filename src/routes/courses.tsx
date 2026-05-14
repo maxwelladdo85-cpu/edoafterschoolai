@@ -44,7 +44,7 @@ function CoursesLibrary() {
       const [{ data: cs }, { data: es }] = await Promise.all([
         supabase
           .from("courses")
-          .select("id, title, subject, description, thumbnail_url, teacher_id, teacher:profiles!courses_teacher_id_fkey(full_name)")
+          .select("id, title, subject, description, thumbnail_url, class_level, teacher_name, teacher_id, teacher:profiles!courses_teacher_id_fkey(full_name)")
           .eq("is_active", true)
           .order("created_at", { ascending: false }),
         supabase.from("enrollments").select("course_id").eq("learner_id", user.id),
