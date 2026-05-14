@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, GraduationCap, Users, FileText, Plus, Sparkles, ArrowRight, ClipboardCheck, Wand2 } from "lucide-react";
 import { VirtualClassesPanel } from "@/components/VirtualClassesPanel";
+import { AiTeachingAssistantPanel } from "@/components/AiTeachingAssistantPanel";
 
 interface CourseRow {
   id: string;
