@@ -30,6 +30,7 @@ function MyCoursesPage() {
           <header className="flex h-14 items-center gap-2 border-b bg-card px-4">
             <SidebarTrigger />
             <span className="text-sm font-medium text-muted-foreground">Courses</span>
+            <div className="ml-auto"><NotificationBell /></div>
           </header>
           <main className="flex-1 p-6 md:p-8">
             <TeacherDashboard />
