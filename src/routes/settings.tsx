@@ -195,7 +195,7 @@ function SettingsPage() {
                     initial={profile?.class_level ?? ""}
                     onSave={async (val) => {
                       const { error } = await supabase.from("profiles").update({ class_level: val || null } as any).eq("id", user.id);
-                      if (error) return toast.error(error.message);
+                      if (error) { toast.error(error.message); return; }
                       setProfile((prev) => prev ? { ...prev, class_level: val || null } : prev);
                       toast.success("Class saved");
                     }}
