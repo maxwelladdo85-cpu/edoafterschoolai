@@ -28,6 +28,15 @@ export function TeacherDashboard() {
   const [thumbFile, setThumbFile] = useState<File | null>(null);
   const [materialFiles, setMaterialFiles] = useState<File[]>([]);
   const [saving, setSaving] = useState(false);
+  const [subjectFilter, setSubjectFilter] = useState<string>("all");
+  const [classFilter, setClassFilter] = useState<string>("all");
+
+  const subjectOptions = Array.from(new Set(courses.map((c) => c.subject).filter(Boolean) as string[])).sort();
+  const classOptions = Array.from(new Set(courses.map((c) => c.class_level).filter(Boolean) as string[])).sort();
+  const filteredCourses = courses.filter((c) =>
+    (subjectFilter === "all" || c.subject === subjectFilter) &&
+    (classFilter === "all" || c.class_level === classFilter)
+  );
 
   const detectMaterialType = (file: File): "video" | "pdf" | "audio" | "doc" | null => {
     const m = file.type.toLowerCase();
