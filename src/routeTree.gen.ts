@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as UserSummaryRouteImport } from './routes/user-summary'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as MyCoursesRouteImport } from './routes/my-courses'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as DashboardRouteImport } from './routes/dashboard'
@@ -23,6 +24,11 @@ import { Route as QuizzesQuizIdEditRouteImport } from './routes/quizzes.$quizId.
 const UserSummaryRoute = UserSummaryRouteImport.update({
   id: '/user-summary',
   path: '/user-summary',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MyCoursesRoute = MyCoursesRouteImport.update({
@@ -77,6 +83,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
   '/my-courses': typeof MyCoursesRoute
+  '/settings': typeof SettingsRoute
   '/user-summary': typeof UserSummaryRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/quizzes/$courseId': typeof QuizzesCourseIdRoute
@@ -89,6 +96,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
   '/my-courses': typeof MyCoursesRoute
+  '/settings': typeof SettingsRoute
   '/user-summary': typeof UserSummaryRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/quizzes/$courseId': typeof QuizzesCourseIdRoute
@@ -102,6 +110,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
   '/my-courses': typeof MyCoursesRoute
+  '/settings': typeof SettingsRoute
   '/user-summary': typeof UserSummaryRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/quizzes/$courseId': typeof QuizzesCourseIdRoute
@@ -116,6 +125,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/login'
     | '/my-courses'
+    | '/settings'
     | '/user-summary'
     | '/courses/$courseId'
     | '/quizzes/$courseId'
@@ -128,6 +138,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/login'
     | '/my-courses'
+    | '/settings'
     | '/user-summary'
     | '/courses/$courseId'
     | '/quizzes/$courseId'
@@ -140,6 +151,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/login'
     | '/my-courses'
+    | '/settings'
     | '/user-summary'
     | '/courses/$courseId'
     | '/quizzes/$courseId'
@@ -153,6 +165,7 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   LoginRoute: typeof LoginRoute
   MyCoursesRoute: typeof MyCoursesRoute
+  SettingsRoute: typeof SettingsRoute
   UserSummaryRoute: typeof UserSummaryRoute
   QuizzesCourseIdRoute: typeof QuizzesCourseIdRoute
   QuizzesQuizIdEditRoute: typeof QuizzesQuizIdEditRoute
@@ -166,6 +179,13 @@ declare module '@tanstack/react-router' {
       path: '/user-summary'
       fullPath: '/user-summary'
       preLoaderRoute: typeof UserSummaryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/my-courses': {
@@ -251,6 +271,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   LoginRoute: LoginRoute,
   MyCoursesRoute: MyCoursesRoute,
+  SettingsRoute: SettingsRoute,
   UserSummaryRoute: UserSummaryRoute,
   QuizzesCourseIdRoute: QuizzesCourseIdRoute,
   QuizzesQuizIdEditRoute: QuizzesQuizIdEditRoute,

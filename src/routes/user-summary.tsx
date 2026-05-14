@@ -1,12 +1,25 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { User, Mail, Shield, Calendar, BookOpen, GraduationCap, Users } from "lucide-react";
+import {
+  GraduationCap, FileText, Video, Music, FileType2, FolderPlus,
+  ImageIcon, BookOpen, ClipboardList, CheckCircle2, UserPlus,
+} from "lucide-react";
+
+type Activity = {
+  id: string;
+  ts: string;
+  icon: any;
+  label: string;
+  detail?: string;
+  badge?: string;
+  href?: string;
+};
 
 export const Route = createFileRoute("/user-summary")({
   component: UserSummaryPage,
@@ -15,8 +28,8 @@ export const Route = createFileRoute("/user-summary")({
 function UserSummaryPage() {
   const { user, role, loading } = useAuth();
   const nav = useNavigate();
-  const [profile, setProfile] = useState<{ full_name: string | null; email: string | null; created_at: string } | null>(null);
-  const [stats, setStats] = useState<{ label: string; value: number; icon: any }[]>([]);
+  const [activity, setActivity] = useState<Activity[]>([]);
+  const [busy, setBusy] = useState(true);
 
   useEffect(() => {
     if (!loading && !user) nav({ to: "/login" });
@@ -25,40 +38,141 @@ function UserSummaryPage() {
   useEffect(() => {
     const load = async () => {
       if (!user || !role) return;
-      const { data: p } = await supabase.from("profiles").select("full_name,email,created_at").eq("id", user.id).maybeSingle();
-      setProfile(p);
+      setBusy(true);
+      const items: Activity[] = [];
 
-      if (role === "teacher") {
-        const { data: cs } = await supabase.from("courses").select("id,is_active").eq("teacher_id", user.id);
-        const ids = (cs ?? []).map((c) => c.id);
-        const active = (cs ?? []).filter((c) => c.is_active).length;
-        let enroll = 0;
-        if (ids.length) {
-          const { count } = await supabase.from("enrollments").select("id", { count: "exact", head: true }).in("course_id", ids);
-          enroll = count ?? 0;
+      if (role === "teacher" || role === "admin") {
+        const { data: courses } = await supabase
+          .from("courses")
+          .select("id,title,subject,class_level,thumbnail_url,is_active,created_at")
+          .eq("teacher_id", user.id)
+          .order("created_at", { ascending: false });
+
+        const courseIds = (courses ?? []).map((c) => c.id);
+        const courseMap = new Map((courses ?? []).map((c) => [c.id, c]));
+
+        for (const c of courses ?? []) {
+          items.push({
+            id: `course-${c.id}`,
+            ts: c.created_at,
+            icon: GraduationCap,
+            label: `Created course "${c.title}"`,
+            detail: [c.subject, c.class_level].filter(Boolean).join(" · ") || undefined,
+            badge: c.is_active ? "Active" : "Draft",
+            href: `/courses/${c.id}`,
+          });
+          if (c.thumbnail_url) {
+            items.push({
+              id: `thumb-${c.id}`,
+              ts: c.created_at,
+              icon: ImageIcon,
+              label: `Added a thumbnail to "${c.title}"`,
+              href: `/courses/${c.id}`,
+            });
+          }
         }
-        setStats([
-          { label: "Courses created", value: cs?.length ?? 0, icon: GraduationCap },
-          { label: "Active courses", value: active, icon: BookOpen },
-          { label: "Total enrollments", value: enroll, icon: Users },
-        ]);
+
+        if (courseIds.length) {
+          const { data: modules } = await supabase
+            .from("modules")
+            .select("id,course_id,title,created_at")
+            .in("course_id", courseIds)
+            .order("created_at", { ascending: false });
+
+          const modIds = (modules ?? []).map((m) => m.id);
+          const modCourse = new Map((modules ?? []).map((m) => [m.id, m.course_id]));
+
+          for (const m of modules ?? []) {
+            const c = courseMap.get(m.course_id);
+            items.push({
+              id: `mod-${m.id}`,
+              ts: m.created_at,
+              icon: FolderPlus,
+              label: `Added module "${m.title}"`,
+              detail: c ? `in ${c.title}` : undefined,
+              href: c ? `/courses/${c.id}` : undefined,
+            });
+          }
+
+          if (modIds.length) {
+            const { data: lessons } = await supabase
+              .from("lessons")
+              .select("id,module_id,title,content_type,created_at")
+              .in("module_id", modIds)
+              .order("created_at", { ascending: false });
+
+            for (const l of lessons ?? []) {
+              const courseId = modCourse.get(l.module_id);
+              const c = courseId ? courseMap.get(courseId) : undefined;
+              const icon =
+                l.content_type === "video" ? Video :
+                l.content_type === "audio" ? Music :
+                l.content_type === "pdf" ? FileText :
+                l.content_type === "doc" ? FileType2 : FileText;
+              const verb = l.content_type === "text" ? "Added text lesson" : `Uploaded ${l.content_type}`;
+              items.push({
+                id: `lesson-${l.id}`,
+                ts: l.created_at,
+                icon,
+                label: `${verb} "${l.title}"`,
+                detail: c ? `in ${c.title}` : undefined,
+                href: c ? `/courses/${c.id}` : undefined,
+              });
+            }
+
+            const { data: quizzes } = await supabase
+              .from("quizzes")
+              .select("id,course_id,title,created_at")
+              .in("course_id", courseIds)
+              .order("created_at", { ascending: false });
+
+            for (const q of quizzes ?? []) {
+              const c = courseMap.get(q.course_id);
+              items.push({
+                id: `quiz-${q.id}`,
+                ts: q.created_at,
+                icon: ClipboardList,
+                label: `Created quiz "${q.title}"`,
+                detail: c ? `in ${c.title}` : undefined,
+                href: c ? `/courses/${c.id}` : undefined,
+              });
+            }
+          }
+        }
       } else if (role === "learner") {
-        const { count: enrolled } = await supabase.from("enrollments").select("id", { count: "exact", head: true }).eq("learner_id", user.id);
-        const { count: attempts } = await supabase.from("quiz_attempts").select("id", { count: "exact", head: true }).eq("learner_id", user.id);
-        setStats([
-          { label: "Enrolled courses", value: enrolled ?? 0, icon: BookOpen },
-          { label: "Quiz attempts", value: attempts ?? 0, icon: GraduationCap },
-        ]);
-      } else if (role === "admin") {
-        const [{ count: users }, { count: courses }] = await Promise.all([
-          supabase.from("profiles").select("id", { count: "exact", head: true }),
-          supabase.from("courses").select("id", { count: "exact", head: true }),
-        ]);
-        setStats([
-          { label: "Total users", value: users ?? 0, icon: Users },
-          { label: "Total courses", value: courses ?? 0, icon: GraduationCap },
-        ]);
+        const { data: enrolls } = await supabase
+          .from("enrollments")
+          .select("id,enrolled_at,course_id,courses(title)")
+          .eq("learner_id", user.id)
+          .order("enrolled_at", { ascending: false });
+        for (const e of (enrolls ?? []) as any[]) {
+          items.push({
+            id: `enroll-${e.id}`,
+            ts: e.enrolled_at,
+            icon: UserPlus,
+            label: `Enrolled in "${e.courses?.title ?? "a course"}"`,
+            href: `/courses/${e.course_id}`,
+          });
+        }
+        const { data: attempts } = await supabase
+          .from("quiz_attempts")
+          .select("id,started_at,submitted_at,score,max_score")
+          .eq("learner_id", user.id)
+          .order("started_at", { ascending: false });
+        for (const a of attempts ?? []) {
+          items.push({
+            id: `attempt-${a.id}`,
+            ts: a.submitted_at ?? a.started_at,
+            icon: CheckCircle2,
+            label: a.submitted_at ? `Completed a quiz` : `Started a quiz`,
+            detail: a.submitted_at ? `Score: ${a.score} / ${a.max_score}` : undefined,
+          });
+        }
       }
+
+      items.sort((a, b) => new Date(b.ts).getTime() - new Date(a.ts).getTime());
+      setActivity(items);
+      setBusy(false);
     };
     load();
   }, [user, role]);
@@ -66,8 +180,6 @@ function UserSummaryPage() {
   if (loading || !user) {
     return <div className="flex min-h-screen items-center justify-center text-muted-foreground">Loading…</div>;
   }
-
-  const displayName = profile?.full_name || user.email?.split("@")[0] || "User";
 
   return (
     <SidebarProvider>
@@ -80,47 +192,50 @@ function UserSummaryPage() {
           </header>
           <main className="flex-1 space-y-6 p-6 md:p-8">
             <header>
-              <h1 className="text-4xl font-bold">User Summary</h1>
-              <p className="text-lg text-muted-foreground">Your account details and activity at a glance.</p>
+              <h1 className="text-4xl font-bold">Activity</h1>
+              <p className="text-lg text-muted-foreground">
+                {role === "teacher" || role === "admin"
+                  ? "A timeline of every course, module, lesson, quiz, and material you've added."
+                  : "Your enrollments and quiz activity."}
+              </p>
             </header>
 
-            <Card>
-              <CardHeader><CardTitle>Profile</CardTitle></CardHeader>
-              <CardContent className="grid gap-4 sm:grid-cols-2">
-                <div className="flex items-start gap-3">
-                  <User className="mt-1 h-4 w-4 text-muted-foreground" />
-                  <div><p className="text-sm text-muted-foreground">Full name</p><p className="font-medium">{displayName}</p></div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <Mail className="mt-1 h-4 w-4 text-muted-foreground" />
-                  <div><p className="text-sm text-muted-foreground">Email</p><p className="font-medium break-all">{profile?.email || user.email}</p></div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <Shield className="mt-1 h-4 w-4 text-muted-foreground" />
-                  <div><p className="text-sm text-muted-foreground">Role</p><Badge className="capitalize">{role ?? "—"}</Badge></div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <Calendar className="mt-1 h-4 w-4 text-muted-foreground" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">Member since</p>
-                    <p className="font-medium">{profile?.created_at ? new Date(profile.created_at).toLocaleDateString() : "—"}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {stats.length > 0 && (
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {stats.map((s) => (
-                  <Card key={s.label}>
-                    <CardHeader className="flex flex-row items-center justify-between pb-2">
-                      <CardTitle className="text-sm font-medium text-muted-foreground">{s.label}</CardTitle>
-                      <s.icon className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent><div className="text-3xl font-bold">{s.value}</div></CardContent>
-                  </Card>
-                ))}
-              </div>
+            {busy ? (
+              <p className="text-muted-foreground">Loading activity…</p>
+            ) : activity.length === 0 ? (
+              <Card><CardContent className="flex flex-col items-center gap-3 py-12 text-center text-muted-foreground">
+                <BookOpen className="h-10 w-10" />
+                <p>No activity yet.</p>
+              </CardContent></Card>
+            ) : (
+              <ol className="space-y-3">
+                {activity.map((a) => {
+                  const Inner = (
+                    <Card className={a.href ? "transition hover:border-primary/40" : undefined}>
+                      <CardContent className="flex items-start gap-4 p-4">
+                        <div className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-primary/10 text-primary">
+                          <a.icon className="h-5 w-5" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <p className="font-medium">{a.label}</p>
+                            {a.badge && <Badge variant="secondary">{a.badge}</Badge>}
+                          </div>
+                          {a.detail && <p className="text-sm text-muted-foreground">{a.detail}</p>}
+                        </div>
+                        <time className="hidden flex-none text-sm text-muted-foreground sm:block">
+                          {new Date(a.ts).toLocaleString()}
+                        </time>
+                      </CardContent>
+                    </Card>
+                  );
+                  return (
+                    <li key={a.id}>
+                      {a.href ? <Link to={a.href}>{Inner}</Link> : Inner}
+                    </li>
+                  );
+                })}
+              </ol>
             )}
           </main>
         </div>
