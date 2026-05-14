@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { PageHero } from "@/components/PageHero";
 import heroSummary from "@/assets/hero-summary.jpg";
+import { BadgesPanel } from "@/components/BadgesPanel";
 
 type Activity = {
   id: string;
