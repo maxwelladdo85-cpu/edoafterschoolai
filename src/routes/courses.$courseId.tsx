@@ -300,6 +300,9 @@ function CoursePlayer() {
           )}
         </section>
       </div>
+      <div className="mt-6">
+        <CourseForum courseId={courseId} />
+      </div>
       <AiTutorWidget courseId={courseId} courseTitle={course.title} />
     </DashboardShell>
   );
