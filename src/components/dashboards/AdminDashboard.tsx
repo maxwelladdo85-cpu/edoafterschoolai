@@ -88,12 +88,12 @@ export function AdminDashboard() {
   );
 }
 
-function Stat({ icon, label, value }: { icon: React.ReactNode; label: string; value: React.ReactNode }) {
+function Stat({ icon, label, value, tint = "from-primary/15 to-primary/5" }: { icon: React.ReactNode; label: string; value: React.ReactNode; tint?: string }) {
   return (
-    <Card>
+    <Card className={`border-0 bg-gradient-to-br ${tint}`} style={{ boxShadow: "var(--shadow-card)" }}>
       <CardContent className="flex items-center gap-4 p-6">
         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">{icon}</div>
-        <div><p className="text-sm text-muted-foreground">{label}</p><p className="text-2xl font-bold">{value}</p></div>
+        <div><p className="text-sm text-muted-foreground">{label}</p><p className="text-3xl font-bold tracking-tight">{value}</p></div>
       </CardContent>
     </Card>
   );
