@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as VirtualClassesRouteImport } from './routes/virtual-classes'
 import { Route as VarkQuizRouteImport } from './routes/vark-quiz'
 import { Route as UserSummaryRouteImport } from './routes/user-summary'
 import { Route as SettingsRouteImport } from './routes/settings'
@@ -25,6 +26,11 @@ import { Route as CoursesCourseIdRouteImport } from './routes/courses.$courseId'
 import { Route as QuizzesQuizIdTakeRouteImport } from './routes/quizzes.$quizId.take'
 import { Route as QuizzesQuizIdEditRouteImport } from './routes/quizzes.$quizId.edit'
 
+const VirtualClassesRoute = VirtualClassesRouteImport.update({
+  id: '/virtual-classes',
+  path: '/virtual-classes',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const VarkQuizRoute = VarkQuizRouteImport.update({
   id: '/vark-quiz',
   path: '/vark-quiz',
@@ -112,6 +118,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/user-summary': typeof UserSummaryRoute
   '/vark-quiz': typeof VarkQuizRoute
+  '/virtual-classes': typeof VirtualClassesRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/courses/builder': typeof CoursesBuilderRoute
   '/quizzes/$courseId': typeof QuizzesCourseIdRoute
@@ -129,6 +136,7 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/user-summary': typeof UserSummaryRoute
   '/vark-quiz': typeof VarkQuizRoute
+  '/virtual-classes': typeof VirtualClassesRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/courses/builder': typeof CoursesBuilderRoute
   '/quizzes/$courseId': typeof QuizzesCourseIdRoute
@@ -147,6 +155,7 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/user-summary': typeof UserSummaryRoute
   '/vark-quiz': typeof VarkQuizRoute
+  '/virtual-classes': typeof VirtualClassesRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/courses/builder': typeof CoursesBuilderRoute
   '/quizzes/$courseId': typeof QuizzesCourseIdRoute
@@ -166,6 +175,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/user-summary'
     | '/vark-quiz'
+    | '/virtual-classes'
     | '/courses/$courseId'
     | '/courses/builder'
     | '/quizzes/$courseId'
@@ -183,6 +193,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/user-summary'
     | '/vark-quiz'
+    | '/virtual-classes'
     | '/courses/$courseId'
     | '/courses/builder'
     | '/quizzes/$courseId'
@@ -200,6 +211,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/user-summary'
     | '/vark-quiz'
+    | '/virtual-classes'
     | '/courses/$courseId'
     | '/courses/builder'
     | '/quizzes/$courseId'
@@ -218,6 +230,7 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   UserSummaryRoute: typeof UserSummaryRoute
   VarkQuizRoute: typeof VarkQuizRoute
+  VirtualClassesRoute: typeof VirtualClassesRoute
   QuizzesCourseIdRoute: typeof QuizzesCourseIdRoute
   QuizzesQuizIdEditRoute: typeof QuizzesQuizIdEditRoute
   QuizzesQuizIdTakeRoute: typeof QuizzesQuizIdTakeRoute
@@ -225,6 +238,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/virtual-classes': {
+      id: '/virtual-classes'
+      path: '/virtual-classes'
+      fullPath: '/virtual-classes'
+      preLoaderRoute: typeof VirtualClassesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/vark-quiz': {
       id: '/vark-quiz'
       path: '/vark-quiz'
@@ -357,6 +377,7 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   UserSummaryRoute: UserSummaryRoute,
   VarkQuizRoute: VarkQuizRoute,
+  VirtualClassesRoute: VirtualClassesRoute,
   QuizzesCourseIdRoute: QuizzesCourseIdRoute,
   QuizzesQuizIdEditRoute: QuizzesQuizIdEditRoute,
   QuizzesQuizIdTakeRoute: QuizzesQuizIdTakeRoute,
@@ -364,3 +385,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
