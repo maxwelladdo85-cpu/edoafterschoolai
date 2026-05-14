@@ -4,6 +4,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Users, BookOpen, GraduationCap, ClipboardCheck } from "lucide-react";
+import { PageHero } from "@/components/PageHero";
+import dashboardHero from "@/assets/dashboard-hero.jpg";
 
 interface UserRow { id: string; email: string | null; full_name: string | null; created_at: string; roles: string[]; }
 
