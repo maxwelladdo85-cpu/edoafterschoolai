@@ -209,16 +209,21 @@ function CoursePlayer() {
                             : l.content_type === "audio" ? Headphones
                             : NotebookPen;
                           const isActive = l.id === activeId;
+                          const isDone = completed.has(l.id);
                           return (
                             <li key={l.id}>
                               <button
-                                onClick={() => { setActiveId(l.id); updateProgress(flatLessons.findIndex((x) => x.id === l.id)); }}
+                                onClick={() => setActiveId(l.id)}
                                 className={`flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-sm transition ${
                                   isActive ? "bg-primary text-primary-foreground" : "hover:bg-muted"
                                 }`}
                               >
-                                <Icon className="h-4 w-4 shrink-0" />
-                                <span className="line-clamp-2">{l.title}</span>
+                                {isDone ? (
+                                  <CheckCircle2 className={`h-4 w-4 shrink-0 ${isActive ? "text-primary-foreground" : "text-emerald-600"}`} />
+                                ) : (
+                                  <Icon className="h-4 w-4 shrink-0" />
+                                )}
+                                <span className={`line-clamp-2 flex-1 ${isDone && !isActive ? "text-muted-foreground line-through" : ""}`}>{l.title}</span>
                               </button>
                             </li>
                           );
