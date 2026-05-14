@@ -28,7 +28,7 @@ function Index() {
           <header className="mx-auto flex max-w-6xl items-center justify-end p-6" />
 
 
-          <section className="mx-auto max-w-6xl px-6 py-24 text-center">
+          <section className="mx-auto max-w-6xl px-6 pt-6 pb-20 text-center">
             <span className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-gold/20 backdrop-blur px-3 py-1 text-xs font-medium text-foreground">
               <Sparkles className="h-3 w-3" /> Edo State SUBEB · Quality Education For All
             </span>
