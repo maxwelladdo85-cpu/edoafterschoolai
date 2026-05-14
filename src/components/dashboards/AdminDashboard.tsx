@@ -38,7 +38,7 @@ export function AdminDashboard() {
         eyebrow="Admin console"
         EyebrowIcon={Users}
         title="Platform overview"
-        description="Oversee learners, teachers and courses across the Edo After School AI platform."
+        description="Oversee learners, teachers and courses across the Digital Learning at Home platform."
         backgroundImage={dashboardHero}
       />
 
