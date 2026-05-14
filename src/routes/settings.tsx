@@ -146,6 +146,7 @@ function SettingsPage() {
               EyebrowIcon={User}
               title="Settings"
               description="Your profile, preferences and account stats."
+              backgroundImage={heroSettings}
             />
 
             <Card className="border-border/60 overflow-hidden" style={{ boxShadow: "var(--shadow-card)" }}>
