@@ -29,7 +29,7 @@ function MyCoursesPage() {
         <div className="flex flex-1 flex-col">
           <header className="flex h-14 items-center gap-2 border-b bg-card px-4">
             <SidebarTrigger />
-            <span className="text-sm font-medium text-muted-foreground">My Courses</span>
+            <span className="text-sm font-medium text-muted-foreground">Courses</span>
           </header>
           <main className="flex-1 p-6 md:p-8">
             <TeacherDashboard />

@@ -207,7 +207,7 @@ export function TeacherDashboard() {
 
       <section>
         <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-2xl font-semibold">My Courses</h2>
+          <h2 className="text-2xl font-semibold">Courses</h2>
           <div className="flex flex-wrap gap-2">
             <Select value={subjectFilter} onValueChange={setSubjectFilter}>
               <SelectTrigger className="w-[180px]"><SelectValue placeholder="Subject" /></SelectTrigger>
