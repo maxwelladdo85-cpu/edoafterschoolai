@@ -13,9 +13,9 @@ import { Switch } from "@/components/ui/switch";
 import { Plus, BookOpen, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
-interface Course { id: string; title: string; subject: string | null; description: string | null; is_active: boolean; created_at: string; }
+interface Course { id: string; title: string; subject: string | null; description: string | null; is_active: boolean; created_at: string; class_level: string | null; teacher_name: string | null; }
 
-const emptyForm = { title: "", subject: "", description: "", is_active: true };
+const emptyForm = { title: "", subject: "", description: "", is_active: true, class_level: "", teacher_name: "" };
 
 export function TeacherDashboard() {
   const { user } = useAuth();
@@ -40,7 +40,7 @@ export function TeacherDashboard() {
 
   const openEdit = (c: Course) => {
     setEditingId(c.id);
-    setForm({ title: c.title, subject: c.subject ?? "", description: c.description ?? "", is_active: c.is_active });
+    setForm({ title: c.title, subject: c.subject ?? "", description: c.description ?? "", is_active: c.is_active, class_level: c.class_level ?? "", teacher_name: c.teacher_name ?? "" });
     setOpen(true);
   };
 
@@ -48,7 +48,7 @@ export function TeacherDashboard() {
     e.preventDefault();
     if (!user) return;
     setSaving(true);
-    const payload = { title: form.title, subject: form.subject, description: form.description, is_active: form.is_active };
+    const payload = { title: form.title, subject: form.subject, description: form.description, is_active: form.is_active, class_level: form.class_level || null, teacher_name: form.teacher_name || null };
     const { error } = editingId
       ? await supabase.from("courses").update(payload).eq("id", editingId)
       : await supabase.from("courses").insert({ ...payload, teacher_id: user.id });
@@ -86,7 +86,11 @@ export function TeacherDashboard() {
             </DialogHeader>
             <form onSubmit={save} className="space-y-3">
               <div className="space-y-1"><Label>Title</Label><Input required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} /></div>
-              <div className="space-y-1"><Label>Subject</Label><Input value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} placeholder="Mathematics, English…" /></div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1"><Label>Subject</Label><Input value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} placeholder="Mathematics, English…" /></div>
+                <div className="space-y-1"><Label>Class</Label><Input value={form.class_level} onChange={(e) => setForm({ ...form, class_level: e.target.value })} placeholder="JSS 1, Primary 4…" /></div>
+              </div>
+              <div className="space-y-1"><Label>Teacher name</Label><Input value={form.teacher_name} onChange={(e) => setForm({ ...form, teacher_name: e.target.value })} placeholder="Mrs. Adaeze Okoro" /></div>
               <div className="space-y-1"><Label>Description</Label><Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
               <div className="flex items-center justify-between rounded-md border px-3 py-2">
                 <div><Label>Active</Label><p className="text-xs text-muted-foreground">Visible to learners in the Course Library</p></div>
@@ -114,7 +118,7 @@ export function TeacherDashboard() {
                     <CardTitle className="text-base">{c.title}</CardTitle>
                     <Badge variant={c.is_active ? "default" : "secondary"}>{c.is_active ? "Active" : "Draft"}</Badge>
                   </div>
-                  <CardDescription>{c.subject}</CardDescription>
+                  <CardDescription>{[c.subject, c.class_level].filter(Boolean).join(" · ")}{c.teacher_name ? ` — ${c.teacher_name}` : ""}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <p className="text-sm text-muted-foreground line-clamp-3">{c.description}</p>

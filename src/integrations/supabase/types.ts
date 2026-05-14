@@ -68,32 +68,38 @@ export type Database = {
       }
       courses: {
         Row: {
+          class_level: string | null
           created_at: string
           description: string | null
           id: string
           is_active: boolean
           subject: string | null
           teacher_id: string
+          teacher_name: string | null
           thumbnail_url: string | null
           title: string
         }
         Insert: {
+          class_level?: string | null
           created_at?: string
           description?: string | null
           id?: string
           is_active?: boolean
           subject?: string | null
           teacher_id: string
+          teacher_name?: string | null
           thumbnail_url?: string | null
           title: string
         }
         Update: {
+          class_level?: string | null
           created_at?: string
           description?: string | null
           id?: string
           is_active?: boolean
           subject?: string | null
           teacher_id?: string
+          teacher_name?: string | null
           thumbnail_url?: string | null
           title?: string
         }
