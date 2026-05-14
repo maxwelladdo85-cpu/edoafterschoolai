@@ -22,6 +22,7 @@ export type Database = {
           is_active: boolean
           subject: string | null
           teacher_id: string
+          thumbnail_url: string | null
           title: string
         }
         Insert: {
@@ -31,6 +32,7 @@ export type Database = {
           is_active?: boolean
           subject?: string | null
           teacher_id: string
+          thumbnail_url?: string | null
           title: string
         }
         Update: {
@@ -40,6 +42,7 @@ export type Database = {
           is_active?: boolean
           subject?: string | null
           teacher_id?: string
+          thumbnail_url?: string | null
           title?: string
         }
         Relationships: []
@@ -69,6 +72,79 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "enrollments_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lessons: {
+        Row: {
+          content_text: string | null
+          content_type: Database["public"]["Enums"]["lesson_content_type"]
+          content_url: string | null
+          created_at: string
+          id: string
+          module_id: string
+          position: number
+          title: string
+        }
+        Insert: {
+          content_text?: string | null
+          content_type?: Database["public"]["Enums"]["lesson_content_type"]
+          content_url?: string | null
+          created_at?: string
+          id?: string
+          module_id: string
+          position?: number
+          title: string
+        }
+        Update: {
+          content_text?: string | null
+          content_type?: Database["public"]["Enums"]["lesson_content_type"]
+          content_url?: string | null
+          created_at?: string
+          id?: string
+          module_id?: string
+          position?: number
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lessons_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      modules: {
+        Row: {
+          course_id: string
+          created_at: string
+          id: string
+          position: number
+          title: string
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          id?: string
+          position?: number
+          title: string
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          id?: string
+          position?: number
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "modules_course_id_fkey"
             columns: ["course_id"]
             isOneToOne: false
             referencedRelation: "courses"
@@ -160,6 +236,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "teacher" | "learner"
+      lesson_content_type: "video" | "pdf" | "audio" | "text"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -288,6 +365,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "teacher", "learner"],
+      lesson_content_type: ["video", "pdf", "audio", "text"],
     },
   },
 } as const
