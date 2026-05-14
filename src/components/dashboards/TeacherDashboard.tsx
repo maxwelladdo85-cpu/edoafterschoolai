@@ -118,7 +118,7 @@ export function TeacherDashboard() {
                     <CardTitle className="text-base">{c.title}</CardTitle>
                     <Badge variant={c.is_active ? "default" : "secondary"}>{c.is_active ? "Active" : "Draft"}</Badge>
                   </div>
-                  <CardDescription>{c.subject}</CardDescription>
+                  <CardDescription>{[c.subject, c.class_level].filter(Boolean).join(" · ")}{c.teacher_name ? ` — ${c.teacher_name}` : ""}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <p className="text-sm text-muted-foreground line-clamp-3">{c.description}</p>
