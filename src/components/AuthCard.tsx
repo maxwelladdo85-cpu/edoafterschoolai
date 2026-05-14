@@ -47,7 +47,8 @@ export function AuthCard() {
       if (rErr) toast.message("Account created. Role assignment requires an admin.");
     }
     setLoading(false);
-    toast.success("Account created. Check your email to confirm, then sign in.");
+    toast.success("Welcome to Edo After School AI");
+    nav({ to: "/dashboard" });
   };
 
   return (
