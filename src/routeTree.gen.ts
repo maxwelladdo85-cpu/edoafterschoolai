@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as VarkQuizRouteImport } from './routes/vark-quiz'
 import { Route as UserSummaryRouteImport } from './routes/user-summary'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as MyCoursesRouteImport } from './routes/my-courses'
@@ -23,6 +24,11 @@ import { Route as CoursesCourseIdRouteImport } from './routes/courses.$courseId'
 import { Route as QuizzesQuizIdTakeRouteImport } from './routes/quizzes.$quizId.take'
 import { Route as QuizzesQuizIdEditRouteImport } from './routes/quizzes.$quizId.edit'
 
+const VarkQuizRoute = VarkQuizRouteImport.update({
+  id: '/vark-quiz',
+  path: '/vark-quiz',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const UserSummaryRoute = UserSummaryRouteImport.update({
   id: '/user-summary',
   path: '/user-summary',
@@ -99,6 +105,7 @@ export interface FileRoutesByFullPath {
   '/my-courses': typeof MyCoursesRoute
   '/settings': typeof SettingsRoute
   '/user-summary': typeof UserSummaryRoute
+  '/vark-quiz': typeof VarkQuizRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/quizzes/$courseId': typeof QuizzesCourseIdRoute
   '/quizzes/$quizId/edit': typeof QuizzesQuizIdEditRoute
@@ -114,6 +121,7 @@ export interface FileRoutesByTo {
   '/my-courses': typeof MyCoursesRoute
   '/settings': typeof SettingsRoute
   '/user-summary': typeof UserSummaryRoute
+  '/vark-quiz': typeof VarkQuizRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/quizzes/$courseId': typeof QuizzesCourseIdRoute
   '/quizzes/$quizId/edit': typeof QuizzesQuizIdEditRoute
@@ -130,6 +138,7 @@ export interface FileRoutesById {
   '/my-courses': typeof MyCoursesRoute
   '/settings': typeof SettingsRoute
   '/user-summary': typeof UserSummaryRoute
+  '/vark-quiz': typeof VarkQuizRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/quizzes/$courseId': typeof QuizzesCourseIdRoute
   '/quizzes/$quizId/edit': typeof QuizzesQuizIdEditRoute
@@ -147,6 +156,7 @@ export interface FileRouteTypes {
     | '/my-courses'
     | '/settings'
     | '/user-summary'
+    | '/vark-quiz'
     | '/courses/$courseId'
     | '/quizzes/$courseId'
     | '/quizzes/$quizId/edit'
@@ -162,6 +172,7 @@ export interface FileRouteTypes {
     | '/my-courses'
     | '/settings'
     | '/user-summary'
+    | '/vark-quiz'
     | '/courses/$courseId'
     | '/quizzes/$courseId'
     | '/quizzes/$quizId/edit'
@@ -177,6 +188,7 @@ export interface FileRouteTypes {
     | '/my-courses'
     | '/settings'
     | '/user-summary'
+    | '/vark-quiz'
     | '/courses/$courseId'
     | '/quizzes/$courseId'
     | '/quizzes/$quizId/edit'
@@ -193,6 +205,7 @@ export interface RootRouteChildren {
   MyCoursesRoute: typeof MyCoursesRoute
   SettingsRoute: typeof SettingsRoute
   UserSummaryRoute: typeof UserSummaryRoute
+  VarkQuizRoute: typeof VarkQuizRoute
   QuizzesCourseIdRoute: typeof QuizzesCourseIdRoute
   QuizzesQuizIdEditRoute: typeof QuizzesQuizIdEditRoute
   QuizzesQuizIdTakeRoute: typeof QuizzesQuizIdTakeRoute
@@ -200,6 +213,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/vark-quiz': {
+      id: '/vark-quiz'
+      path: '/vark-quiz'
+      fullPath: '/vark-quiz'
+      preLoaderRoute: typeof VarkQuizRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/user-summary': {
       id: '/user-summary'
       path: '/user-summary'
@@ -315,6 +335,7 @@ const rootRouteChildren: RootRouteChildren = {
   MyCoursesRoute: MyCoursesRoute,
   SettingsRoute: SettingsRoute,
   UserSummaryRoute: UserSummaryRoute,
+  VarkQuizRoute: VarkQuizRoute,
   QuizzesCourseIdRoute: QuizzesCourseIdRoute,
   QuizzesQuizIdEditRoute: QuizzesQuizIdEditRoute,
   QuizzesQuizIdTakeRoute: QuizzesQuizIdTakeRoute,
