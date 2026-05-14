@@ -9,7 +9,24 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User, Mail, Shield, Calendar, BookOpen, GraduationCap, Users, Camera, Loader2, Trash2 } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+
+function ClassEditor({ initial, onSave }: { initial: string; onSave: (val: string) => Promise<void> }) {
+  const [val, setVal] = useState(initial);
+  const [saving, setSaving] = useState(false);
+  useEffect(() => { setVal(initial); }, [initial]);
+  return (
+    <div className="flex flex-wrap items-end gap-2">
+      <div className="flex-1 min-w-[200px]">
+        <Input value={val} onChange={(e) => setVal(e.target.value)} placeholder="e.g. JSS 1" maxLength={50} />
+      </div>
+      <Button size="sm" disabled={saving || val.trim() === initial.trim()} onClick={async () => { setSaving(true); try { await onSave(val.trim()); } finally { setSaving(false); } }}>
+        {saving ? "Saving…" : "Save"}
+      </Button>
+    </div>
+  );
+}
 
 export const Route = createFileRoute("/settings")({
   component: SettingsPage,
