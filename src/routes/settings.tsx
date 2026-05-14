@@ -169,6 +169,24 @@ function SettingsPage() {
               </CardContent>
             </Card>
 
+            {role === "learner" && (
+              <Card>
+                <CardHeader><CardTitle>My class</CardTitle></CardHeader>
+                <CardContent className="space-y-3">
+                  <p className="text-sm text-muted-foreground">Set your class so teachers can assign courses to you (e.g. "JSS 1", "Primary 4").</p>
+                  <ClassEditor
+                    initial={profile?.class_level ?? ""}
+                    onSave={async (val) => {
+                      const { error } = await supabase.from("profiles").update({ class_level: val || null } as any).eq("id", user.id);
+                      if (error) return toast.error(error.message);
+                      setProfile((prev) => prev ? { ...prev, class_level: val || null } : prev);
+                      toast.success("Class saved");
+                    }}
+                  />
+                </CardContent>
+              </Card>
+            )}
+
             {stats.length > 0 && (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {stats.map((s) => (
