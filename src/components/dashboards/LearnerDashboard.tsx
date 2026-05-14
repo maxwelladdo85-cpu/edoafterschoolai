@@ -70,6 +70,35 @@ export function LearnerDashboard() {
       </section>
 
       <section>
+        {vark ? (
+          <Card className="border-0 bg-gradient-to-br from-primary/15 to-gold/10" style={{ boxShadow: "var(--shadow-card)" }}>
+            <CardHeader>
+              <Badge className="w-fit gap-1"><Sparkles className="h-3 w-3" /> Your learning style</Badge>
+              <CardTitle className="text-2xl">You learn best as a <span className="text-primary">{STYLE_LABELS[vark.dominant]}</span> learner</CardTitle>
+              <CardDescription>Based on your VARK quiz on {new Date(vark.created_at).toLocaleDateString()}.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <ul className="list-disc space-y-1 pl-5 text-sm">
+                {STYLE_TIPS[vark.dominant].slice(0, 3).map((tip, i) => <li key={i}>{tip}</li>)}
+              </ul>
+              <Button asChild variant="outline" size="sm"><Link to="/vark-quiz">Retake quiz</Link></Button>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card className="border-0 bg-gradient-to-br from-primary/15 to-gold/10" style={{ boxShadow: "var(--shadow-card)" }}>
+            <CardHeader>
+              <Badge className="w-fit gap-1"><Sparkles className="h-3 w-3" /> New</Badge>
+              <CardTitle>Discover how you learn best</CardTitle>
+              <CardDescription>Take our quick 8-question VARK quiz to find your learning style and get tips made for you.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button asChild><Link to="/vark-quiz">Take the VARK quiz</Link></Button>
+            </CardContent>
+          </Card>
+        )}
+      </section>
+
+      <section>
         <h2 className="mb-3 text-xl font-semibold">Courses</h2>
         {enrollments.length === 0 ? (
           <Card><CardContent className="py-8 text-center text-muted-foreground">You aren't enrolled in any courses yet.</CardContent></Card>
