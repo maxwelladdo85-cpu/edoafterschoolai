@@ -1,12 +1,15 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { User, Mail, Shield, Calendar, BookOpen, GraduationCap, Users } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { User, Mail, Shield, Calendar, BookOpen, GraduationCap, Users, Camera, Loader2, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/settings")({
   component: SettingsPage,
@@ -15,8 +18,10 @@ export const Route = createFileRoute("/settings")({
 function SettingsPage() {
   const { user, role, loading } = useAuth();
   const nav = useNavigate();
-  const [profile, setProfile] = useState<{ full_name: string | null; email: string | null; created_at: string } | null>(null);
+  const [profile, setProfile] = useState<{ full_name: string | null; email: string | null; created_at: string; avatar_url: string | null } | null>(null);
   const [stats, setStats] = useState<{ label: string; value: number; icon: any }[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!loading && !user) nav({ to: "/login" });
@@ -25,7 +30,7 @@ function SettingsPage() {
   useEffect(() => {
     const load = async () => {
       if (!user || !role) return;
-      const { data: p } = await supabase.from("profiles").select("full_name,email,created_at").eq("id", user.id).maybeSingle();
+      const { data: p } = await supabase.from("profiles").select("full_name,email,created_at,avatar_url").eq("id", user.id).maybeSingle();
       setProfile(p);
 
       if (role === "teacher") {
@@ -68,6 +73,39 @@ function SettingsPage() {
   }
 
   const displayName = profile?.full_name || user.email?.split("@")[0] || "User";
+  const initials = displayName.split(/\s+/).map((s) => s[0]).slice(0, 2).join("").toUpperCase();
+
+  const onPickAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file || !user) return;
+    if (!file.type.startsWith("image/")) return toast.error("Pick an image file");
+    if (file.size > 5 * 1024 * 1024) return toast.error("Image must be under 5 MB");
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+      const path = `${user.id}/avatar-${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("avatars").upload(path, file, { contentType: file.type, upsert: true });
+      if (upErr) throw upErr;
+      const { data: pub } = supabase.storage.from("avatars").getPublicUrl(path);
+      const { error: pErr } = await supabase.from("profiles").update({ avatar_url: pub.publicUrl }).eq("id", user.id);
+      if (pErr) throw pErr;
+      setProfile((prev) => prev ? { ...prev, avatar_url: pub.publicUrl } : prev);
+      toast.success("Profile picture updated");
+    } catch (err: any) {
+      toast.error(err.message ?? "Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const removeAvatar = async () => {
+    if (!user) return;
+    const { error } = await supabase.from("profiles").update({ avatar_url: null }).eq("id", user.id);
+    if (error) return toast.error(error.message);
+    setProfile((prev) => prev ? { ...prev, avatar_url: null } : prev);
+    toast.success("Profile picture removed");
+  };
 
   return (
     <SidebarProvider>
@@ -86,24 +124,46 @@ function SettingsPage() {
 
             <Card>
               <CardHeader><CardTitle>Profile</CardTitle></CardHeader>
-              <CardContent className="grid gap-4 sm:grid-cols-2">
-                <div className="flex items-start gap-3">
-                  <User className="mt-1 h-4 w-4 text-muted-foreground" />
-                  <div><p className="text-sm text-muted-foreground">Full name</p><p className="font-medium">{displayName}</p></div>
+              <CardContent className="space-y-6">
+                <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
+                  <Avatar className="h-24 w-24">
+                    {profile?.avatar_url && <AvatarImage src={profile.avatar_url} alt={displayName} />}
+                    <AvatarFallback className="text-2xl">{initials || "U"}</AvatarFallback>
+                  </Avatar>
+                  <div className="space-y-2">
+                    <p className="text-sm text-muted-foreground">Profile picture — JPG/PNG, under 5 MB.</p>
+                    <div className="flex flex-wrap gap-2">
+                      <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={onPickAvatar} />
+                      <Button size="sm" onClick={() => fileRef.current?.click()} disabled={uploading}>
+                        {uploading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Uploading…</> : <><Camera className="mr-2 h-4 w-4" />{profile?.avatar_url ? "Change picture" : "Upload picture"}</>}
+                      </Button>
+                      {profile?.avatar_url && (
+                        <Button size="sm" variant="outline" onClick={removeAvatar} disabled={uploading}>
+                          <Trash2 className="mr-2 h-4 w-4" />Remove
+                        </Button>
+                      )}
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-start gap-3">
-                  <Mail className="mt-1 h-4 w-4 text-muted-foreground" />
-                  <div><p className="text-sm text-muted-foreground">Email</p><p className="font-medium break-all">{profile?.email || user.email}</p></div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <Shield className="mt-1 h-4 w-4 text-muted-foreground" />
-                  <div><p className="text-sm text-muted-foreground">Role</p><Badge className="capitalize">{role ?? "—"}</Badge></div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <Calendar className="mt-1 h-4 w-4 text-muted-foreground" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">Member since</p>
-                    <p className="font-medium">{profile?.created_at ? new Date(profile.created_at).toLocaleDateString() : "—"}</p>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="flex items-start gap-3">
+                    <User className="mt-1 h-4 w-4 text-muted-foreground" />
+                    <div><p className="text-sm text-muted-foreground">Full name</p><p className="font-medium">{displayName}</p></div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <Mail className="mt-1 h-4 w-4 text-muted-foreground" />
+                    <div><p className="text-sm text-muted-foreground">Email</p><p className="font-medium break-all">{profile?.email || user.email}</p></div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <Shield className="mt-1 h-4 w-4 text-muted-foreground" />
+                    <div><p className="text-sm text-muted-foreground">Role</p><Badge className="capitalize">{role ?? "—"}</Badge></div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <Calendar className="mt-1 h-4 w-4 text-muted-foreground" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">Member since</p>
+                      <p className="font-medium">{profile?.created_at ? new Date(profile.created_at).toLocaleDateString() : "—"}</p>
+                    </div>
                   </div>
                 </div>
               </CardContent>
