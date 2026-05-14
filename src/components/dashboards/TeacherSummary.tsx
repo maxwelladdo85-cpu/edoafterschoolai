@@ -147,7 +147,7 @@ export function TeacherSummary() {
               </div>
               <p className="text-base font-medium">No courses yet</p>
               <p className="max-w-sm text-sm text-muted-foreground">Create your first course and start sharing knowledge with learners across Edo State.</p>
-              <Button asChild className="mt-2"><Link to="/my-courses"><Plus className="mr-2 h-4 w-4" />Create your first course</Link></Button>
+              <Button asChild className="mt-2"><Link to="/courses/builder"><Wand2 className="mr-2 h-4 w-4" />Open Course Builder</Link></Button>
             </CardContent>
           </Card>
         ) : (
