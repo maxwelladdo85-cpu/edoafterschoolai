@@ -19,6 +19,8 @@ interface CourseRow {
   subject: string | null;
   description: string | null;
   thumbnail_url: string | null;
+  class_level: string | null;
+  teacher_name: string | null;
   teacher_id: string;
   teacher: { full_name: string | null } | null;
 }
