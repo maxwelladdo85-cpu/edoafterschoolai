@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
-import { Users, BookOpen, GraduationCap, Video, Search, Check, X, UserCog } from "lucide-react";
+import { Users, BookOpen, GraduationCap, Video, Search, Check, X, UserCog, Download } from "lucide-react";
 import { PageHero } from "@/components/PageHero";
 import dashboardHero from "@/assets/dashboard-hero.jpg";
 import { toast } from "sonner";
@@ -85,6 +85,48 @@ export function AdminDashboard() {
     return users.filter((u) => (u.full_name ?? "").toLowerCase().includes(q) || (u.email ?? "").toLowerCase().includes(q));
   }, [users, search]);
 
+  const downloadCsv = (filename: string, rows: Record<string, any>[]) => {
+    if (!rows.length) return toast.error("No data to export");
+    const headers = Object.keys(rows[0]);
+    const escape = (v: any) => {
+      if (v === null || v === undefined) return "";
+      const s = typeof v === "string" ? v : v instanceof Date ? v.toISOString() : String(v);
+      return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+    const csv = [headers.join(","), ...rows.map((r) => headers.map((h) => escape(r[h])).join(","))].join("\n");
+    const blob = new Blob([`\ufeff${csv}`], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = filename; a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const exportUsers = () => {
+    const rows = users.map((u) => ({
+      full_name: u.full_name ?? "",
+      email: u.email ?? "",
+      roles: u.roles.join("|"),
+      status: u.status,
+      joined_at: u.created_at,
+    }));
+    downloadCsv(`users-${new Date().toISOString().slice(0,10)}.csv`, rows);
+    toast.success(`Exported ${rows.length} users`);
+  };
+
+  const exportActivity = async () => {
+    const { data, error } = await supabase.rpc("admin_user_activity_log", { p_limit: 10000 });
+    if (error) return toast.error(error.message);
+    downloadCsv(`activity-${new Date().toISOString().slice(0,10)}.csv`, (data ?? []) as any[]);
+    toast.success(`Exported ${(data ?? []).length} activity events`);
+  };
+
+  const exportLogins = async () => {
+    const { data, error } = await supabase.rpc("admin_user_last_seen");
+    if (error) return toast.error(error.message);
+    downloadCsv(`active-users-${new Date().toISOString().slice(0,10)}.csv`, (data ?? []) as any[]);
+    toast.success(`Exported ${(data ?? []).length} user activity records`);
+  };
+
   return (
     <div className="space-y-8">
       <PageHero
@@ -101,6 +143,27 @@ export function AdminDashboard() {
         <Stat icon={<GraduationCap />} label="Total Teachers" value={overview?.total_teachers ?? "—"} tint="from-gold/20 to-gold/5" />
         <Stat icon={<BookOpen />} label="Active Courses" value={overview?.total_courses ?? "—"} tint="from-emerald-500/15 to-emerald-500/5" />
         <Stat icon={<Video />} label="Sessions Today" value={overview?.active_sessions_today ?? "—"} tint="from-sky-500/15 to-sky-500/5" />
+      </section>
+
+      {/* Exports */}
+      <section>
+        <Card>
+          <CardHeader><CardTitle className="text-base flex items-center gap-2"><Download className="h-4 w-4" /> Export reports</CardTitle></CardHeader>
+          <CardContent className="flex flex-wrap gap-2">
+            <Button variant="outline" size="sm" onClick={exportUsers}>
+              <Download className="h-4 w-4 mr-2" /> Users (CSV)
+            </Button>
+            <Button variant="outline" size="sm" onClick={exportActivity}>
+              <Download className="h-4 w-4 mr-2" /> User activity (CSV)
+            </Button>
+            <Button variant="outline" size="sm" onClick={exportLogins}>
+              <Download className="h-4 w-4 mr-2" /> Active users / last seen (CSV)
+            </Button>
+            <p className="w-full text-xs text-muted-foreground mt-1">
+              CSV files open directly in Excel and Google Sheets.
+            </p>
+          </CardContent>
+        </Card>
       </section>
 
       {/* Charts row 1 */}
