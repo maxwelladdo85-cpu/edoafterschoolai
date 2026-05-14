@@ -37,6 +37,8 @@ function AnnouncementsPage() {
   const [form, setForm] = useState({ class_level: "", title: "", message: "" });
   const [recipientCount, setRecipientCount] = useState<number | null>(null);
   const [open, setOpen] = useState(false);
+  const [schedule, setSchedule] = useState(false);
+  const [sendAt, setSendAt] = useState("");
 
   useEffect(() => { if (!authLoading && !user) nav({ to: "/login" }); }, [authLoading, user, nav]);
 
@@ -75,26 +77,46 @@ function AnnouncementsPage() {
     if (form.title.length > 150) { toast.error("Title too long (max 150)"); return; }
     if (form.message.length > 2000) { toast.error("Message too long (max 2000)"); return; }
 
-    setSending(true);
-    const { data, error } = await supabase.rpc("send_class_announcement", {
-      p_class_level: form.class_level,
-      p_title: form.title.trim(),
-      p_message: form.message.trim() || "",
-    });
-    setSending(false);
-    if (error) { toast.error(error.message); return; }
-    const count = Number(data ?? 0);
-    if (count === 0) { toast.error("No learners in that class"); return; }
-    toast.success(`Announcement sent to ${count} learner${count === 1 ? "" : "s"}`);
+    if (schedule) {
+      if (!sendAt) { toast.error("Pick a date and time"); return; }
+      const when = new Date(sendAt);
+      if (isNaN(when.getTime()) || when.getTime() <= Date.now()) {
+        toast.error("Scheduled time must be in the future"); return;
+      }
+      setSending(true);
+      const { error } = await supabase.rpc("schedule_class_announcement", {
+        p_class_level: form.class_level,
+        p_title: form.title.trim(),
+        p_message: form.message.trim() || "",
+        p_send_at: when.toISOString(),
+      });
+      setSending(false);
+      if (error) { toast.error(error.message); return; }
+      toast.success(`Scheduled for ${when.toLocaleString()}`);
+    } else {
+      setSending(true);
+      const { data, error } = await supabase.rpc("send_class_announcement", {
+        p_class_level: form.class_level,
+        p_title: form.title.trim(),
+        p_message: form.message.trim() || "",
+      });
+      setSending(false);
+      if (error) { toast.error(error.message); return; }
+      const count = Number(data ?? 0);
+      if (count === 0) { toast.error("No learners in that class"); return; }
+      toast.success(`Announcement sent to ${count} learner${count === 1 ? "" : "s"}`);
+      setRecentSent((prev) => [{
+        id: crypto.randomUUID(),
+        title: form.title.trim(),
+        message: form.message.trim() || null,
+        created_at: new Date().toISOString(),
+        user_id: form.class_level,
+      }, ...prev].slice(0, 8));
+    }
 
-    setRecentSent((prev) => [{
-      id: crypto.randomUUID(),
-      title: form.title.trim(),
-      message: form.message.trim() || null,
-      created_at: new Date().toISOString(),
-      user_id: form.class_level,
-    }, ...prev].slice(0, 8));
     setForm((f) => ({ ...f, title: "", message: "" }));
+    setSchedule(false);
+    setSendAt("");
     setOpen(false);
   };
 
@@ -179,13 +201,38 @@ function AnnouncementsPage() {
                       />
                       <p className="mt-1 text-xs text-muted-foreground text-right">{form.message.length}/2000</p>
                     </div>
+                    <div className="rounded-md border border-border/60 p-3 space-y-3">
+                      <label className="flex items-center gap-2 text-sm font-medium cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={schedule}
+                          onChange={(e) => setSchedule(e.target.checked)}
+                          className="h-4 w-4 accent-primary"
+                        />
+                        Schedule for later
+                      </label>
+                      {schedule && (
+                        <div>
+                          <Label>Send on</Label>
+                          <Input
+                            type="datetime-local"
+                            value={sendAt}
+                            onChange={(e) => setSendAt(e.target.value)}
+                            min={new Date(Date.now() + 60_000).toISOString().slice(0, 16)}
+                          />
+                          <p className="mt-1 text-xs text-muted-foreground">
+                            Uses your local time zone. The message is delivered automatically within ~1 minute of this time.
+                          </p>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
                 <DialogFooter>
                   <Button variant="outline" onClick={() => setOpen(false)} disabled={sending}>Cancel</Button>
-                  <Button onClick={send} disabled={sending || !form.class_level || !form.title.trim()}>
+                  <Button onClick={send} disabled={sending || !form.class_level || !form.title.trim() || (schedule && !sendAt)}>
                     {sending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
-                    Send announcement
+                    {schedule ? "Schedule announcement" : "Send announcement"}
                   </Button>
                 </DialogFooter>
               </DialogContent>
