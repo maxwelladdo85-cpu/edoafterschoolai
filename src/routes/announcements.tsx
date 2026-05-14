@@ -95,6 +95,7 @@ function AnnouncementsPage() {
       user_id: form.class_level,
     }, ...prev].slice(0, 8));
     setForm((f) => ({ ...f, title: "", message: "" }));
+    setOpen(false);
   };
 
   if (loading) {
