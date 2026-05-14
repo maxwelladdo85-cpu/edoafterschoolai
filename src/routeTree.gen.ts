@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as MyCoursesRouteImport } from './routes/my-courses'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CoursesRouteImport } from './routes/courses'
@@ -18,6 +19,11 @@ import { Route as CoursesCourseIdRouteImport } from './routes/courses.$courseId'
 import { Route as QuizzesQuizIdTakeRouteImport } from './routes/quizzes.$quizId.take'
 import { Route as QuizzesQuizIdEditRouteImport } from './routes/quizzes.$quizId.edit'
 
+const MyCoursesRoute = MyCoursesRouteImport.update({
+  id: '/my-courses',
+  path: '/my-courses',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -64,6 +70,7 @@ export interface FileRoutesByFullPath {
   '/courses': typeof CoursesRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
+  '/my-courses': typeof MyCoursesRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/quizzes/$courseId': typeof QuizzesCourseIdRoute
   '/quizzes/$quizId/edit': typeof QuizzesQuizIdEditRoute
@@ -74,6 +81,7 @@ export interface FileRoutesByTo {
   '/courses': typeof CoursesRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
+  '/my-courses': typeof MyCoursesRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/quizzes/$courseId': typeof QuizzesCourseIdRoute
   '/quizzes/$quizId/edit': typeof QuizzesQuizIdEditRoute
@@ -85,6 +93,7 @@ export interface FileRoutesById {
   '/courses': typeof CoursesRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
+  '/my-courses': typeof MyCoursesRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/quizzes/$courseId': typeof QuizzesCourseIdRoute
   '/quizzes/$quizId/edit': typeof QuizzesQuizIdEditRoute
@@ -97,6 +106,7 @@ export interface FileRouteTypes {
     | '/courses'
     | '/dashboard'
     | '/login'
+    | '/my-courses'
     | '/courses/$courseId'
     | '/quizzes/$courseId'
     | '/quizzes/$quizId/edit'
@@ -107,6 +117,7 @@ export interface FileRouteTypes {
     | '/courses'
     | '/dashboard'
     | '/login'
+    | '/my-courses'
     | '/courses/$courseId'
     | '/quizzes/$courseId'
     | '/quizzes/$quizId/edit'
@@ -117,6 +128,7 @@ export interface FileRouteTypes {
     | '/courses'
     | '/dashboard'
     | '/login'
+    | '/my-courses'
     | '/courses/$courseId'
     | '/quizzes/$courseId'
     | '/quizzes/$quizId/edit'
@@ -128,6 +140,7 @@ export interface RootRouteChildren {
   CoursesRoute: typeof CoursesRouteWithChildren
   DashboardRoute: typeof DashboardRoute
   LoginRoute: typeof LoginRoute
+  MyCoursesRoute: typeof MyCoursesRoute
   QuizzesCourseIdRoute: typeof QuizzesCourseIdRoute
   QuizzesQuizIdEditRoute: typeof QuizzesQuizIdEditRoute
   QuizzesQuizIdTakeRoute: typeof QuizzesQuizIdTakeRoute
@@ -135,6 +148,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/my-courses': {
+      id: '/my-courses'
+      path: '/my-courses'
+      fullPath: '/my-courses'
+      preLoaderRoute: typeof MyCoursesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -210,6 +230,7 @@ const rootRouteChildren: RootRouteChildren = {
   CoursesRoute: CoursesRouteWithChildren,
   DashboardRoute: DashboardRoute,
   LoginRoute: LoginRoute,
+  MyCoursesRoute: MyCoursesRoute,
   QuizzesCourseIdRoute: QuizzesCourseIdRoute,
   QuizzesQuizIdEditRoute: QuizzesQuizIdEditRoute,
   QuizzesQuizIdTakeRoute: QuizzesQuizIdTakeRoute,

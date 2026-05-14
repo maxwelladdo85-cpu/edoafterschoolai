@@ -16,7 +16,7 @@ const NAV: Record<AppRole, { title: string; url: string; icon: any }[]> = {
   ],
   teacher: [
     { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-    { title: "My Courses", url: "/dashboard", icon: GraduationCap },
+    { title: "My Courses", url: "/my-courses", icon: GraduationCap },
     { title: "Course Library", url: "/courses", icon: BookOpen },
   ],
   admin: [
