@@ -104,6 +104,8 @@ export function LearnerDashboard() {
         )}
       </section>
 
+      <VirtualClassesPanel mode="learner" />
+
       <section>
         <h2 className="mb-3 text-xl font-semibold">Courses</h2>
         {enrollments.length === 0 ? (
