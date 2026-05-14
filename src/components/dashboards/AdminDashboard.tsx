@@ -85,6 +85,48 @@ export function AdminDashboard() {
     return users.filter((u) => (u.full_name ?? "").toLowerCase().includes(q) || (u.email ?? "").toLowerCase().includes(q));
   }, [users, search]);
 
+  const downloadCsv = (filename: string, rows: Record<string, any>[]) => {
+    if (!rows.length) return toast.error("No data to export");
+    const headers = Object.keys(rows[0]);
+    const escape = (v: any) => {
+      if (v === null || v === undefined) return "";
+      const s = typeof v === "string" ? v : v instanceof Date ? v.toISOString() : String(v);
+      return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+    const csv = [headers.join(","), ...rows.map((r) => headers.map((h) => escape(r[h])).join(","))].join("\n");
+    const blob = new Blob([`\ufeff${csv}`], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = filename; a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const exportUsers = () => {
+    const rows = users.map((u) => ({
+      full_name: u.full_name ?? "",
+      email: u.email ?? "",
+      roles: u.roles.join("|"),
+      status: u.status,
+      joined_at: u.created_at,
+    }));
+    downloadCsv(`users-${new Date().toISOString().slice(0,10)}.csv`, rows);
+    toast.success(`Exported ${rows.length} users`);
+  };
+
+  const exportActivity = async () => {
+    const { data, error } = await supabase.rpc("admin_user_activity_log", { p_limit: 10000 });
+    if (error) return toast.error(error.message);
+    downloadCsv(`activity-${new Date().toISOString().slice(0,10)}.csv`, (data ?? []) as any[]);
+    toast.success(`Exported ${(data ?? []).length} activity events`);
+  };
+
+  const exportLogins = async () => {
+    const { data, error } = await supabase.rpc("admin_user_last_seen");
+    if (error) return toast.error(error.message);
+    downloadCsv(`active-users-${new Date().toISOString().slice(0,10)}.csv`, (data ?? []) as any[]);
+    toast.success(`Exported ${(data ?? []).length} user activity records`);
+  };
+
   return (
     <div className="space-y-8">
       <PageHero
