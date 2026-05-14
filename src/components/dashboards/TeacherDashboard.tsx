@@ -25,7 +25,40 @@ export function TeacherDashboard() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [thumbFile, setThumbFile] = useState<File | null>(null);
+  const [materialFiles, setMaterialFiles] = useState<File[]>([]);
   const [saving, setSaving] = useState(false);
+
+  const detectMaterialType = (file: File): "video" | "pdf" | "audio" | "doc" | null => {
+    const m = file.type.toLowerCase();
+    const n = file.name.toLowerCase();
+    if (m.startsWith("video/") || /\.(mp4|webm|mov|m4v)$/.test(n)) return "video";
+    if (m.startsWith("audio/") || /\.(mp3|wav|m4a|ogg)$/.test(n)) return "audio";
+    if (m === "application/pdf" || n.endsWith(".pdf")) return "pdf";
+    if (m.includes("msword") || m.includes("officedocument.wordprocessingml") || /\.(doc|docx)$/.test(n)) return "doc";
+    return null;
+  };
+
+  const uploadMaterials = async (courseId: string, files: File[]) => {
+    let { data: mod } = await supabase.from("modules").select("id").eq("course_id", courseId).eq("title", "Materials").maybeSingle();
+    if (!mod) {
+      const { data: created, error: mErr } = await supabase.from("modules").insert({ course_id: courseId, title: "Materials", position: 0 }).select("id").single();
+      if (mErr) throw mErr;
+      mod = created;
+    }
+    const { count } = await supabase.from("lessons").select("id", { count: "exact", head: true }).eq("module_id", mod!.id);
+    let pos = count ?? 0;
+    for (const file of files) {
+      const type = detectMaterialType(file);
+      if (!type) { toast.error(`Skipped ${file.name}: unsupported type`); continue; }
+      if (file.size > 100 * 1024 * 1024) { toast.error(`Skipped ${file.name}: over 100 MB`); continue; }
+      const safeName = file.name.replace(/[^\w.\-]+/g, "_");
+      const path = `${courseId}/${Date.now()}-${safeName}`;
+      const { error: upErr } = await supabase.storage.from("course-materials").upload(path, file, { contentType: file.type, upsert: false });
+      if (upErr) { toast.error(`Failed ${file.name}: ${upErr.message}`); continue; }
+      const { data: pub } = supabase.storage.from("course-materials").getPublicUrl(path);
+      await supabase.from("lessons").insert({ module_id: mod!.id, title: file.name, position: pos++, content_type: type, content_url: pub.publicUrl });
+    }
+  };
 
   const load = async () => {
     if (!user) return;
@@ -38,6 +71,7 @@ export function TeacherDashboard() {
     setEditingId(null);
     setForm(emptyForm);
     setThumbFile(null);
+    setMaterialFiles([]);
     setOpen(true);
   };
 
@@ -45,6 +79,7 @@ export function TeacherDashboard() {
     setEditingId(c.id);
     setForm({ title: c.title, subject: c.subject ?? "", description: c.description ?? "", is_active: c.is_active, class_level: c.class_level ?? "", teacher_name: c.teacher_name ?? "" });
     setThumbFile(null);
+    setMaterialFiles([]);
     setOpen(true);
   };
 
@@ -81,11 +116,15 @@ export function TeacherDashboard() {
         const { error: tErr } = await supabase.from("courses").update({ thumbnail_url: url }).eq("id", courseId);
         if (tErr) throw tErr;
       }
+      if (materialFiles.length && courseId) {
+        await uploadMaterials(courseId, materialFiles);
+      }
       toast.success(editingId ? "Course updated" : "Course created");
       setOpen(false);
       setEditingId(null);
       setForm(emptyForm);
       setThumbFile(null);
+      setMaterialFiles([]);
       load();
     } catch (err: any) {
       toast.error(err.message ?? "Save failed");
@@ -129,6 +168,21 @@ export function TeacherDashboard() {
                 <Label>Thumbnail image</Label>
                 <Input type="file" accept="image/*" onChange={(e) => setThumbFile(e.target.files?.[0] ?? null)} />
                 <p className="text-xs text-muted-foreground">Shown as the card background. JPG/PNG, under 5 MB.{editingId ? " Leave empty to keep the current image." : ""}</p>
+              </div>
+              <div className="space-y-1">
+                <Label>Course materials</Label>
+                <Input
+                  type="file"
+                  multiple
+                  accept="video/*,audio/*,application/pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                  onChange={(e) => setMaterialFiles(Array.from(e.target.files ?? []))}
+                />
+                <p className="text-xs text-muted-foreground">Optional. Upload videos, audio, PDFs, or Word docs (max 100 MB each). You can add more later.</p>
+                {materialFiles.length > 0 && (
+                  <ul className="mt-1 list-disc pl-5 text-xs text-muted-foreground">
+                    {materialFiles.map((f) => <li key={f.name}>{f.name}</li>)}
+                  </ul>
+                )}
               </div>
               <div className="flex items-center justify-between rounded-md border px-3 py-2">
                 <div><Label>Active</Label><p className="text-xs text-muted-foreground">Visible to learners in the Course Library</p></div>
