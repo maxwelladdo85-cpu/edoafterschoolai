@@ -57,12 +57,14 @@ export function AuthCard() {
     });
     if (error) { setLoading(false); return toast.error(error.message); }
 
-    // If selected role isn't learner, add the additional role.
-    if (data.user && role !== "learner") {
-      // Try insert; will only succeed for the user themselves under our policies if admin — but for demo allow self-assign via profile creation.
-      // Use the trigger-created learner role + add chosen one via a service-side signup flow not available; we'll insert directly using authenticated session.
-      const { error: rErr } = await supabase.from("user_roles").insert({ user_id: data.user.id, role });
-      if (rErr) toast.message("Account created. Role assignment requires an admin.");
+    // Teacher signup -> mark profile pending; admin must approve before role granted.
+    if (data.user && role === "teacher") {
+      await supabase.from("profiles").update({ status: "pending" }).eq("id", data.user.id);
+      await supabase.auth.signOut();
+      setLoading(false);
+      toast.success("Account created. An admin must approve your teacher account before you can sign in.");
+      setTab("signin");
+      return;
     }
     setLoading(false);
     toast.success("Welcome to Digital Learning at Home");
