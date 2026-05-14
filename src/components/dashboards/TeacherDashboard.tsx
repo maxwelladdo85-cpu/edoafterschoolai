@@ -243,7 +243,7 @@ export function TeacherDashboard() {
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {filteredCourses.map((c) => (
-              <Card key={c.id} className="overflow-hidden flex flex-col">
+              <Card key={c.id} className="overflow-hidden flex flex-col border-border/60 transition-all hover:-translate-y-0.5" style={{ boxShadow: "var(--shadow-card)" }}>
                 <div
                   className="relative aspect-[16/9] w-full bg-muted"
                   style={c.thumbnail_url ? { backgroundImage: `url(${c.thumbnail_url})`, backgroundSize: "cover", backgroundPosition: "center" } : undefined}
