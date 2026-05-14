@@ -12,6 +12,7 @@ import { User, Mail, Shield, Calendar, BookOpen, GraduationCap, Users, Camera, L
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CLASS_GROUPS } from "@/lib/classes";
+import { EDO_LGAS } from "@/lib/lgas";
 import { toast } from "sonner";
 import { PageHero } from "@/components/PageHero";
 import heroSettings from "@/assets/hero-settings.jpg";
