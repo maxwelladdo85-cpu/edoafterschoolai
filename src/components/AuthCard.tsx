@@ -59,7 +59,7 @@ export function AuthCard() {
           <CardDescription>Sign in or create an account to continue</CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="signin">
+          <Tabs value={tab} onValueChange={(v) => setTab(v as "signin" | "signup")}>
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="signin">Sign In</TabsTrigger>
               <TabsTrigger value="signup">Sign Up</TabsTrigger>
@@ -76,6 +76,12 @@ export function AuthCard() {
                 </div>
                 <Button type="submit" disabled={loading} className="w-full">Sign In</Button>
               </form>
+              <p className="mt-4 text-center text-sm text-muted-foreground">
+                Don't have an account?{" "}
+                <button type="button" onClick={() => setTab("signup")} className="font-medium text-primary hover:underline">
+                  Sign up
+                </button>
+              </p>
             </TabsContent>
             <TabsContent value="signup">
               <form onSubmit={handleSignUp} className="space-y-3 pt-3">
@@ -104,6 +110,12 @@ export function AuthCard() {
                 </div>
                 <Button type="submit" disabled={loading} className="w-full">Create account</Button>
               </form>
+              <p className="mt-4 text-center text-sm text-muted-foreground">
+                Already have an account?{" "}
+                <button type="button" onClick={() => setTab("signin")} className="font-medium text-primary hover:underline">
+                  Sign in
+                </button>
+              </p>
             </TabsContent>
           </Tabs>
           <div className="mt-4 text-center text-xs text-muted-foreground">
