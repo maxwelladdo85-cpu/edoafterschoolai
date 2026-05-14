@@ -30,8 +30,8 @@ function SettingsPage() {
   useEffect(() => {
     const load = async () => {
       if (!user || !role) return;
-      const { data: p } = await supabase.from("profiles").select("full_name,email,created_at,avatar_url").eq("id", user.id).maybeSingle();
-      setProfile(p);
+      const { data: p } = await supabase.from("profiles").select("full_name,email,created_at,avatar_url,class_level" as any).eq("id", user.id).maybeSingle();
+      setProfile(p as any);
 
       if (role === "teacher") {
         const { data: cs } = await supabase.from("courses").select("id,is_active").eq("teacher_id", user.id);
