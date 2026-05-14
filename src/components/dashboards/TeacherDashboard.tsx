@@ -8,16 +8,21 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, BookOpen } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Switch } from "@/components/ui/switch";
+import { Plus, BookOpen, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 interface Course { id: string; title: string; subject: string | null; description: string | null; is_active: boolean; created_at: string; }
+
+const emptyForm = { title: "", subject: "", description: "", is_active: true };
 
 export function TeacherDashboard() {
   const { user } = useAuth();
   const [courses, setCourses] = useState<Course[]>([]);
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ title: "", subject: "", description: "" });
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
 
   const load = async () => {
@@ -27,16 +32,39 @@ export function TeacherDashboard() {
   };
   useEffect(() => { load(); }, [user]);
 
-  const create = async (e: React.FormEvent) => {
+  const openCreate = () => {
+    setEditingId(null);
+    setForm(emptyForm);
+    setOpen(true);
+  };
+
+  const openEdit = (c: Course) => {
+    setEditingId(c.id);
+    setForm({ title: c.title, subject: c.subject ?? "", description: c.description ?? "", is_active: c.is_active });
+    setOpen(true);
+  };
+
+  const save = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
     setSaving(true);
-    const { error } = await supabase.from("courses").insert({ ...form, teacher_id: user.id });
+    const payload = { title: form.title, subject: form.subject, description: form.description, is_active: form.is_active };
+    const { error } = editingId
+      ? await supabase.from("courses").update(payload).eq("id", editingId)
+      : await supabase.from("courses").insert({ ...payload, teacher_id: user.id });
     setSaving(false);
     if (error) return toast.error(error.message);
-    toast.success("Course created");
+    toast.success(editingId ? "Course updated" : "Course created");
     setOpen(false);
-    setForm({ title: "", subject: "", description: "" });
+    setEditingId(null);
+    setForm(emptyForm);
+    load();
+  };
+
+  const remove = async (id: string) => {
+    const { error } = await supabase.from("courses").delete().eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success("Course deleted");
     load();
   };
 
