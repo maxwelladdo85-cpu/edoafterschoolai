@@ -103,9 +103,9 @@ export function TeacherDashboard() {
       </header>
 
       <section>
-        <h2 className="mb-3 text-xl font-semibold">My Courses</h2>
+        <h2 className="mb-3 text-2xl font-semibold">My Courses</h2>
         {courses.length === 0 ? (
-          <Card><CardContent className="flex flex-col items-center gap-3 py-12 text-center text-muted-foreground">
+          <Card><CardContent className="flex flex-col items-center gap-3 py-12 text-center text-base text-muted-foreground">
             <BookOpen className="h-10 w-10" />
             <p>No courses yet — click "Create New Course" to get started.</p>
           </CardContent></Card>
