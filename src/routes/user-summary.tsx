@@ -11,6 +11,7 @@ import {
   ImageIcon, BookOpen, ClipboardList, CheckCircle2, UserPlus,
 } from "lucide-react";
 import { PageHero } from "@/components/PageHero";
+import heroSummary from "@/assets/hero-summary.jpg";
 
 type Activity = {
   id: string;
