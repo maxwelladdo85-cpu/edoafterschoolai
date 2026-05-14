@@ -7,14 +7,29 @@ interface PageHeroProps {
   title: string;
   description?: string;
   actions?: ReactNode;
+  backgroundImage?: string;
 }
 
-export function PageHero({ eyebrow, EyebrowIcon, title, description, actions }: PageHeroProps) {
+export function PageHero({ eyebrow, EyebrowIcon, title, description, actions, backgroundImage }: PageHeroProps) {
   return (
     <section
       className="relative overflow-hidden rounded-2xl p-8 md:p-10 text-primary-foreground"
       style={{ backgroundImage: "var(--gradient-hero)", boxShadow: "var(--shadow-elegant)" }}
     >
+      {backgroundImage && (
+        <>
+          <img
+            src={backgroundImage}
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 h-full w-full object-cover object-center opacity-40 mix-blend-luminosity"
+          />
+          <div
+            className="absolute inset-0"
+            style={{ background: "linear-gradient(90deg, color-mix(in oklab, var(--primary) 88%, transparent) 0%, color-mix(in oklab, var(--primary) 60%, transparent) 50%, color-mix(in oklab, var(--primary) 25%, transparent) 100%)" }}
+          />
+        </>
+      )}
       <div
         className="absolute -right-24 -top-24 h-72 w-72 rounded-full opacity-30 blur-3xl"
         style={{ backgroundImage: "var(--gradient-gold)" }}
@@ -28,7 +43,7 @@ export function PageHero({ eyebrow, EyebrowIcon, title, description, actions }: 
             </span>
           )}
           <h1 className="mt-4 text-4xl font-bold tracking-tight md:text-5xl">{title}</h1>
-          {description && <p className="mt-3 text-base md:text-lg text-white/85">{description}</p>}
+          {description && <p className="mt-3 text-base md:text-lg text-white/90">{description}</p>}
         </div>
         {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
       </div>

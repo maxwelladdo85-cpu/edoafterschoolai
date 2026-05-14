@@ -16,6 +16,7 @@ import { AssignClassButton } from "@/components/dashboards/AssignClassButton";
 import { toast } from "sonner";
 import { MaterialUploader } from "@/components/dashboards/MaterialUploader";
 import { PageHero } from "@/components/PageHero";
+import dashboardHero from "@/assets/dashboard-hero.jpg";
 
 interface Course { id: string; title: string; subject: string | null; description: string | null; is_active: boolean; created_at: string; class_level: string | null; teacher_name: string | null; thumbnail_url: string | null; }
 
@@ -159,6 +160,7 @@ export function TeacherDashboard() {
         EyebrowIcon={GraduationCap}
         title="Teacher Workspace"
         description="Manage and publish your courses with style."
+        backgroundImage={dashboardHero}
         actions={
           <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setEditingId(null); setForm(emptyForm); } }}>
             <DialogTrigger asChild>

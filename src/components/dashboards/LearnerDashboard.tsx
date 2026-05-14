@@ -5,6 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Bell, BookOpen, GraduationCap } from "lucide-react";
+import { PageHero } from "@/components/PageHero";
+import dashboardHero from "@/assets/dashboard-hero.jpg";
 
 interface Enrollment {
   id: string;
@@ -40,19 +42,13 @@ export function LearnerDashboard() {
 
   return (
     <div className="space-y-8">
-      <section
-        className="relative overflow-hidden rounded-2xl p-8 md:p-10 text-primary-foreground"
-        style={{ backgroundImage: "var(--gradient-hero)", boxShadow: "var(--shadow-elegant)" }}
-      >
-        <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full opacity-30 blur-3xl" style={{ backgroundImage: "var(--gradient-gold)" }} />
-        <div className="relative max-w-2xl">
-          <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium backdrop-blur">
-            <GraduationCap className="h-3.5 w-3.5" /> Learner space
-          </span>
-          <h1 className="mt-4 text-4xl font-bold tracking-tight md:text-5xl">Welcome back, {firstName}.</h1>
-          <p className="mt-3 text-base md:text-lg text-white/85">Continue your after-school learning journey across Edo State.</p>
-        </div>
-      </section>
+      <PageHero
+        eyebrow="Learner space"
+        EyebrowIcon={GraduationCap}
+        title={`Welcome back, ${firstName}.`}
+        description="Continue your after-school learning journey across Edo State."
+        backgroundImage={dashboardHero}
+      />
 
       <section className="grid gap-4 md:grid-cols-3">
         <StatCard icon={<BookOpen />} label="Enrolled Courses" value={enrollments.length} tint="from-primary/15 to-primary/5" />
