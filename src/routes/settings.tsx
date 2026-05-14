@@ -43,6 +43,30 @@ function ClassEditor({ initial, onSave }: { initial: string; onSave: (val: strin
   );
 }
 
+function LgaEditor({ initial, onSave }: { initial: string; onSave: (val: string) => Promise<void> }) {
+  const [val, setVal] = useState(initial);
+  const [saving, setSaving] = useState(false);
+  useEffect(() => { setVal(initial); }, [initial]);
+  return (
+    <div className="flex flex-wrap items-end gap-2">
+      <div className="flex-1 min-w-[220px]">
+        <Select value={val} onValueChange={setVal}>
+          <SelectTrigger><SelectValue placeholder="Select your local government" /></SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectLabel>Edo State LGAs</SelectLabel>
+              {EDO_LGAS.map((l) => <SelectItem key={l} value={l}>{l}</SelectItem>)}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      </div>
+      <Button size="sm" disabled={saving || val.trim() === initial.trim() || !val} onClick={async () => { setSaving(true); try { await onSave(val.trim()); } finally { setSaving(false); } }}>
+        {saving ? "Saving…" : "Save"}
+      </Button>
+    </div>
+  );
+}
+
 export const Route = createFileRoute("/settings")({
   component: SettingsPage,
 });
