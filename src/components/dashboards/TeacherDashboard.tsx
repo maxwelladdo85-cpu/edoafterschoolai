@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Switch } from "@/components/ui/switch";
 import { Plus, BookOpen, Pencil, Trash2 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { MaterialUploader } from "@/components/dashboards/MaterialUploader";
 
@@ -27,6 +28,15 @@ export function TeacherDashboard() {
   const [thumbFile, setThumbFile] = useState<File | null>(null);
   const [materialFiles, setMaterialFiles] = useState<File[]>([]);
   const [saving, setSaving] = useState(false);
+  const [subjectFilter, setSubjectFilter] = useState<string>("all");
+  const [classFilter, setClassFilter] = useState<string>("all");
+
+  const subjectOptions = Array.from(new Set(courses.map((c) => c.subject).filter(Boolean) as string[])).sort();
+  const classOptions = Array.from(new Set(courses.map((c) => c.class_level).filter(Boolean) as string[])).sort();
+  const filteredCourses = courses.filter((c) =>
+    (subjectFilter === "all" || c.subject === subjectFilter) &&
+    (classFilter === "all" || c.class_level === classFilter)
+  );
 
   const detectMaterialType = (file: File): "video" | "pdf" | "audio" | "doc" | null => {
     const m = file.type.toLowerCase();
@@ -195,15 +205,40 @@ export function TeacherDashboard() {
       </header>
 
       <section>
-        <h2 className="mb-3 text-2xl font-semibold">My Courses</h2>
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-2xl font-semibold">My Courses</h2>
+          <div className="flex flex-wrap gap-2">
+            <Select value={subjectFilter} onValueChange={setSubjectFilter}>
+              <SelectTrigger className="w-[180px]"><SelectValue placeholder="Subject" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All subjects</SelectItem>
+                {subjectOptions.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            <Select value={classFilter} onValueChange={setClassFilter}>
+              <SelectTrigger className="w-[180px]"><SelectValue placeholder="Class" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All classes</SelectItem>
+                {classOptions.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            {(subjectFilter !== "all" || classFilter !== "all") && (
+              <Button variant="ghost" size="sm" onClick={() => { setSubjectFilter("all"); setClassFilter("all"); }}>Clear</Button>
+            )}
+          </div>
+        </div>
         {courses.length === 0 ? (
           <Card><CardContent className="flex flex-col items-center gap-3 py-12 text-center text-base text-muted-foreground">
             <BookOpen className="h-10 w-10" />
             <p>No courses yet — click "Create New Course" to get started.</p>
           </CardContent></Card>
+        ) : filteredCourses.length === 0 ? (
+          <Card><CardContent className="py-12 text-center text-base text-muted-foreground">
+            No courses match the selected filters.
+          </CardContent></Card>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {courses.map((c) => (
+            {filteredCourses.map((c) => (
               <Card key={c.id} className="overflow-hidden flex flex-col">
                 <div
                   className="relative aspect-[16/9] w-full bg-muted"
