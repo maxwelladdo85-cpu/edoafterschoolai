@@ -131,6 +131,8 @@ export function TeacherSummary() {
 
       <VirtualClassesPanel mode="teacher" />
 
+      <AiTeachingAssistantPanel />
+
       {/* Recent courses */}
       <section>
         <div className="mb-4 flex items-center justify-between">
