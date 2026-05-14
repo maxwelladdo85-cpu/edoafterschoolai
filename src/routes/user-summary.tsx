@@ -325,6 +325,19 @@ function UserSummaryPage() {
                         </div>
                         <div className="min-w-0 flex-1">
                           <div className="flex flex-wrap items-center gap-2">
+                            {a.actor && (
+                              <span className="font-semibold">
+                                {a.actor}
+                                {a.actorRole && (
+                                  <Badge
+                                    variant={a.actorRole === "admin" ? "destructive" : a.actorRole === "teacher" ? "default" : "secondary"}
+                                    className="ml-2 align-middle"
+                                  >
+                                    {a.actorRole}
+                                  </Badge>
+                                )}
+                              </span>
+                            )}
                             <p className="font-medium">{a.label}</p>
                             {a.badge && <Badge variant="secondary">{a.badge}</Badge>}
                           </div>
