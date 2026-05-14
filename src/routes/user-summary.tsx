@@ -190,28 +190,32 @@ function UserSummaryPage() {
             <SidebarTrigger />
             <span className="text-sm font-medium text-muted-foreground">User Summary</span>
           </header>
-          <main className="flex-1 space-y-6 p-6 md:p-8">
-            <header>
-              <h1 className="text-4xl font-bold">Activity</h1>
-              <p className="text-lg text-muted-foreground">
-                {role === "teacher" || role === "admin"
-                  ? "A timeline of every course, module, lesson, quiz, and material you've added."
-                  : "Your enrollments and quiz activity."}
-              </p>
-            </header>
+          <main className="flex-1 space-y-8 p-6 md:p-8">
+            <PageHero
+              eyebrow="Activity timeline"
+              EyebrowIcon={ClipboardList}
+              title="Activity"
+              description={role === "teacher" || role === "admin"
+                ? "A timeline of every course, module, lesson, quiz, and material you've added."
+                : "Your enrollments and quiz activity."}
+            />
 
             {busy ? (
               <p className="text-muted-foreground">Loading activity…</p>
             ) : activity.length === 0 ? (
-              <Card><CardContent className="flex flex-col items-center gap-3 py-12 text-center text-muted-foreground">
-                <BookOpen className="h-10 w-10" />
-                <p>No activity yet.</p>
-              </CardContent></Card>
+              <Card className="border-dashed" style={{ background: "var(--gradient-emerald-soft)" }}>
+                <CardContent className="flex flex-col items-center gap-3 py-16 text-center">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary">
+                    <BookOpen className="h-7 w-7" />
+                  </div>
+                  <p className="text-base font-medium">No activity yet</p>
+                </CardContent>
+              </Card>
             ) : (
               <ol className="space-y-3">
                 {activity.map((a) => {
                   const Inner = (
-                    <Card className={a.href ? "transition hover:border-primary/40" : undefined}>
+                    <Card className={a.href ? "border-border/60 transition-all hover:-translate-y-0.5 hover:border-primary/40" : "border-border/60"} style={{ boxShadow: "var(--shadow-card)" }}>
                       <CardContent className="flex items-start gap-4 p-4">
                         <div className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-primary/10 text-primary">
                           <a.icon className="h-5 w-5" />
