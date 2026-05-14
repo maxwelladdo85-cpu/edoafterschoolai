@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { UserPlus, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { CLASS_GROUPS } from "@/lib/classes";
 
 export function AssignClassButton({ courseId, defaultClass }: { courseId: string; defaultClass?: string | null }) {
   const [open, setOpen] = useState(false);
@@ -41,8 +42,18 @@ export function AssignClassButton({ courseId, defaultClass }: { courseId: string
         </DialogHeader>
         <div className="space-y-2">
           <Label>Class</Label>
-          <Input value={cls} onChange={(e) => setCls(e.target.value)} placeholder="e.g. JSS 1, Primary 4" maxLength={50} />
-          <p className="text-xs text-muted-foreground">Match must be exact, including capitalization and spaces.</p>
+          <Select value={cls} onValueChange={setCls}>
+            <SelectTrigger><SelectValue placeholder="Select class" /></SelectTrigger>
+            <SelectContent>
+              {CLASS_GROUPS.map((g) => (
+                <SelectGroup key={g.label}>
+                  <SelectLabel>{g.label}</SelectLabel>
+                  {g.classes.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                </SelectGroup>
+              ))}
+            </SelectContent>
+          </Select>
+          <p className="text-xs text-muted-foreground">Every learner whose profile class matches will be enrolled.</p>
         </div>
         <DialogFooter>
           <Button onClick={assign} disabled={busy}>
