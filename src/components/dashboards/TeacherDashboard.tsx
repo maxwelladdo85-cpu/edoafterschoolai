@@ -116,11 +116,15 @@ export function TeacherDashboard() {
         const { error: tErr } = await supabase.from("courses").update({ thumbnail_url: url }).eq("id", courseId);
         if (tErr) throw tErr;
       }
+      if (materialFiles.length && courseId) {
+        await uploadMaterials(courseId, materialFiles);
+      }
       toast.success(editingId ? "Course updated" : "Course created");
       setOpen(false);
       setEditingId(null);
       setForm(emptyForm);
       setThumbFile(null);
+      setMaterialFiles([]);
       load();
     } catch (err: any) {
       toast.error(err.message ?? "Save failed");
