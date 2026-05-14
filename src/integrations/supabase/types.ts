@@ -828,6 +828,31 @@ export type Database = {
           title: string
         }[]
       }
+      admin_user_activity_log: {
+        Args: { p_limit?: number }
+        Returns: {
+          action: string
+          detail: string
+          email: string
+          full_name: string
+          occurred_at: string
+          role: string
+          user_id: string
+        }[]
+      }
+      admin_user_last_seen: {
+        Args: never
+        Returns: {
+          activity_count: number
+          email: string
+          full_name: string
+          joined_at: string
+          last_active_at: string
+          role: string
+          status: string
+          user_id: string
+        }[]
+      }
       admin_weekly_enrollments: {
         Args: never
         Returns: {
