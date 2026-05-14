@@ -11,18 +11,18 @@ import { Button } from "./ui/button";
 const NAV: Record<AppRole, { title: string; url: string; icon: any }[]> = {
   learner: [
     { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-    { title: "My Courses", url: "/dashboard", icon: BookOpen },
+    { title: "Course Library", url: "/courses", icon: BookOpen },
     { title: "Notifications", url: "/dashboard", icon: Bell },
   ],
   teacher: [
     { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
     { title: "My Courses", url: "/dashboard", icon: GraduationCap },
-    { title: "New Course", url: "/dashboard", icon: PlusSquare },
+    { title: "Course Library", url: "/courses", icon: BookOpen },
   ],
   admin: [
     { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
+    { title: "Course Library", url: "/courses", icon: BookOpen },
     { title: "Users", url: "/dashboard", icon: Users },
-    { title: "Courses", url: "/dashboard", icon: BookOpen },
   ],
 };
 
