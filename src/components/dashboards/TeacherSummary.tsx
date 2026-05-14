@@ -188,6 +188,9 @@ export function TeacherSummary() {
                   <div className="hidden text-right text-xs text-muted-foreground sm:block">
                     {new Date(c.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
                   </div>
+                  <Button size="sm" variant="outline" asChild>
+                    <Link to="/courses/builder" search={{ id: c.id }}><Wand2 className="mr-1 h-3.5 w-3.5" />Builder</Link>
+                  </Button>
                 </CardContent>
               </Card>
             ))}
