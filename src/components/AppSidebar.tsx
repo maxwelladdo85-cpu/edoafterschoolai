@@ -14,6 +14,7 @@ const NAV: Record<AppRole, { title: string; url: string; icon: any }[]> = {
     { title: "Course Library", url: "/courses", icon: BookOpen },
     { title: "User Summary", url: "/user-summary", icon: UserCircle },
     { title: "VARK Learning Quiz", url: "/vark-quiz", icon: Sparkles },
+    { title: "Virtual Classes", url: "/dashboard", icon: Video },
     { title: "Notifications", url: "/dashboard", icon: Bell },
     { title: "Settings", url: "/settings", icon: Settings },
   ],
