@@ -37,30 +37,61 @@ export function TeacherDashboard() {
   const openCreate = () => {
     setEditingId(null);
     setForm(emptyForm);
+    setThumbFile(null);
     setOpen(true);
   };
 
   const openEdit = (c: Course) => {
     setEditingId(c.id);
     setForm({ title: c.title, subject: c.subject ?? "", description: c.description ?? "", is_active: c.is_active, class_level: c.class_level ?? "", teacher_name: c.teacher_name ?? "" });
+    setThumbFile(null);
     setOpen(true);
+  };
+
+  const uploadThumb = async (courseId: string, file: File) => {
+    const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+    const path = `${courseId}/thumb-${Date.now()}.${ext}`;
+    const { error: upErr } = await supabase.storage
+      .from("course-materials")
+      .upload(path, file, { contentType: file.type, upsert: true });
+    if (upErr) throw upErr;
+    const { data: pub } = supabase.storage.from("course-materials").getPublicUrl(path);
+    return pub.publicUrl;
   };
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
+    if (thumbFile && !thumbFile.type.startsWith("image/")) return toast.error("Thumbnail must be an image");
+    if (thumbFile && thumbFile.size > 5 * 1024 * 1024) return toast.error("Thumbnail must be under 5 MB");
     setSaving(true);
-    const payload = { title: form.title, subject: form.subject, description: form.description, is_active: form.is_active, class_level: form.class_level || null, teacher_name: form.teacher_name || null };
-    const { error } = editingId
-      ? await supabase.from("courses").update(payload).eq("id", editingId)
-      : await supabase.from("courses").insert({ ...payload, teacher_id: user.id });
-    setSaving(false);
-    if (error) return toast.error(error.message);
-    toast.success(editingId ? "Course updated" : "Course created");
-    setOpen(false);
-    setEditingId(null);
-    setForm(emptyForm);
-    load();
+    try {
+      const payload: any = { title: form.title, subject: form.subject, description: form.description, is_active: form.is_active, class_level: form.class_level || null, teacher_name: form.teacher_name || null };
+      let courseId = editingId;
+      if (editingId) {
+        const { error } = await supabase.from("courses").update(payload).eq("id", editingId);
+        if (error) throw error;
+      } else {
+        const { data, error } = await supabase.from("courses").insert({ ...payload, teacher_id: user.id }).select("id").single();
+        if (error) throw error;
+        courseId = data.id;
+      }
+      if (thumbFile && courseId) {
+        const url = await uploadThumb(courseId, thumbFile);
+        const { error: tErr } = await supabase.from("courses").update({ thumbnail_url: url }).eq("id", courseId);
+        if (tErr) throw tErr;
+      }
+      toast.success(editingId ? "Course updated" : "Course created");
+      setOpen(false);
+      setEditingId(null);
+      setForm(emptyForm);
+      setThumbFile(null);
+      load();
+    } catch (err: any) {
+      toast.error(err.message ?? "Save failed");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const remove = async (id: string) => {
