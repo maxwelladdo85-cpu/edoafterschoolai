@@ -177,14 +177,55 @@ function SettingsPage() {
                     )}
                   </div>
                 </div>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="flex items-start gap-3 rounded-lg border bg-muted/30 p-3">
-                    <User className="mt-1 h-4 w-4 text-primary" />
-                    <div><p className="text-xs uppercase tracking-wide text-muted-foreground">Full name</p><p className="font-medium">{displayName}</p></div>
+                <form
+                  className="grid gap-4 sm:grid-cols-2"
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    if (!user) return;
+                    const trimmedName = fullName.trim();
+                    const trimmedEmail = email.trim();
+                    if (!trimmedName) return toast.error("Full name is required");
+                    if (trimmedName.length > 100) return toast.error("Full name must be under 100 characters");
+                    const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailRe.test(trimmedEmail)) return toast.error("Enter a valid email address");
+                    setSavingProfile(true);
+                    try {
+                      const nameChanged = trimmedName !== (profile?.full_name ?? "");
+                      const emailChanged = trimmedEmail.toLowerCase() !== (profile?.email ?? user.email ?? "").toLowerCase();
+                      if (nameChanged) {
+                        const { error } = await supabase.from("profiles").update({ full_name: trimmedName }).eq("id", user.id);
+                        if (error) throw error;
+                      }
+                      if (emailChanged) {
+                        const { error: authErr } = await supabase.auth.updateUser({ email: trimmedEmail });
+                        if (authErr) throw authErr;
+                        const { error: pErr } = await supabase.from("profiles").update({ email: trimmedEmail }).eq("id", user.id);
+                        if (pErr) throw pErr;
+                        toast.success("Profile saved — check your inbox to confirm the new email");
+                      } else if (nameChanged) {
+                        toast.success("Profile saved");
+                      } else {
+                        toast.message("No changes to save");
+                      }
+                      setProfile((prev) => prev ? { ...prev, full_name: trimmedName, email: trimmedEmail } : prev);
+                    } catch (err: any) {
+                      toast.error(err.message ?? "Could not save profile");
+                    } finally {
+                      setSavingProfile(false);
+                    }
+                  }}
+                >
+                  <div className="space-y-1.5 rounded-lg border bg-muted/30 p-3">
+                    <label className="flex items-center gap-2 text-xs uppercase tracking-wide text-muted-foreground">
+                      <User className="h-3.5 w-3.5 text-primary" /> Full name
+                    </label>
+                    <Input value={fullName} onChange={(e) => setFullName(e.target.value)} maxLength={100} placeholder="Your full name" />
                   </div>
-                  <div className="flex items-start gap-3 rounded-lg border bg-muted/30 p-3">
-                    <Mail className="mt-1 h-4 w-4 text-primary" />
-                    <div><p className="text-xs uppercase tracking-wide text-muted-foreground">Email</p><p className="font-medium break-all">{profile?.email || user.email}</p></div>
+                  <div className="space-y-1.5 rounded-lg border bg-muted/30 p-3">
+                    <label className="flex items-center gap-2 text-xs uppercase tracking-wide text-muted-foreground">
+                      <Mail className="h-3.5 w-3.5 text-primary" /> Email
+                    </label>
+                    <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} maxLength={255} placeholder="you@example.com" />
                   </div>
                   <div className="flex items-start gap-3 rounded-lg border bg-muted/30 p-3">
                     <Shield className="mt-1 h-4 w-4 text-primary" />
@@ -197,7 +238,12 @@ function SettingsPage() {
                       <p className="font-medium">{profile?.created_at ? new Date(profile.created_at).toLocaleDateString() : "—"}</p>
                     </div>
                   </div>
-                </div>
+                  <div className="sm:col-span-2 flex justify-end">
+                    <Button type="submit" disabled={savingProfile}>
+                      {savingProfile ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Saving…</> : "Save changes"}
+                    </Button>
+                  </div>
+                </form>
               </CardContent>
             </Card>
 
