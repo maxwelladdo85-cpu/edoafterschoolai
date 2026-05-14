@@ -17,11 +17,13 @@ interface Enrollment {
   course: { title: string; subject: string | null; description: string | null } | null;
 }
 interface Notification { id: string; title: string; message: string | null; is_read: boolean; created_at: string; }
+interface VarkResult { id: string; dominant: VarkStyle; created_at: string; }
 
 export function LearnerDashboard() {
   const { user } = useAuth();
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [vark, setVark] = useState<VarkResult | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -38,6 +40,14 @@ export function LearnerDashboard() {
         .order("created_at", { ascending: false })
         .limit(5);
       setNotifications(n ?? []);
+      const { data: v } = await supabase
+        .from("vark_results")
+        .select("id, dominant, created_at")
+        .eq("learner_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      setVark((v as any) ?? null);
     })();
   }, [user]);
 
