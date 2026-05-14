@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, GraduationCap, Users, FileText, Plus, Sparkles, ArrowRight, ClipboardCheck } from "lucide-react";
+import { BookOpen, GraduationCap, Users, FileText, Plus, Sparkles, ArrowRight, ClipboardCheck, Wand2 } from "lucide-react";
 
 interface CourseRow {
   id: string;
@@ -95,12 +95,12 @@ export function TeacherSummary() {
               A snapshot of everything you've created — courses, lessons and learners — in one elegant view.
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button asChild variant="secondary" className="bg-white/10 text-white hover:bg-white/20 border-white/20 border">
               <Link to="/my-courses"><GraduationCap className="mr-2 h-4 w-4" />Manage</Link>
             </Button>
             <Button asChild className="bg-gold text-gold-foreground hover:opacity-90">
-              <Link to="/my-courses"><Plus className="mr-2 h-4 w-4" />New course</Link>
+              <Link to="/courses/builder"><Wand2 className="mr-2 h-4 w-4" />Course Builder</Link>
             </Button>
           </div>
         </div>
@@ -147,7 +147,7 @@ export function TeacherSummary() {
               </div>
               <p className="text-base font-medium">No courses yet</p>
               <p className="max-w-sm text-sm text-muted-foreground">Create your first course and start sharing knowledge with learners across Edo State.</p>
-              <Button asChild className="mt-2"><Link to="/my-courses"><Plus className="mr-2 h-4 w-4" />Create your first course</Link></Button>
+              <Button asChild className="mt-2"><Link to="/courses/builder"><Wand2 className="mr-2 h-4 w-4" />Open Course Builder</Link></Button>
             </CardContent>
           </Card>
         ) : (
@@ -188,6 +188,9 @@ export function TeacherSummary() {
                   <div className="hidden text-right text-xs text-muted-foreground sm:block">
                     {new Date(c.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
                   </div>
+                  <Button size="sm" variant="outline" asChild>
+                    <Link to="/courses/builder" search={{ id: c.id }}><Wand2 className="mr-1 h-3.5 w-3.5" />Builder</Link>
+                  </Button>
                 </CardContent>
               </Card>
             ))}
