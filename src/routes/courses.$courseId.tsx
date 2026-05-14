@@ -242,6 +242,18 @@ function LessonContent({ lesson }: { lesson: Lesson }) {
     if (!lesson.content_url) return <EmptyMedia label="No audio URL" />;
     return <audio src={lesson.content_url} controls className="w-full" />;
   }
+  if (lesson.content_type === "doc") {
+    if (!lesson.content_url) return <EmptyMedia label="No document" />;
+    const office = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(lesson.content_url)}`;
+    return (
+      <div className="space-y-2">
+        <iframe src={office} title={lesson.title} className="h-[70vh] w-full rounded-lg border" />
+        <a href={lesson.content_url} target="_blank" rel="noreferrer" className="text-sm text-primary hover:underline">
+          Download document ↓
+        </a>
+      </div>
+    );
+  }
   // text
   return (
     <article className="prose prose-sm max-w-none whitespace-pre-wrap leading-relaxed text-foreground">
