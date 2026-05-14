@@ -164,9 +164,11 @@ export function TeacherDashboard() {
         description="Manage and publish your courses with style."
         backgroundImage={dashboardHero}
         actions={
-          <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setEditingId(null); setForm(emptyForm); } }}>
+          <div className="flex flex-wrap gap-2">
+            <Button asChild variant="outline" className="gap-2"><Link to="/courses/builder">{<Wand2 className="h-4 w-4" />} Course Builder</Link></Button>
+            <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setEditingId(null); setForm(emptyForm); } }}>
             <DialogTrigger asChild>
-              <Button className="gap-2 bg-gold text-gold-foreground hover:opacity-90" onClick={openCreate}><Plus className="h-4 w-4" /> Create New Course</Button>
+              <Button className="gap-2 bg-gold text-gold-foreground hover:opacity-90" onClick={openCreate}><Plus className="h-4 w-4" /> Quick Create</Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
