@@ -40,7 +40,7 @@ export function TeacherDashboard() {
 
   const openEdit = (c: Course) => {
     setEditingId(c.id);
-    setForm({ title: c.title, subject: c.subject ?? "", description: c.description ?? "", is_active: c.is_active });
+    setForm({ title: c.title, subject: c.subject ?? "", description: c.description ?? "", is_active: c.is_active, class_level: c.class_level ?? "", teacher_name: c.teacher_name ?? "" });
     setOpen(true);
   };
 
@@ -48,7 +48,7 @@ export function TeacherDashboard() {
     e.preventDefault();
     if (!user) return;
     setSaving(true);
-    const payload = { title: form.title, subject: form.subject, description: form.description, is_active: form.is_active };
+    const payload = { title: form.title, subject: form.subject, description: form.description, is_active: form.is_active, class_level: form.class_level || null, teacher_name: form.teacher_name || null };
     const { error } = editingId
       ? await supabase.from("courses").update(payload).eq("id", editingId)
       : await supabase.from("courses").insert({ ...payload, teacher_id: user.id });
