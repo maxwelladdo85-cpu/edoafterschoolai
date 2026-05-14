@@ -77,26 +77,46 @@ function AnnouncementsPage() {
     if (form.title.length > 150) { toast.error("Title too long (max 150)"); return; }
     if (form.message.length > 2000) { toast.error("Message too long (max 2000)"); return; }
 
-    setSending(true);
-    const { data, error } = await supabase.rpc("send_class_announcement", {
-      p_class_level: form.class_level,
-      p_title: form.title.trim(),
-      p_message: form.message.trim() || "",
-    });
-    setSending(false);
-    if (error) { toast.error(error.message); return; }
-    const count = Number(data ?? 0);
-    if (count === 0) { toast.error("No learners in that class"); return; }
-    toast.success(`Announcement sent to ${count} learner${count === 1 ? "" : "s"}`);
+    if (schedule) {
+      if (!sendAt) { toast.error("Pick a date and time"); return; }
+      const when = new Date(sendAt);
+      if (isNaN(when.getTime()) || when.getTime() <= Date.now()) {
+        toast.error("Scheduled time must be in the future"); return;
+      }
+      setSending(true);
+      const { error } = await supabase.rpc("schedule_class_announcement", {
+        p_class_level: form.class_level,
+        p_title: form.title.trim(),
+        p_message: form.message.trim() || "",
+        p_send_at: when.toISOString(),
+      });
+      setSending(false);
+      if (error) { toast.error(error.message); return; }
+      toast.success(`Scheduled for ${when.toLocaleString()}`);
+    } else {
+      setSending(true);
+      const { data, error } = await supabase.rpc("send_class_announcement", {
+        p_class_level: form.class_level,
+        p_title: form.title.trim(),
+        p_message: form.message.trim() || "",
+      });
+      setSending(false);
+      if (error) { toast.error(error.message); return; }
+      const count = Number(data ?? 0);
+      if (count === 0) { toast.error("No learners in that class"); return; }
+      toast.success(`Announcement sent to ${count} learner${count === 1 ? "" : "s"}`);
+      setRecentSent((prev) => [{
+        id: crypto.randomUUID(),
+        title: form.title.trim(),
+        message: form.message.trim() || null,
+        created_at: new Date().toISOString(),
+        user_id: form.class_level,
+      }, ...prev].slice(0, 8));
+    }
 
-    setRecentSent((prev) => [{
-      id: crypto.randomUUID(),
-      title: form.title.trim(),
-      message: form.message.trim() || null,
-      created_at: new Date().toISOString(),
-      user_id: form.class_level,
-    }, ...prev].slice(0, 8));
     setForm((f) => ({ ...f, title: "", message: "" }));
+    setSchedule(false);
+    setSendAt("");
     setOpen(false);
   };
 
