@@ -110,11 +110,11 @@ export function AdminDashboard() {
           <CardContent className="h-[280px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={weekly}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="day" tickFormatter={(d) => format(parseISO(d), "EEE")} stroke="hsl(var(--muted-foreground))" />
-                <YAxis allowDecimals={false} stroke="hsl(var(--muted-foreground))" />
-                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }} />
-                <Bar dataKey="enrollments" fill="hsl(var(--primary))" radius={[6, 6, 0, 0]} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                <XAxis dataKey="day" tickFormatter={(d) => format(parseISO(d), "EEE")} stroke="var(--muted-foreground)" />
+                <YAxis allowDecimals={false} stroke="var(--muted-foreground)" />
+                <Tooltip contentStyle={{ background: "var(--card)", border: "1px solid var(--border)" }} />
+                <Bar dataKey="enrollments" fill="var(--primary)" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -124,11 +124,11 @@ export function AdminDashboard() {
           <CardContent className="h-[280px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={top} layout="vertical" margin={{ left: 20 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis type="number" allowDecimals={false} stroke="hsl(var(--muted-foreground))" />
-                <YAxis dataKey="title" type="category" width={140} stroke="hsl(var(--muted-foreground))" tick={{ fontSize: 12 }} />
-                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }} />
-                <Bar dataKey="enrollments" fill="hsl(var(--gold))" radius={[0, 6, 6, 0]} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                <XAxis type="number" allowDecimals={false} stroke="var(--muted-foreground)" />
+                <YAxis dataKey="title" type="category" width={140} stroke="var(--muted-foreground)" tick={{ fontSize: 12 }} />
+                <Tooltip contentStyle={{ background: "var(--card)", border: "1px solid var(--border)" }} />
+                <Bar dataKey="enrollments" fill="var(--gold)" radius={[0, 6, 6, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -142,12 +142,12 @@ export function AdminDashboard() {
           <CardContent className="h-[280px]">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={dau}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="day" tickFormatter={(d) => format(parseISO(d), "MMM d")} stroke="hsl(var(--muted-foreground))" />
-                <YAxis allowDecimals={false} stroke="hsl(var(--muted-foreground))" />
-                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                <XAxis dataKey="day" tickFormatter={(d) => format(parseISO(d), "MMM d")} stroke="var(--muted-foreground)" />
+                <YAxis allowDecimals={false} stroke="var(--muted-foreground)" />
+                <Tooltip contentStyle={{ background: "var(--card)", border: "1px solid var(--border)" }} />
                 <Legend />
-                <Line type="monotone" dataKey="active_users" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="active_users" stroke="var(--primary)" strokeWidth={2} dot={false} />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
