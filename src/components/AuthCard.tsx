@@ -91,7 +91,7 @@ export function AuthCard() {
                 </div>
                 <div className="space-y-1">
                   <Label htmlFor="p1">Password</Label>
-                  <Input id="p1" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+                  <PasswordInput id="p1" value={password} onChange={setPassword} />
                 </div>
                 <div className="space-y-1">
                   <Label>Sign in as</Label>
