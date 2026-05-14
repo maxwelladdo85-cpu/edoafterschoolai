@@ -563,6 +563,74 @@ export type Database = {
         }
         Relationships: []
       }
+      virtual_class_attendance: {
+        Row: {
+          class_id: string
+          id: string
+          joined_at: string
+          learner_id: string
+        }
+        Insert: {
+          class_id: string
+          id?: string
+          joined_at?: string
+          learner_id: string
+        }
+        Update: {
+          class_id?: string
+          id?: string
+          joined_at?: string
+          learner_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "virtual_class_attendance_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "virtual_classes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      virtual_classes: {
+        Row: {
+          course_id: string
+          created_at: string
+          description: string | null
+          duration_minutes: number
+          id: string
+          recording_url: string | null
+          scheduled_at: string
+          teacher_id: string
+          title: string
+          zoom_url: string
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number
+          id?: string
+          recording_url?: string | null
+          scheduled_at: string
+          teacher_id: string
+          title: string
+          zoom_url: string
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number
+          id?: string
+          recording_url?: string | null
+          scheduled_at?: string
+          teacher_id?: string
+          title?: string
+          zoom_url?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

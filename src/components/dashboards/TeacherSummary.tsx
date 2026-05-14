@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, GraduationCap, Users, FileText, Plus, Sparkles, ArrowRight, ClipboardCheck, Wand2 } from "lucide-react";
+import { VirtualClassesPanel } from "@/components/VirtualClassesPanel";
 
 interface CourseRow {
   id: string;
@@ -126,6 +127,8 @@ export function TeacherSummary() {
           </Card>
         ))}
       </section>
+
+      <VirtualClassesPanel mode="teacher" />
 
       {/* Recent courses */}
       <section>

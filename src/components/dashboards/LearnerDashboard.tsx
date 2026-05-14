@@ -10,6 +10,7 @@ import { Bell, BookOpen, GraduationCap, Sparkles } from "lucide-react";
 import { PageHero } from "@/components/PageHero";
 import dashboardHero from "@/assets/dashboard-hero.jpg";
 import { STYLE_LABELS, STYLE_TIPS, type VarkStyle } from "@/lib/vark";
+import { VirtualClassesPanel } from "@/components/VirtualClassesPanel";
 
 interface Enrollment {
   id: string;
@@ -102,6 +103,8 @@ export function LearnerDashboard() {
           </Card>
         )}
       </section>
+
+      <VirtualClassesPanel mode="learner" />
 
       <section>
         <h2 className="mb-3 text-xl font-semibold">Courses</h2>
