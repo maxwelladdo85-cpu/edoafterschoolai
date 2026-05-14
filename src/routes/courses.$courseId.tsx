@@ -36,6 +36,8 @@ function CoursePlayer() {
   const [modules, setModules] = useState<Module[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [completed, setCompleted] = useState<Set<string>>(new Set());
+  const [savingComplete, setSavingComplete] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) nav({ to: "/login" });
@@ -69,6 +71,19 @@ function CoursePlayer() {
       }));
       setModules(mods);
       setActiveId(mods.flatMap((m) => m.lessons)[0]?.id ?? null);
+
+      // Load this learner's completions for these lessons
+      const lessonIds = lessons.map((l) => l.id);
+      if (lessonIds.length) {
+        const { data: comps } = await supabase
+          .from("lesson_completions")
+          .select("lesson_id")
+          .eq("learner_id", user.id)
+          .in("lesson_id", lessonIds);
+        setCompleted(new Set((comps ?? []).map((c: any) => c.lesson_id)));
+      } else {
+        setCompleted(new Set());
+      }
       setLoading(false);
     })();
   }, [courseId, user]);
@@ -76,10 +91,14 @@ function CoursePlayer() {
   const flatLessons = useMemo(() => modules.flatMap((m) => m.lessons), [modules]);
   const activeLesson = flatLessons.find((l) => l.id === activeId) ?? null;
   const activeIdx = flatLessons.findIndex((l) => l.id === activeId);
+  const totalLessons = flatLessons.length;
+  const completedCount = flatLessons.filter((l) => completed.has(l.id)).length;
+  const progressPct = totalLessons === 0 ? 0 : Math.round((completedCount / totalLessons) * 100);
+  const isActiveCompleted = activeLesson ? completed.has(activeLesson.id) : false;
 
-  const updateProgress = async (newIdx: number) => {
-    if (!user || flatLessons.length === 0) return;
-    const pct = Math.round(((newIdx + 1) / flatLessons.length) * 100);
+  const syncEnrollmentProgress = async (next: Set<string>) => {
+    if (!user || totalLessons === 0) return;
+    const pct = Math.round((Array.from(next).filter((id) => flatLessons.some((l) => l.id === id)).length / totalLessons) * 100);
     await supabase
       .from("enrollments")
       .update({ progress: pct })
@@ -87,11 +106,41 @@ function CoursePlayer() {
       .eq("course_id", courseId);
   };
 
+  const toggleComplete = async () => {
+    if (!user || !activeLesson || savingComplete) return;
+    setSavingComplete(true);
+    const next = new Set(completed);
+    try {
+      if (next.has(activeLesson.id)) {
+        const { error } = await supabase
+          .from("lesson_completions")
+          .delete()
+          .eq("learner_id", user.id)
+          .eq("lesson_id", activeLesson.id);
+        if (error) throw error;
+        next.delete(activeLesson.id);
+        toast.message("Lesson marked incomplete");
+      } else {
+        const { error } = await supabase
+          .from("lesson_completions")
+          .insert({ learner_id: user.id, lesson_id: activeLesson.id });
+        if (error) throw error;
+        next.add(activeLesson.id);
+        toast.success("Lesson completed");
+      }
+      setCompleted(next);
+      await syncEnrollmentProgress(next);
+    } catch (err: any) {
+      toast.error(err.message ?? "Could not save completion");
+    } finally {
+      setSavingComplete(false);
+    }
+  };
+
   const goTo = (idx: number) => {
     const target = flatLessons[idx];
     if (!target) return;
     setActiveId(target.id);
-    updateProgress(idx);
   };
 
   if (loading) {
