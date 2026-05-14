@@ -125,6 +125,11 @@ export function TeacherDashboard() {
               </div>
               <div className="space-y-1"><Label>Teacher name</Label><Input value={form.teacher_name} onChange={(e) => setForm({ ...form, teacher_name: e.target.value })} placeholder="Mr. / Mrs. / Ms. / Miss Adaeze Okoro" autoCapitalize="words" autoComplete="name" spellCheck={false} maxLength={100} /></div>
               <div className="space-y-1"><Label>Description</Label><Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
+              <div className="space-y-1">
+                <Label>Thumbnail image</Label>
+                <Input type="file" accept="image/*" onChange={(e) => setThumbFile(e.target.files?.[0] ?? null)} />
+                <p className="text-xs text-muted-foreground">Shown as the card background. JPG/PNG, under 5 MB.{editingId ? " Leave empty to keep the current image." : ""}</p>
+              </div>
               <div className="flex items-center justify-between rounded-md border px-3 py-2">
                 <div><Label>Active</Label><p className="text-xs text-muted-foreground">Visible to learners in the Course Library</p></div>
                 <Switch checked={form.is_active} onCheckedChange={(v) => setForm({ ...form, is_active: v })} />
