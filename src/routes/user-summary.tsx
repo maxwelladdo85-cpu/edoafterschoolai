@@ -9,7 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   GraduationCap, FileText, Video, Music, FileType2, FolderPlus,
-  ImageIcon, BookOpen, ClipboardList, CheckCircle2, UserPlus,
+  ImageIcon, BookOpen, ClipboardList, CheckCircle2, UserPlus, PlayCircle, CalendarPlus,
 } from "lucide-react";
 import { PageHero } from "@/components/PageHero";
 import heroSummary from "@/assets/hero-summary.jpg";
