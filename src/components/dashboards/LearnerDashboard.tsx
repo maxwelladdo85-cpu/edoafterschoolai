@@ -36,17 +36,28 @@ export function LearnerDashboard() {
     })();
   }, [user]);
 
+  const firstName = (user?.user_metadata?.full_name as string | undefined)?.split(" ")[0] ?? "Learner";
+
   return (
-    <div className="space-y-6">
-      <header>
-        <h1 className="text-3xl font-bold">Welcome back</h1>
-        <p className="text-muted-foreground">Continue your after-school learning journey.</p>
-      </header>
+    <div className="space-y-8">
+      <section
+        className="relative overflow-hidden rounded-2xl p-8 md:p-10 text-primary-foreground"
+        style={{ backgroundImage: "var(--gradient-hero)", boxShadow: "var(--shadow-elegant)" }}
+      >
+        <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full opacity-30 blur-3xl" style={{ backgroundImage: "var(--gradient-gold)" }} />
+        <div className="relative max-w-2xl">
+          <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium backdrop-blur">
+            <GraduationCap className="h-3.5 w-3.5" /> Learner space
+          </span>
+          <h1 className="mt-4 text-4xl font-bold tracking-tight md:text-5xl">Welcome back, {firstName}.</h1>
+          <p className="mt-3 text-base md:text-lg text-white/85">Continue your after-school learning journey across Edo State.</p>
+        </div>
+      </section>
 
       <section className="grid gap-4 md:grid-cols-3">
-        <StatCard icon={<BookOpen />} label="Enrolled Courses" value={enrollments.length} />
-        <StatCard icon={<GraduationCap />} label="Avg Progress" value={`${Math.round(enrollments.reduce((s, e) => s + e.progress, 0) / Math.max(1, enrollments.length))}%`} />
-        <StatCard icon={<Bell />} label="Unread Alerts" value={notifications.filter(n => !n.is_read).length} />
+        <StatCard icon={<BookOpen />} label="Enrolled Courses" value={enrollments.length} tint="from-primary/15 to-primary/5" />
+        <StatCard icon={<GraduationCap />} label="Avg Progress" value={`${Math.round(enrollments.reduce((s, e) => s + e.progress, 0) / Math.max(1, enrollments.length))}%`} tint="from-emerald-500/15 to-emerald-500/5" />
+        <StatCard icon={<Bell />} label="Unread Alerts" value={notifications.filter(n => !n.is_read).length} tint="from-gold/20 to-gold/5" />
       </section>
 
       <section>
