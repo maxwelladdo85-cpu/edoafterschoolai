@@ -117,15 +117,29 @@ function AnnouncementsPage() {
         />
 
         <Card className="border-border/60">
-          <CardHeader><CardTitle className="text-base">New announcement</CardTitle></CardHeader>
-          <CardContent>
-            {classLevels.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No learners with a class level yet. Once learners set their class in Settings you can broadcast to them here.
+          <CardHeader className="flex flex-row items-center justify-between gap-3">
+            <div>
+              <CardTitle className="text-base">Messages</CardTitle>
+              <p className="text-sm text-muted-foreground mt-1">
+                {classLevels.length === 0
+                  ? "No learners with a class level yet — they need to set their class in Settings before you can broadcast."
+                  : "Send a message to every learner in a class."}
               </p>
-            ) : (
-              <div className="space-y-4">
-                <div className="grid gap-3 md:grid-cols-[220px_1fr]">
+            </div>
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger asChild>
+                <Button disabled={classLevels.length === 0}>
+                  <Plus className="mr-2 h-4 w-4" />Create new message
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-lg">
+                <DialogHeader>
+                  <DialogTitle>Create new message</DialogTitle>
+                  <DialogDescription>
+                    Choose a class — every learner in that class will get this notification.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4">
                   <div>
                     <Label>Class</Label>
                     <Select value={form.class_level} onValueChange={(v) => setForm({ ...form, class_level: v })}>
@@ -149,27 +163,28 @@ function AnnouncementsPage() {
                       maxLength={150}
                     />
                   </div>
+                  <div>
+                    <Label>Message</Label>
+                    <Textarea
+                      value={form.message}
+                      onChange={(e) => setForm({ ...form, message: e.target.value })}
+                      placeholder="Write the full message learners will see in their notifications…"
+                      rows={5}
+                      maxLength={2000}
+                    />
+                    <p className="mt-1 text-xs text-muted-foreground text-right">{form.message.length}/2000</p>
+                  </div>
                 </div>
-                <div>
-                  <Label>Message</Label>
-                  <Textarea
-                    value={form.message}
-                    onChange={(e) => setForm({ ...form, message: e.target.value })}
-                    placeholder="Write the full message learners will see in their notifications…"
-                    rows={5}
-                    maxLength={2000}
-                  />
-                  <p className="mt-1 text-xs text-muted-foreground text-right">{form.message.length}/2000</p>
-                </div>
-                <div className="flex justify-end">
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setOpen(false)} disabled={sending}>Cancel</Button>
                   <Button onClick={send} disabled={sending || !form.class_level || !form.title.trim()}>
                     {sending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
                     Send announcement
                   </Button>
-                </div>
-              </div>
-            )}
-          </CardContent>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </CardHeader>
         </Card>
 
         {recentSent.length > 0 && (
