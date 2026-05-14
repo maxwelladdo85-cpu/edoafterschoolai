@@ -105,7 +105,7 @@ function CoursesLibrary() {
             {courses.map((c) => {
               const enrolled = enrolledIds.has(c.id);
               return (
-                <Card key={c.id} className="overflow-hidden flex flex-col">
+                <Card key={c.id} className="overflow-hidden flex flex-col border-border/60 transition-all hover:-translate-y-0.5" style={{ boxShadow: "var(--shadow-card)" }}>
                   <div className="aspect-[16/9] w-full overflow-hidden bg-muted">
                     {c.thumbnail_url ? (
                       <img src={c.thumbnail_url} alt={c.title} className="h-full w-full object-cover" loading="lazy" />
