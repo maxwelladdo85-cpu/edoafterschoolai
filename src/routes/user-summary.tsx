@@ -142,7 +142,7 @@ function UserSummaryPage() {
             ...w,
           });
         }
-      } else if (role === "teacher" || role === "admin") {
+      } else if (role === "teacher") {
         const { data: courses } = await supabase
           .from("courses")
           .select("id,title,subject,class_level,thumbnail_url,is_active,created_at")
