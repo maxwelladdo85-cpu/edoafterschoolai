@@ -71,6 +71,7 @@ export function TeacherDashboard() {
     setEditingId(null);
     setForm(emptyForm);
     setThumbFile(null);
+    setMaterialFiles([]);
     setOpen(true);
   };
 
