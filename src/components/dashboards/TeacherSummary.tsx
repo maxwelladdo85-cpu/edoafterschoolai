@@ -128,6 +128,8 @@ export function TeacherSummary() {
         ))}
       </section>
 
+      <VirtualClassesPanel mode="teacher" />
+
       {/* Recent courses */}
       <section>
         <div className="mb-4 flex items-center justify-between">
