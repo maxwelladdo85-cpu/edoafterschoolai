@@ -85,6 +85,7 @@ function CoursesLibrary() {
           EyebrowIcon={GraduationCap}
           title="Course Library"
           description="Discover and enroll in courses created by Edo SUBEB teachers."
+          backgroundImage={heroLibrary}
         />
 
         {loading ? (
