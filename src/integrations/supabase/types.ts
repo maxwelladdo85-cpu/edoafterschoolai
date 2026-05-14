@@ -416,6 +416,48 @@ export type Database = {
           },
         ]
       }
+      scheduled_announcements: {
+        Row: {
+          class_level: string
+          created_at: string
+          error: string | null
+          id: string
+          message: string | null
+          recipient_count: number
+          send_at: string
+          sender_id: string
+          sent_at: string | null
+          status: string
+          title: string
+        }
+        Insert: {
+          class_level: string
+          created_at?: string
+          error?: string | null
+          id?: string
+          message?: string | null
+          recipient_count?: number
+          send_at: string
+          sender_id: string
+          sent_at?: string | null
+          status?: string
+          title: string
+        }
+        Update: {
+          class_level?: string
+          created_at?: string
+          error?: string | null
+          id?: string
+          message?: string | null
+          recipient_count?: number
+          send_at?: string
+          sender_id?: string
+          sent_at?: string | null
+          status?: string
+          title?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -442,6 +484,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      dispatch_due_announcements: { Args: never; Returns: number }
       enroll_class_in_course: {
         Args: { p_class_level: string; p_course_id: string }
         Returns: number
@@ -459,6 +502,15 @@ export type Database = {
           class_level: string
           learner_count: number
         }[]
+      }
+      schedule_class_announcement: {
+        Args: {
+          p_class_level: string
+          p_message: string
+          p_send_at: string
+          p_title: string
+        }
+        Returns: string
       }
       send_class_announcement: {
         Args: { p_class_level: string; p_message: string; p_title: string }
