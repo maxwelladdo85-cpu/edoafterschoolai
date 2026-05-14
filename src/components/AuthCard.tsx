@@ -40,9 +40,23 @@ export function AuthCard() {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data: signInData, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) { setLoading(false); return toast.error(error.message); }
+    // Gate by profile status
+    if (signInData.user) {
+      const { data: prof } = await supabase.from("profiles").select("status").eq("id", signInData.user.id).maybeSingle();
+      if (prof?.status === "pending") {
+        await supabase.auth.signOut();
+        setLoading(false);
+        return toast.error("Your teacher account is still pending admin approval.");
+      }
+      if (prof?.status === "inactive") {
+        await supabase.auth.signOut();
+        setLoading(false);
+        return toast.error("Your account has been deactivated. Contact an admin.");
+      }
+    }
     setLoading(false);
-    if (error) return toast.error(error.message);
     toast.success("Welcome back");
     nav({ to: "/dashboard" });
   };
@@ -57,12 +71,14 @@ export function AuthCard() {
     });
     if (error) { setLoading(false); return toast.error(error.message); }
 
-    // If selected role isn't learner, add the additional role.
-    if (data.user && role !== "learner") {
-      // Try insert; will only succeed for the user themselves under our policies if admin — but for demo allow self-assign via profile creation.
-      // Use the trigger-created learner role + add chosen one via a service-side signup flow not available; we'll insert directly using authenticated session.
-      const { error: rErr } = await supabase.from("user_roles").insert({ user_id: data.user.id, role });
-      if (rErr) toast.message("Account created. Role assignment requires an admin.");
+    // Teacher signup -> mark profile pending; admin must approve before role granted.
+    if (data.user && role === "teacher") {
+      await supabase.from("profiles").update({ status: "pending" }).eq("id", data.user.id);
+      await supabase.auth.signOut();
+      setLoading(false);
+      toast.success("Account created. An admin must approve your teacher account before you can sign in.");
+      setTab("signin");
+      return;
     }
     setLoading(false);
     toast.success("Welcome to Digital Learning at Home");
@@ -133,8 +149,7 @@ export function AuthCard() {
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="learner">Learner</SelectItem>
-                      <SelectItem value="teacher">Teacher</SelectItem>
-                      <SelectItem value="admin">Admin</SelectItem>
+                      <SelectItem value="teacher">Teacher (requires admin approval)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

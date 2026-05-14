@@ -291,6 +291,7 @@ export type Database = {
           full_name: string | null
           id: string
           lga: string | null
+          status: string
         }
         Insert: {
           avatar_url?: string | null
@@ -300,6 +301,7 @@ export type Database = {
           full_name?: string | null
           id: string
           lga?: string | null
+          status?: string
         }
         Update: {
           avatar_url?: string | null
@@ -309,6 +311,7 @@ export type Database = {
           full_name?: string | null
           id?: string
           lga?: string | null
+          status?: string
         }
         Relationships: []
       }
@@ -671,6 +674,51 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_approve_teacher: { Args: { p_user_id: string }; Returns: undefined }
+      admin_completion_rates: {
+        Args: never
+        Returns: {
+          completion_pct: number
+          course_id: string
+          title: string
+        }[]
+      }
+      admin_daily_active_users: {
+        Args: never
+        Returns: {
+          active_users: number
+          day: string
+        }[]
+      }
+      admin_list_pending_teachers: {
+        Args: never
+        Returns: {
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+        }[]
+      }
+      admin_overview_stats: { Args: never; Returns: Json }
+      admin_set_user_status: {
+        Args: { p_status: string; p_user_id: string }
+        Returns: undefined
+      }
+      admin_top_courses: {
+        Args: never
+        Returns: {
+          course_id: string
+          enrollments: number
+          title: string
+        }[]
+      }
+      admin_weekly_enrollments: {
+        Args: never
+        Returns: {
+          day: string
+          enrollments: number
+        }[]
+      }
       dispatch_due_announcements: { Args: never; Returns: number }
       enroll_class_in_course: {
         Args: { p_class_level: string; p_course_id: string }
