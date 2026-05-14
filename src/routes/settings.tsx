@@ -144,31 +144,32 @@ function SettingsPage() {
 
             <Card className="border-border/60 overflow-hidden" style={{ boxShadow: "var(--shadow-card)" }}>
               <div
-                className="h-24 w-full"
+                className="relative h-28 w-full"
                 style={{ backgroundImage: "var(--gradient-hero)" }}
-              />
-              <CardContent className="space-y-6 -mt-12">
-                <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-end">
+              >
+                <div className="absolute left-6 -bottom-12 sm:left-8">
                   <Avatar className="h-24 w-24 ring-4 ring-background shadow-lg">
                     {profile?.avatar_url && <AvatarImage src={profile.avatar_url} alt={displayName} />}
                     <AvatarFallback className="text-2xl bg-gold/20 text-gold-foreground">{initials || "U"}</AvatarFallback>
                   </Avatar>
-                  <div className="flex-1 space-y-2 pt-2">
-                    <div>
-                      <p className="text-2xl font-bold tracking-tight">{displayName}</p>
-                      <p className="text-sm text-muted-foreground">Profile picture — JPG/PNG, under 5 MB.</p>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={onPickAvatar} />
-                      <Button size="sm" onClick={() => fileRef.current?.click()} disabled={uploading}>
-                        {uploading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Uploading…</> : <><Camera className="mr-2 h-4 w-4" />{profile?.avatar_url ? "Change picture" : "Upload picture"}</>}
+                </div>
+              </div>
+              <CardContent className="space-y-6 pt-16">
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                  <div>
+                    <p className="text-2xl font-bold tracking-tight">{displayName}</p>
+                    <p className="text-sm text-muted-foreground">Profile picture — JPG/PNG, under 5 MB.</p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={onPickAvatar} />
+                    <Button size="sm" onClick={() => fileRef.current?.click()} disabled={uploading}>
+                      {uploading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Uploading…</> : <><Camera className="mr-2 h-4 w-4" />{profile?.avatar_url ? "Change picture" : "Upload picture"}</>}
+                    </Button>
+                    {profile?.avatar_url && (
+                      <Button size="sm" variant="outline" onClick={removeAvatar} disabled={uploading}>
+                        <Trash2 className="mr-2 h-4 w-4" />Remove
                       </Button>
-                      {profile?.avatar_url && (
-                        <Button size="sm" variant="outline" onClick={removeAvatar} disabled={uploading}>
-                          <Trash2 className="mr-2 h-4 w-4" />Remove
-                        </Button>
-                      )}
-                    </div>
+                    )}
                   </div>
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2">
