@@ -73,7 +73,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
+      { name: "theme-color", content: "#00843D" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "default" },
+      { name: "apple-mobile-web-app-title", content: "EdoLearn" },
       { title: "Digital Learning at Home — SUBEB" },
       { name: "description", content: "Edo State Universal Basic Education Board after-school AI learning platform." },
       { name: "author", content: "Edo SUBEB" },
@@ -88,10 +92,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/d7b6a823-11bf-492c-964b-28b8382dfc98/id-preview-15deea65--c5c30c8b-e490-42c3-a3fb-7189991ece2f.lovable.app-1778728795945.png" },
     ],
     links: [
-      {
-        rel: "stylesheet",
-        href: appCss,
-      },
+      { rel: "stylesheet", href: appCss },
+      { rel: "manifest", href: "/manifest.webmanifest" },
+      { rel: "apple-touch-icon", href: "/icon-192.png" },
+      { rel: "icon", type: "image/png", sizes: "192x192", href: "/icon-192.png" },
+      { rel: "icon", type: "image/png", sizes: "512x512", href: "/icon-512.png" },
     ],
   }),
   shellComponent: RootShell,
@@ -116,6 +121,28 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+
+  if (typeof window !== "undefined") {
+    // Register service worker only in real browser tabs (skip Lovable editor iframe / preview).
+    const inIframe = (() => { try { return window.self !== window.top; } catch { return true; } })();
+    const host = window.location.hostname;
+    const isPreviewHost =
+      host.includes("id-preview--") ||
+      host.includes("lovableproject.com") ||
+      host.includes("lovable.dev") ||
+      host === "localhost";
+
+    if ("serviceWorker" in navigator) {
+      if (inIframe || isPreviewHost) {
+        navigator.serviceWorker.getRegistrations().then((rs) => rs.forEach((r) => r.unregister()));
+      } else if (!(window as any).__edolearnSwReg) {
+        (window as any).__edolearnSwReg = true;
+        window.addEventListener("load", () => {
+          navigator.serviceWorker.register("/sw.js").catch(() => {});
+        });
+      }
+    }
+  }
 
   return (
     <QueryClientProvider client={queryClient}>
