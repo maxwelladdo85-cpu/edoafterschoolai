@@ -1,0 +1,131 @@
+export type VarkStyle = "visual" | "aural" | "read_write" | "kinesthetic";
+
+export const STYLE_LABELS: Record<VarkStyle, string> = {
+  visual: "Visual",
+  aural: "Aural / Auditory",
+  read_write: "Read / Write",
+  kinesthetic: "Kinesthetic",
+};
+
+export const STYLE_TIPS: Record<VarkStyle, string[]> = {
+  visual: [
+    "Use diagrams, charts, mind maps and colour-coded notes.",
+    "Watch educational videos and demonstrations.",
+    "Highlight key ideas and draw pictures next to them.",
+    "Turn lessons into flowcharts and timelines.",
+  ],
+  aural: [
+    "Read your notes out loud and discuss topics with classmates.",
+    "Listen to recorded lessons, podcasts and songs about the topic.",
+    "Explain new ideas to a parent or sibling in your own words.",
+    "Use rhymes, chants or stories to remember facts.",
+  ],
+  read_write: [
+    "Rewrite your notes in your own words.",
+    "Make lists, definitions and summaries.",
+    "Read textbooks, articles and worked examples.",
+    "Practice by writing answers in full sentences.",
+  ],
+  kinesthetic: [
+    "Learn by doing — experiments, role play and hands-on projects.",
+    "Take short movement breaks while studying.",
+    "Use real objects, models or your fingers to count and build.",
+    "Practice with worksheets and real-life examples.",
+  ],
+};
+
+export interface VarkQuestion {
+  id: number;
+  prompt: string;
+  options: { label: string; style: VarkStyle }[];
+}
+
+export const VARK_QUESTIONS: VarkQuestion[] = [
+  {
+    id: 1,
+    prompt: "When my teacher explains something new, I learn best when they...",
+    options: [
+      { label: "Show pictures, diagrams or videos", style: "visual" },
+      { label: "Talk it through and let us discuss", style: "aural" },
+      { label: "Give us notes or a textbook to read", style: "read_write" },
+      { label: "Let us try it ourselves with our hands", style: "kinesthetic" },
+    ],
+  },
+  {
+    id: 2,
+    prompt: "To remember a new word, I usually...",
+    options: [
+      { label: "Picture it in my head", style: "visual" },
+      { label: "Say it aloud a few times", style: "aural" },
+      { label: "Write it down many times", style: "read_write" },
+      { label: "Spell it out with my finger or blocks", style: "kinesthetic" },
+    ],
+  },
+  {
+    id: 3,
+    prompt: "When I read a story, I enjoy it most when...",
+    options: [
+      { label: "There are colourful illustrations", style: "visual" },
+      { label: "Someone reads it aloud to me", style: "aural" },
+      { label: "I read the words quietly by myself", style: "read_write" },
+      { label: "I act it out or use puppets", style: "kinesthetic" },
+    ],
+  },
+  {
+    id: 4,
+    prompt: "If I'm trying to solve a maths problem, I prefer to...",
+    options: [
+      { label: "Draw it as a picture or chart", style: "visual" },
+      { label: "Talk through the steps out loud", style: "aural" },
+      { label: "Write the steps in a list", style: "read_write" },
+      { label: "Use counters, fingers or objects", style: "kinesthetic" },
+    ],
+  },
+  {
+    id: 5,
+    prompt: "On a free afternoon I would most enjoy...",
+    options: [
+      { label: "Watching a documentary or drawing", style: "visual" },
+      { label: "Listening to music or telling stories", style: "aural" },
+      { label: "Reading a book or writing in a journal", style: "read_write" },
+      { label: "Sports, dancing or building something", style: "kinesthetic" },
+    ],
+  },
+  {
+    id: 6,
+    prompt: "When I get directions to a new place, I understand best with...",
+    options: [
+      { label: "A map or drawing", style: "visual" },
+      { label: "Someone telling me the directions", style: "aural" },
+      { label: "Written step-by-step instructions", style: "read_write" },
+      { label: "Walking the route once with a guide", style: "kinesthetic" },
+    ],
+  },
+  {
+    id: 7,
+    prompt: "I remember things best when I...",
+    options: [
+      { label: "See them in pictures or colours", style: "visual" },
+      { label: "Hear them in a song or rhyme", style: "aural" },
+      { label: "Read or write them down", style: "read_write" },
+      { label: "Do them with my hands or body", style: "kinesthetic" },
+    ],
+  },
+  {
+    id: 8,
+    prompt: "When I work in a group, I usually like to...",
+    options: [
+      { label: "Make the posters or slides", style: "visual" },
+      { label: "Lead the discussion", style: "aural" },
+      { label: "Take the notes and write the report", style: "read_write" },
+      { label: "Build, demonstrate or present in action", style: "kinesthetic" },
+    ],
+  },
+];
+
+export function scoreAnswers(answers: VarkStyle[]) {
+  const scores: Record<VarkStyle, number> = { visual: 0, aural: 0, read_write: 0, kinesthetic: 0 };
+  for (const a of answers) scores[a] = (scores[a] ?? 0) + 1;
+  const dominant = (Object.entries(scores).sort((a, b) => b[1] - a[1])[0][0]) as VarkStyle;
+  return { scores, dominant };
+}
