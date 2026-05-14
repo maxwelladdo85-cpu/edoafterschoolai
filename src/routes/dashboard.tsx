@@ -33,7 +33,7 @@ function DashboardPage() {
             <span className="text-sm font-medium capitalize text-muted-foreground">{role} dashboard</span>
           </header>
           <main className="flex-1 p-6 md:p-8">
-            {role === "admin" ? <AdminDashboard /> : role === "teacher" ? <TeacherDashboard /> : <LearnerDashboard />}
+            {role === "admin" ? <AdminDashboard /> : role === "teacher" ? <TeacherSummary /> : <LearnerDashboard />}
           </main>
         </div>
       </div>
