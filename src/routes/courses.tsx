@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, GraduationCap, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { PageHero } from "@/components/PageHero";
 
 export const Route = createFileRoute("/courses")({
   component: CoursesLibrary,
@@ -77,21 +78,26 @@ function CoursesLibrary() {
 
   return (
     <DashboardShell title="Course Library">
-      <div className="space-y-6">
-        <header>
-          <h1 className="text-3xl font-bold">Course Library</h1>
-          <p className="text-muted-foreground">Browse and enroll in courses from Edo SUBEB teachers.</p>
-        </header>
+      <div className="space-y-8">
+        <PageHero
+          eyebrow="Browse & enroll"
+          EyebrowIcon={GraduationCap}
+          title="Course Library"
+          description="Discover and enroll in courses created by Edo SUBEB teachers."
+        />
 
         {loading ? (
           <div className="flex items-center justify-center py-20 text-muted-foreground">
             <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Loading courses…
           </div>
         ) : courses.length === 0 ? (
-          <Card>
-            <CardContent className="flex flex-col items-center gap-3 py-16 text-center text-muted-foreground">
-              <BookOpen className="h-10 w-10" />
-              <p>No active courses available yet.</p>
+          <Card className="border-dashed" style={{ background: "var(--gradient-emerald-soft)" }}>
+            <CardContent className="flex flex-col items-center gap-3 py-16 text-center">
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary">
+                <BookOpen className="h-7 w-7" />
+              </div>
+              <p className="text-base font-medium">No active courses yet</p>
+              <p className="max-w-sm text-sm text-muted-foreground">Check back soon — teachers are publishing new courses regularly.</p>
             </CardContent>
           </Card>
         ) : (
@@ -99,7 +105,7 @@ function CoursesLibrary() {
             {courses.map((c) => {
               const enrolled = enrolledIds.has(c.id);
               return (
-                <Card key={c.id} className="overflow-hidden flex flex-col">
+                <Card key={c.id} className="overflow-hidden flex flex-col border-border/60 transition-all hover:-translate-y-0.5" style={{ boxShadow: "var(--shadow-card)" }}>
                   <div className="aspect-[16/9] w-full overflow-hidden bg-muted">
                     {c.thumbnail_url ? (
                       <img src={c.thumbnail_url} alt={c.title} className="h-full w-full object-cover" loading="lazy" />
