@@ -75,20 +75,24 @@ export function TeacherDashboard() {
           <h1 className="text-3xl font-bold">Teacher Workspace</h1>
           <p className="text-muted-foreground">Manage and publish your courses.</p>
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setEditingId(null); setForm(emptyForm); } }}>
           <DialogTrigger asChild>
-            <Button className="gap-2"><Plus className="h-4 w-4" /> Create New Course</Button>
+            <Button className="gap-2" onClick={openCreate}><Plus className="h-4 w-4" /> Create New Course</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>New course</DialogTitle>
-              <DialogDescription>Add a course your learners can enroll in.</DialogDescription>
+              <DialogTitle>{editingId ? "Edit course" : "New course"}</DialogTitle>
+              <DialogDescription>{editingId ? "Update your course details." : "Add a course your learners can enroll in."}</DialogDescription>
             </DialogHeader>
-            <form onSubmit={create} className="space-y-3">
+            <form onSubmit={save} className="space-y-3">
               <div className="space-y-1"><Label>Title</Label><Input required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} /></div>
               <div className="space-y-1"><Label>Subject</Label><Input value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} placeholder="Mathematics, English…" /></div>
               <div className="space-y-1"><Label>Description</Label><Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
-              <DialogFooter><Button type="submit" disabled={saving}>Publish</Button></DialogFooter>
+              <div className="flex items-center justify-between rounded-md border px-3 py-2">
+                <div><Label>Active</Label><p className="text-xs text-muted-foreground">Visible to learners in the Course Library</p></div>
+                <Switch checked={form.is_active} onCheckedChange={(v) => setForm({ ...form, is_active: v })} />
+              </div>
+              <DialogFooter><Button type="submit" disabled={saving}>{editingId ? "Save changes" : "Publish"}</Button></DialogFooter>
             </form>
           </DialogContent>
         </Dialog>
@@ -112,8 +116,26 @@ export function TeacherDashboard() {
                   </div>
                   <CardDescription>{c.subject}</CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="space-y-3">
                   <p className="text-sm text-muted-foreground line-clamp-3">{c.description}</p>
+                  <div className="flex justify-end gap-2">
+                    <Button size="sm" variant="outline" onClick={() => openEdit(c)}><Pencil className="mr-1 h-3.5 w-3.5" />Edit</Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button size="sm" variant="destructive"><Trash2 className="mr-1 h-3.5 w-3.5" />Delete</Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete "{c.title}"?</AlertDialogTitle>
+                          <AlertDialogDescription>This will permanently remove the course and all its modules, lessons, quizzes, and enrollments.</AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => remove(c.id)}>Delete</AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
                 </CardContent>
               </Card>
             ))}
