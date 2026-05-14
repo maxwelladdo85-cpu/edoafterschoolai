@@ -24,6 +24,7 @@ export function TeacherDashboard() {
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
+  const [thumbFile, setThumbFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
 
   const load = async () => {
