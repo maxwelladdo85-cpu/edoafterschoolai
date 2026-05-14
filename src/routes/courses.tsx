@@ -113,13 +113,16 @@ function CoursesLibrary() {
                   <CardHeader>
                     <div className="flex items-start justify-between gap-2">
                       <CardTitle className="text-base leading-snug">{c.title}</CardTitle>
-                      {c.subject && <Badge variant="secondary">{c.subject}</Badge>}
+                      <div className="flex flex-col items-end gap-1">
+                        {c.subject && <Badge variant="secondary">{c.subject}</Badge>}
+                        {c.class_level && <Badge variant="outline">{c.class_level}</Badge>}
+                      </div>
                     </div>
                     <CardDescription className="line-clamp-2">{c.description}</CardDescription>
                   </CardHeader>
                   <CardContent className="mt-auto space-y-3">
                     <p className="text-xs text-muted-foreground">
-                      Teacher: <span className="font-medium text-foreground">{c.teacher?.full_name ?? "—"}</span>
+                      Teacher: <span className="font-medium text-foreground">{c.teacher_name ?? c.teacher?.full_name ?? "—"}</span>
                     </p>
                     {enrolled ? (
                       <Button asChild className="w-full" variant="secondary">
