@@ -126,7 +126,8 @@ export function TeacherDashboard() {
                     <p className="text-base font-medium text-foreground">Teacher: <span className="text-muted-foreground font-normal">{c.teacher_name}</span></p>
                   )}
                   <p className="text-base text-muted-foreground line-clamp-3">{c.description}</p>
-                  <div className="flex justify-end gap-2">
+                  <div className="flex flex-wrap justify-end gap-2">
+                    <MaterialUploader courseId={c.id} />
                     <Button size="sm" variant="outline" onClick={() => openEdit(c)}><Pencil className="mr-1 h-3.5 w-3.5" />Edit</Button>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
