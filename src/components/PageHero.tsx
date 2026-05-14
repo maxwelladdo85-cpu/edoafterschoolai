@@ -26,7 +26,7 @@ export function PageHero({ eyebrow, EyebrowIcon, title, description, actions, ba
           />
           <div
             className="absolute inset-0"
-            style={{ background: "linear-gradient(90deg, hsl(var(--primary) / 0.92) 0%, hsl(var(--primary) / 0.7) 45%, hsl(var(--primary) / 0.35) 100%)" }}
+            style={{ background: "linear-gradient(90deg, color-mix(in oklab, var(--primary) 88%, transparent) 0%, color-mix(in oklab, var(--primary) 60%, transparent) 50%, color-mix(in oklab, var(--primary) 25%, transparent) 100%)" }}
           />
         </>
       )}
