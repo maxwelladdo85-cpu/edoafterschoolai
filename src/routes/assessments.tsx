@@ -112,6 +112,7 @@ function AssessmentsPage() {
           description={isTeacher
             ? "Create quizzes attached to your courses with multiple choice, true/false, and short answer questions."
             : "Browse and take assessments from your enrolled courses."}
+          backgroundImage={heroAssessments}
         />
 
         {isTeacher && (
