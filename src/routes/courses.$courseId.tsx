@@ -299,6 +299,7 @@ function CoursePlayer() {
           )}
         </section>
       </div>
+      <AiTutorWidget courseId={courseId} courseTitle={course.title} />
     </DashboardShell>
   );
 }
