@@ -139,42 +139,48 @@ function AnnouncementsPage() {
                     Choose a class — every learner in that class will get this notification.
                   </DialogDescription>
                 </DialogHeader>
-                <div className="space-y-4">
-                  <div>
-                    <Label>Class</Label>
-                    <Select value={form.class_level} onValueChange={(v) => setForm({ ...form, class_level: v })}>
-                      <SelectTrigger><SelectValue placeholder="Select class" /></SelectTrigger>
-                      <SelectContent>
-                        {classLevels.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                    {recipientCount !== null && (
-                      <p className="mt-2 flex items-center gap-1 text-xs text-muted-foreground">
-                        <Users className="h-3 w-3" /> {recipientCount} learner{recipientCount === 1 ? "" : "s"} will receive this
-                      </p>
-                    )}
+                {classLevels.length === 0 ? (
+                  <div className="rounded-md border border-dashed border-border/60 bg-muted/40 p-4 text-sm text-muted-foreground">
+                    There are no classes to broadcast to yet. Each learner has to set their <strong>class</strong> in their profile (Settings) before they can receive announcements.
                   </div>
-                  <div>
-                    <Label>Title</Label>
-                    <Input
-                      value={form.title}
-                      onChange={(e) => setForm({ ...form, title: e.target.value })}
-                      placeholder="Important update for tomorrow"
-                      maxLength={150}
-                    />
+                ) : (
+                  <div className="space-y-4">
+                    <div>
+                      <Label>Class</Label>
+                      <Select value={form.class_level} onValueChange={(v) => setForm({ ...form, class_level: v })}>
+                        <SelectTrigger><SelectValue placeholder="Select class" /></SelectTrigger>
+                        <SelectContent>
+                          {classLevels.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                      {recipientCount !== null && (
+                        <p className="mt-2 flex items-center gap-1 text-xs text-muted-foreground">
+                          <Users className="h-3 w-3" /> {recipientCount} learner{recipientCount === 1 ? "" : "s"} will receive this
+                        </p>
+                      )}
+                    </div>
+                    <div>
+                      <Label>Title</Label>
+                      <Input
+                        value={form.title}
+                        onChange={(e) => setForm({ ...form, title: e.target.value })}
+                        placeholder="Important update for tomorrow"
+                        maxLength={150}
+                      />
+                    </div>
+                    <div>
+                      <Label>Message</Label>
+                      <Textarea
+                        value={form.message}
+                        onChange={(e) => setForm({ ...form, message: e.target.value })}
+                        placeholder="Write the full message learners will see in their notifications…"
+                        rows={5}
+                        maxLength={2000}
+                      />
+                      <p className="mt-1 text-xs text-muted-foreground text-right">{form.message.length}/2000</p>
+                    </div>
                   </div>
-                  <div>
-                    <Label>Message</Label>
-                    <Textarea
-                      value={form.message}
-                      onChange={(e) => setForm({ ...form, message: e.target.value })}
-                      placeholder="Write the full message learners will see in their notifications…"
-                      rows={5}
-                      maxLength={2000}
-                    />
-                    <p className="mt-1 text-xs text-muted-foreground text-right">{form.message.length}/2000</p>
-                  </div>
-                </div>
+                )}
                 <DialogFooter>
                   <Button variant="outline" onClick={() => setOpen(false)} disabled={sending}>Cancel</Button>
                   <Button onClick={send} disabled={sending || !form.class_level || !form.title.trim()}>
