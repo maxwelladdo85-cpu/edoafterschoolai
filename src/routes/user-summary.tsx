@@ -191,6 +191,7 @@ function UserSummaryPage() {
           <header className="flex h-14 items-center gap-2 border-b bg-card px-4">
             <SidebarTrigger />
             <span className="text-sm font-medium text-muted-foreground">User Summary</span>
+            <div className="ml-auto"><NotificationBell /></div>
           </header>
           <main className="flex-1 space-y-8 p-6 md:p-8">
             <PageHero
