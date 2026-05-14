@@ -145,6 +145,27 @@ export function AdminDashboard() {
         <Stat icon={<Video />} label="Sessions Today" value={overview?.active_sessions_today ?? "—"} tint="from-sky-500/15 to-sky-500/5" />
       </section>
 
+      {/* Exports */}
+      <section>
+        <Card>
+          <CardHeader><CardTitle className="text-base flex items-center gap-2"><Download className="h-4 w-4" /> Export reports</CardTitle></CardHeader>
+          <CardContent className="flex flex-wrap gap-2">
+            <Button variant="outline" size="sm" onClick={exportUsers}>
+              <Download className="h-4 w-4 mr-2" /> Users (CSV)
+            </Button>
+            <Button variant="outline" size="sm" onClick={exportActivity}>
+              <Download className="h-4 w-4 mr-2" /> User activity (CSV)
+            </Button>
+            <Button variant="outline" size="sm" onClick={exportLogins}>
+              <Download className="h-4 w-4 mr-2" /> Active users / last seen (CSV)
+            </Button>
+            <p className="w-full text-xs text-muted-foreground mt-1">
+              CSV files open directly in Excel and Google Sheets.
+            </p>
+          </CardContent>
+        </Card>
+      </section>
+
       {/* Charts row 1 */}
       <section className="grid gap-4 lg:grid-cols-2">
         <Card>
