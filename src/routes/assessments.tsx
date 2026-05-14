@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/DashboardShell";
 import { PageHero } from "@/components/PageHero";
+import heroAssessments from "@/assets/hero-assessments.jpg";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -111,6 +112,7 @@ function AssessmentsPage() {
           description={isTeacher
             ? "Create quizzes attached to your courses with multiple choice, true/false, and short answer questions."
             : "Browse and take assessments from your enrolled courses."}
+          backgroundImage={heroAssessments}
         />
 
         {isTeacher && (

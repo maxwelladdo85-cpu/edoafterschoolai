@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/DashboardShell";
 import { PageHero } from "@/components/PageHero";
+import heroAnnouncements from "@/assets/hero-announcements.jpg";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -136,6 +137,7 @@ function AnnouncementsPage() {
           EyebrowIcon={Megaphone}
           title="Announcements"
           description="Send a notification to every learner in a class. Messages are stored and appear in their notifications."
+          backgroundImage={heroAnnouncements}
         />
 
         <Card className="border-border/60">

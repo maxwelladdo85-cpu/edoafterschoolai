@@ -12,6 +12,7 @@ import { User, Mail, Shield, Calendar, BookOpen, GraduationCap, Users, Camera, L
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { PageHero } from "@/components/PageHero";
+import heroSettings from "@/assets/hero-settings.jpg";
 
 function ClassEditor({ initial, onSave }: { initial: string; onSave: (val: string) => Promise<void> }) {
   const [val, setVal] = useState(initial);
@@ -145,6 +146,7 @@ function SettingsPage() {
               EyebrowIcon={User}
               title="Settings"
               description="Your profile, preferences and account stats."
+              backgroundImage={heroSettings}
             />
 
             <Card className="border-border/60 overflow-hidden" style={{ boxShadow: "var(--shadow-card)" }}>

@@ -11,6 +11,7 @@ import {
   ImageIcon, BookOpen, ClipboardList, CheckCircle2, UserPlus,
 } from "lucide-react";
 import { PageHero } from "@/components/PageHero";
+import heroSummary from "@/assets/hero-summary.jpg";
 
 type Activity = {
   id: string;
@@ -199,6 +200,7 @@ function UserSummaryPage() {
               description={role === "teacher" || role === "admin"
                 ? "A timeline of every course, module, lesson, quiz, and material you've added."
                 : "Your enrollments and quiz activity."}
+              backgroundImage={heroSummary}
             />
 
             {busy ? (
