@@ -25,7 +25,7 @@ function Index() {
         <div className="absolute inset-0 bg-gradient-to-b from-background/85 via-background/70 to-background" />
 
         <div className="relative">
-          <header className="mx-auto flex max-w-6xl items-center justify-end p-6" />
+          <header className="mx-auto flex max-w-6xl items-center justify-end px-6 pt-2 pb-0" />
 
 
           <section className="mx-auto max-w-6xl px-6 pt-0 pb-10 text-center">
