@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, GraduationCap, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { PageHero } from "@/components/PageHero";
 
 export const Route = createFileRoute("/courses")({
   component: CoursesLibrary,
