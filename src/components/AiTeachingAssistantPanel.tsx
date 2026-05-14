@@ -1,0 +1,278 @@
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Sparkles, Loader2, ListChecks, CalendarRange, FileText, GraduationCap, Copy } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+
+type QuizQuestion = {
+  question: string;
+  options: string[];
+  answer: string;
+  explanation?: string;
+};
+
+async function callTeacherAi(payload: Record<string, unknown>) {
+  const { data: { session } } = await supabase.auth.getSession();
+  const token = session?.access_token;
+  if (!token) throw new Error("Not signed in");
+  const res = await fetch("/api/teacher-ai", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: "Request failed" }));
+    throw new Error(err.error || `Failed (${res.status})`);
+  }
+  return res.json();
+}
+
+function CopyButton({ text }: { text: string }) {
+  return (
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={() => {
+        navigator.clipboard.writeText(text);
+        toast.success("Copied to clipboard");
+      }}
+    >
+      <Copy className="mr-2 h-3.5 w-3.5" /> Copy
+    </Button>
+  );
+}
+
+function QuizGenerator() {
+  const [text, setText] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [questions, setQuestions] = useState<QuizQuestion[] | null>(null);
+
+  const generate = async () => {
+    if (text.trim().length < 50) {
+      toast.error("Paste at least a paragraph of lesson text.");
+      return;
+    }
+    setLoading(true);
+    setQuestions(null);
+    try {
+      const res = await callTeacherAi({ tool: "quiz", text });
+      const qs = res?.data?.questions;
+      if (Array.isArray(qs)) setQuestions(qs);
+      else throw new Error("AI returned invalid format");
+    } catch (e: any) {
+      toast.error(e.message || "Failed to generate quiz");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <Label>Lesson text</Label>
+        <Textarea
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          rows={6}
+          placeholder="Paste the lesson content here…"
+        />
+      </div>
+      <Button onClick={generate} disabled={loading}>
+        {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ListChecks className="mr-2 h-4 w-4" />}
+        Generate 10 MCQs
+      </Button>
+
+      {questions && (
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-muted-foreground">{questions.length} questions generated</p>
+            <CopyButton text={JSON.stringify(questions, null, 2)} />
+          </div>
+          <div className="space-y-3">
+            {questions.map((q, i) => (
+              <Card key={i} className="border-border/60">
+                <CardContent className="space-y-2 p-4">
+                  <p className="font-medium">{i + 1}. {q.question}</p>
+                  <ul className="space-y-1 text-sm">
+                    {q.options.map((o, j) => {
+                      const letter = String.fromCharCode(65 + j);
+                      const correct = q.answer?.toString().toUpperCase().startsWith(letter);
+                      return (
+                        <li key={j} className={correct ? "font-semibold text-primary" : ""}>
+                          {letter}. {o}{correct ? "  ✓" : ""}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                  {q.explanation && (
+                    <p className="text-xs text-muted-foreground"><span className="font-medium">Why:</span> {q.explanation}</p>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MarkdownResult({ content }: { content: string }) {
+  return (
+    <div className="space-y-2">
+      <div className="flex justify-end">
+        <CopyButton text={content} />
+      </div>
+      <div className="rounded-lg border bg-muted/30 p-4 text-sm whitespace-pre-wrap leading-relaxed">
+        {content}
+      </div>
+    </div>
+  );
+}
+
+function LessonPlanner() {
+  const [topic, setTopic] = useState("");
+  const [duration, setDuration] = useState("45");
+  const [loading, setLoading] = useState(false);
+  const [content, setContent] = useState<string | null>(null);
+
+  const generate = async () => {
+    if (!topic.trim()) { toast.error("Enter a topic."); return; }
+    setLoading(true);
+    setContent(null);
+    try {
+      const res = await callTeacherAi({ tool: "lesson_plan", topic, duration });
+      setContent(res.content || "");
+    } catch (e: any) {
+      toast.error(e.message || "Failed to generate plan");
+    } finally { setLoading(false); }
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="grid gap-3 sm:grid-cols-[1fr_140px]">
+        <div className="space-y-2">
+          <Label>Topic</Label>
+          <Input value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="e.g. Photosynthesis for JSS2" />
+        </div>
+        <div className="space-y-2">
+          <Label>Duration (min)</Label>
+          <Input type="number" min={10} max={240} value={duration} onChange={(e) => setDuration(e.target.value)} />
+        </div>
+      </div>
+      <Button onClick={generate} disabled={loading}>
+        {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CalendarRange className="mr-2 h-4 w-4" />}
+        Generate Lesson Plan
+      </Button>
+      {content && <MarkdownResult content={content} />}
+    </div>
+  );
+}
+
+function ContentSummariser() {
+  const [text, setText] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [content, setContent] = useState<string | null>(null);
+
+  const generate = async () => {
+    if (text.trim().length < 100) { toast.error("Paste a longer document."); return; }
+    setLoading(true);
+    setContent(null);
+    try {
+      const res = await callTeacherAi({ tool: "summary", text });
+      setContent(res.content || "");
+    } catch (e: any) {
+      toast.error(e.message || "Failed to summarise");
+    } finally { setLoading(false); }
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <Label>Document</Label>
+        <Textarea rows={8} value={text} onChange={(e) => setText(e.target.value)} placeholder="Paste the document text…" />
+      </div>
+      <Button onClick={generate} disabled={loading}>
+        {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileText className="mr-2 h-4 w-4" />}
+        Summarise for Students
+      </Button>
+      {content && <MarkdownResult content={content} />}
+    </div>
+  );
+}
+
+function GradingAssist() {
+  const [criteria, setCriteria] = useState("");
+  const [answer, setAnswer] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [content, setContent] = useState<string | null>(null);
+
+  const generate = async () => {
+    if (!criteria.trim() || !answer.trim()) { toast.error("Provide both criteria and the student's answer."); return; }
+    setLoading(true);
+    setContent(null);
+    try {
+      const res = await callTeacherAi({ tool: "grading", criteria, answer });
+      setContent(res.content || "");
+    } catch (e: any) {
+      toast.error(e.message || "Failed to grade");
+    } finally { setLoading(false); }
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="grid gap-3 md:grid-cols-2">
+        <div className="space-y-2">
+          <Label>Marking criteria</Label>
+          <Textarea rows={6} value={criteria} onChange={(e) => setCriteria(e.target.value)} placeholder="e.g. Out of 10. Award marks for clear thesis, evidence, structure, grammar…" />
+        </div>
+        <div className="space-y-2">
+          <Label>Student answer</Label>
+          <Textarea rows={6} value={answer} onChange={(e) => setAnswer(e.target.value)} placeholder="Paste the student's essay answer…" />
+        </div>
+      </div>
+      <Button onClick={generate} disabled={loading}>
+        {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <GraduationCap className="mr-2 h-4 w-4" />}
+        Suggest mark & feedback
+      </Button>
+      {content && <MarkdownResult content={content} />}
+    </div>
+  );
+}
+
+export function AiTeachingAssistantPanel() {
+  return (
+    <Card className="border-border/60" style={{ boxShadow: "var(--shadow-card)" }}>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <Sparkles className="h-4 w-4" />
+          </span>
+          AI Teaching Assistant
+        </CardTitle>
+        <p className="text-sm text-muted-foreground">
+          Four AI-powered helpers to speed up planning, assessment and grading.
+        </p>
+      </CardHeader>
+      <CardContent>
+        <Tabs defaultValue="quiz" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4">
+            <TabsTrigger value="quiz"><ListChecks className="mr-2 h-4 w-4" />Quiz</TabsTrigger>
+            <TabsTrigger value="plan"><CalendarRange className="mr-2 h-4 w-4" />Lesson Plan</TabsTrigger>
+            <TabsTrigger value="summary"><FileText className="mr-2 h-4 w-4" />Summariser</TabsTrigger>
+            <TabsTrigger value="grading"><GraduationCap className="mr-2 h-4 w-4" />Grading</TabsTrigger>
+          </TabsList>
+          <TabsContent value="quiz" className="mt-4"><QuizGenerator /></TabsContent>
+          <TabsContent value="plan" className="mt-4"><LessonPlanner /></TabsContent>
+          <TabsContent value="summary" className="mt-4"><ContentSummariser /></TabsContent>
+          <TabsContent value="grading" className="mt-4"><GradingAssist /></TabsContent>
+        </Tabs>
+      </CardContent>
+    </Card>
+  );
+}
