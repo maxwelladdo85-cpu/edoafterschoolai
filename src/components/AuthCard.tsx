@@ -40,9 +40,23 @@ export function AuthCard() {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data: signInData, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) { setLoading(false); return toast.error(error.message); }
+    // Gate by profile status
+    if (signInData.user) {
+      const { data: prof } = await supabase.from("profiles").select("status").eq("id", signInData.user.id).maybeSingle();
+      if (prof?.status === "pending") {
+        await supabase.auth.signOut();
+        setLoading(false);
+        return toast.error("Your teacher account is still pending admin approval.");
+      }
+      if (prof?.status === "inactive") {
+        await supabase.auth.signOut();
+        setLoading(false);
+        return toast.error("Your account has been deactivated. Contact an admin.");
+      }
+    }
     setLoading(false);
-    if (error) return toast.error(error.message);
     toast.success("Welcome back");
     nav({ to: "/dashboard" });
   };
