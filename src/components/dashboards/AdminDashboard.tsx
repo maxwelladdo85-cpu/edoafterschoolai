@@ -28,16 +28,25 @@ export function AdminDashboard() {
   }, []);
 
   return (
-    <div className="space-y-6">
-      <header>
-        <h1 className="text-3xl font-bold">Admin Console</h1>
-        <p className="text-muted-foreground">Oversee the Edo After School AI platform.</p>
-      </header>
+    <div className="space-y-8">
+      <section
+        className="relative overflow-hidden rounded-2xl p-8 md:p-10 text-primary-foreground"
+        style={{ backgroundImage: "var(--gradient-hero)", boxShadow: "var(--shadow-elegant)" }}
+      >
+        <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full opacity-30 blur-3xl" style={{ backgroundImage: "var(--gradient-gold)" }} />
+        <div className="relative max-w-2xl">
+          <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium backdrop-blur">
+            <Users className="h-3.5 w-3.5" /> Admin console
+          </span>
+          <h1 className="mt-4 text-4xl font-bold tracking-tight md:text-5xl">Platform overview</h1>
+          <p className="mt-3 text-base md:text-lg text-white/85">Oversee learners, teachers and courses across the Edo After School AI platform.</p>
+        </div>
+      </section>
 
       <section className="grid gap-4 md:grid-cols-3">
-        <Stat icon={<Users />} label="Total Users" value={users.length} />
-        <Stat icon={<BookOpen />} label="Active Courses" value={activeCourses} />
-        <Stat icon={<GraduationCap />} label="Teachers" value={users.filter((u) => u.roles.includes("teacher")).length} />
+        <Stat icon={<Users />} label="Total Users" value={users.length} tint="from-primary/15 to-primary/5" />
+        <Stat icon={<BookOpen />} label="Active Courses" value={activeCourses} tint="from-emerald-500/15 to-emerald-500/5" />
+        <Stat icon={<GraduationCap />} label="Teachers" value={users.filter((u) => u.roles.includes("teacher")).length} tint="from-gold/20 to-gold/5" />
       </section>
 
       <section>
