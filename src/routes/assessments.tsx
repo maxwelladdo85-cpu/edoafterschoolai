@@ -106,7 +106,7 @@ function AssessmentsPage() {
       <div className="space-y-6">
         <PageHero
           eyebrow="Quizzes & evaluations"
-          icon={ClipboardCheck}
+          EyebrowIcon={ClipboardCheck}
           title="Assessments"
           description={isTeacher
             ? "Create quizzes attached to your courses with multiple choice, true/false, and short answer questions."
