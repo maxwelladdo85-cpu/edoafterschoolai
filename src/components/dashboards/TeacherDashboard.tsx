@@ -159,6 +159,7 @@ export function TeacherDashboard() {
         EyebrowIcon={GraduationCap}
         title="Teacher Workspace"
         description="Manage and publish your courses with style."
+        backgroundImage={dashboardHero}
         actions={
           <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setEditingId(null); setForm(emptyForm); } }}>
             <DialogTrigger asChild>
