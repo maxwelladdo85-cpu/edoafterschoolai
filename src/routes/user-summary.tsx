@@ -46,7 +46,103 @@ function UserSummaryPage() {
       setBusy(true);
       const items: Activity[] = [];
 
-      if (role === "teacher" || role === "admin") {
+      if (role === "admin") {
+        // Cross-role platform activity feed
+        const [
+          { data: profiles },
+          { data: roles },
+          { data: courses },
+          { data: lessons },
+          { data: enrolls },
+          { data: attempts },
+          { data: completions },
+          { data: vClasses },
+          { data: vAttend },
+        ] = await Promise.all([
+          supabase.from("profiles").select("id, full_name, email"),
+          supabase.from("user_roles").select("user_id, role"),
+          supabase.from("courses").select("id, title, teacher_id, created_at, is_active").order("created_at", { ascending: false }).limit(100),
+          supabase.from("lessons").select("id, title, content_type, module_id, created_at, modules(course_id, courses(title, teacher_id))").order("created_at", { ascending: false }).limit(100),
+          supabase.from("enrollments").select("id, learner_id, course_id, enrolled_at, courses(title)").order("enrolled_at", { ascending: false }).limit(100),
+          supabase.from("quiz_attempts").select("id, learner_id, quiz_id, score, max_score, started_at, submitted_at, quizzes(title)").order("started_at", { ascending: false }).limit(100),
+          supabase.from("lesson_completions").select("id, learner_id, lesson_id, completed_at, lessons(title)").order("completed_at", { ascending: false }).limit(100),
+          supabase.from("virtual_classes").select("id, title, teacher_id, scheduled_at, created_at, courses(title)").order("created_at", { ascending: false }).limit(100),
+          supabase.from("virtual_class_attendance").select("id, learner_id, class_id, joined_at, virtual_classes(title)").order("joined_at", { ascending: false }).limit(100),
+        ]);
+
+        const nameMap = new Map<string, string>();
+        (profiles ?? []).forEach((p: any) => nameMap.set(p.id, p.full_name || p.email || "Unknown user"));
+        const roleMap = new Map<string, string>();
+        (roles ?? []).forEach((r: any) => {
+          const cur = roleMap.get(r.user_id);
+          // Prefer admin > teacher > learner for display
+          if (!cur || r.role === "admin" || (r.role === "teacher" && cur === "learner")) roleMap.set(r.user_id, r.role);
+        });
+        const who = (uid: string) => ({ actor: nameMap.get(uid) ?? "Unknown", actorRole: roleMap.get(uid) });
+
+        for (const c of courses ?? []) {
+          const w = who(c.teacher_id);
+          items.push({
+            id: `acourse-${c.id}`, ts: c.created_at, icon: GraduationCap,
+            label: `Created course "${c.title}"`,
+            badge: c.is_active ? "Active" : "Draft",
+            href: `/courses/${c.id}`, ...w,
+          });
+        }
+        for (const l of (lessons ?? []) as any[]) {
+          const teacherId = l.modules?.courses?.teacher_id;
+          const w = teacherId ? who(teacherId) : {};
+          const icon = l.content_type === "video" ? Video : l.content_type === "audio" ? Music : l.content_type === "pdf" ? FileText : l.content_type === "doc" ? FileType2 : FileText;
+          items.push({
+            id: `alesson-${l.id}`, ts: l.created_at, icon,
+            label: `Added ${l.content_type} lesson "${l.title}"`,
+            detail: l.modules?.courses?.title ? `in ${l.modules.courses.title}` : undefined,
+            ...w,
+          });
+        }
+        for (const vc of (vClasses ?? []) as any[]) {
+          const w = who(vc.teacher_id);
+          items.push({
+            id: `avc-${vc.id}`, ts: vc.created_at, icon: CalendarPlus,
+            label: `Scheduled virtual class "${vc.title}"`,
+            detail: vc.courses?.title ? `for ${vc.courses.title} · ${new Date(vc.scheduled_at).toLocaleString()}` : new Date(vc.scheduled_at).toLocaleString(),
+            ...w,
+          });
+        }
+        for (const e of (enrolls ?? []) as any[]) {
+          const w = who(e.learner_id);
+          items.push({
+            id: `aenroll-${e.id}`, ts: e.enrolled_at, icon: UserPlus,
+            label: `Enrolled in "${e.courses?.title ?? "a course"}"`,
+            href: `/courses/${e.course_id}`, ...w,
+          });
+        }
+        for (const a of (attempts ?? []) as any[]) {
+          const w = who(a.learner_id);
+          items.push({
+            id: `aattempt-${a.id}`, ts: a.submitted_at ?? a.started_at, icon: CheckCircle2,
+            label: a.submitted_at ? `Completed quiz "${a.quizzes?.title ?? ""}"` : `Started quiz "${a.quizzes?.title ?? ""}"`,
+            detail: a.submitted_at ? `Score: ${a.score} / ${a.max_score}` : undefined,
+            ...w,
+          });
+        }
+        for (const lc of (completions ?? []) as any[]) {
+          const w = who(lc.learner_id);
+          items.push({
+            id: `acomp-${lc.id}`, ts: lc.completed_at, icon: CheckCircle2,
+            label: `Completed lesson "${lc.lessons?.title ?? ""}"`,
+            ...w,
+          });
+        }
+        for (const at of (vAttend ?? []) as any[]) {
+          const w = who(at.learner_id);
+          items.push({
+            id: `aattend-${at.id}`, ts: at.joined_at, icon: PlayCircle,
+            label: `Joined virtual class "${at.virtual_classes?.title ?? ""}"`,
+            ...w,
+          });
+        }
+      } else if (role === "teacher" || role === "admin") {
         const { data: courses } = await supabase
           .from("courses")
           .select("id,title,subject,class_level,thumbnail_url,is_active,created_at")
