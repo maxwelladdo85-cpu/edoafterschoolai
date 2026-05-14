@@ -304,6 +304,24 @@ function SettingsPage() {
               </Card>
             )}
 
+            {(role === "learner" || role === "teacher") && (
+              <Card className="border-border/60" style={{ boxShadow: "var(--shadow-card)" }}>
+                <CardHeader><CardTitle>Local Government</CardTitle></CardHeader>
+                <CardContent className="space-y-3">
+                  <p className="text-sm text-muted-foreground">Select your Local Government Area in Edo State.</p>
+                  <LgaEditor
+                    initial={profile?.lga ?? ""}
+                    onSave={async (val) => {
+                      const { error } = await supabase.from("profiles").update({ lga: val || null } as any).eq("id", user.id);
+                      if (error) { toast.error(error.message); return; }
+                      setProfile((prev) => prev ? { ...prev, lga: val || null } : prev);
+                      toast.success("Local Government saved");
+                    }}
+                  />
+                </CardContent>
+              </Card>
+            )}
+
             {stats.length > 0 && (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {stats.map((s, i) => {
