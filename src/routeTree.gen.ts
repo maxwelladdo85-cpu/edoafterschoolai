@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as UserSummaryRouteImport } from './routes/user-summary'
 import { Route as MyCoursesRouteImport } from './routes/my-courses'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as DashboardRouteImport } from './routes/dashboard'
@@ -19,6 +20,11 @@ import { Route as CoursesCourseIdRouteImport } from './routes/courses.$courseId'
 import { Route as QuizzesQuizIdTakeRouteImport } from './routes/quizzes.$quizId.take'
 import { Route as QuizzesQuizIdEditRouteImport } from './routes/quizzes.$quizId.edit'
 
+const UserSummaryRoute = UserSummaryRouteImport.update({
+  id: '/user-summary',
+  path: '/user-summary',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MyCoursesRoute = MyCoursesRouteImport.update({
   id: '/my-courses',
   path: '/my-courses',
@@ -71,6 +77,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
   '/my-courses': typeof MyCoursesRoute
+  '/user-summary': typeof UserSummaryRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/quizzes/$courseId': typeof QuizzesCourseIdRoute
   '/quizzes/$quizId/edit': typeof QuizzesQuizIdEditRoute
@@ -82,6 +89,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
   '/my-courses': typeof MyCoursesRoute
+  '/user-summary': typeof UserSummaryRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/quizzes/$courseId': typeof QuizzesCourseIdRoute
   '/quizzes/$quizId/edit': typeof QuizzesQuizIdEditRoute
@@ -94,6 +102,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
   '/my-courses': typeof MyCoursesRoute
+  '/user-summary': typeof UserSummaryRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/quizzes/$courseId': typeof QuizzesCourseIdRoute
   '/quizzes/$quizId/edit': typeof QuizzesQuizIdEditRoute
@@ -107,6 +116,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/login'
     | '/my-courses'
+    | '/user-summary'
     | '/courses/$courseId'
     | '/quizzes/$courseId'
     | '/quizzes/$quizId/edit'
@@ -118,6 +128,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/login'
     | '/my-courses'
+    | '/user-summary'
     | '/courses/$courseId'
     | '/quizzes/$courseId'
     | '/quizzes/$quizId/edit'
@@ -129,6 +140,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/login'
     | '/my-courses'
+    | '/user-summary'
     | '/courses/$courseId'
     | '/quizzes/$courseId'
     | '/quizzes/$quizId/edit'
@@ -141,6 +153,7 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   LoginRoute: typeof LoginRoute
   MyCoursesRoute: typeof MyCoursesRoute
+  UserSummaryRoute: typeof UserSummaryRoute
   QuizzesCourseIdRoute: typeof QuizzesCourseIdRoute
   QuizzesQuizIdEditRoute: typeof QuizzesQuizIdEditRoute
   QuizzesQuizIdTakeRoute: typeof QuizzesQuizIdTakeRoute
@@ -148,6 +161,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/user-summary': {
+      id: '/user-summary'
+      path: '/user-summary'
+      fullPath: '/user-summary'
+      preLoaderRoute: typeof UserSummaryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/my-courses': {
       id: '/my-courses'
       path: '/my-courses'
@@ -231,6 +251,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   LoginRoute: LoginRoute,
   MyCoursesRoute: MyCoursesRoute,
+  UserSummaryRoute: UserSummaryRoute,
   QuizzesCourseIdRoute: QuizzesCourseIdRoute,
   QuizzesQuizIdEditRoute: QuizzesQuizIdEditRoute,
   QuizzesQuizIdTakeRoute: QuizzesQuizIdTakeRoute,
@@ -238,3 +259,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
