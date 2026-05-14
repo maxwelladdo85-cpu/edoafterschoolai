@@ -14,9 +14,11 @@ import { Route as VarkQuizRouteImport } from './routes/vark-quiz'
 import { Route as UserSummaryRouteImport } from './routes/user-summary'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as MyCoursesRouteImport } from './routes/my-courses'
+import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CoursesRouteImport } from './routes/courses'
+import { Route as CertificatesRouteImport } from './routes/certificates'
 import { Route as AssessmentsRouteImport } from './routes/assessments'
 import { Route as AnnouncementsRouteImport } from './routes/announcements'
 import { Route as IndexRouteImport } from './routes/index'
@@ -53,6 +55,11 @@ const MyCoursesRoute = MyCoursesRouteImport.update({
   path: '/my-courses',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MessagesRoute = MessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -66,6 +73,11 @@ const DashboardRoute = DashboardRouteImport.update({
 const CoursesRoute = CoursesRouteImport.update({
   id: '/courses',
   path: '/courses',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CertificatesRoute = CertificatesRouteImport.update({
+  id: '/certificates',
+  path: '/certificates',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AssessmentsRoute = AssessmentsRouteImport.update({
@@ -123,9 +135,11 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/announcements': typeof AnnouncementsRoute
   '/assessments': typeof AssessmentsRoute
+  '/certificates': typeof CertificatesRoute
   '/courses': typeof CoursesRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
+  '/messages': typeof MessagesRoute
   '/my-courses': typeof MyCoursesRoute
   '/settings': typeof SettingsRoute
   '/user-summary': typeof UserSummaryRoute
@@ -143,9 +157,11 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/announcements': typeof AnnouncementsRoute
   '/assessments': typeof AssessmentsRoute
+  '/certificates': typeof CertificatesRoute
   '/courses': typeof CoursesRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
+  '/messages': typeof MessagesRoute
   '/my-courses': typeof MyCoursesRoute
   '/settings': typeof SettingsRoute
   '/user-summary': typeof UserSummaryRoute
@@ -164,9 +180,11 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/announcements': typeof AnnouncementsRoute
   '/assessments': typeof AssessmentsRoute
+  '/certificates': typeof CertificatesRoute
   '/courses': typeof CoursesRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
+  '/messages': typeof MessagesRoute
   '/my-courses': typeof MyCoursesRoute
   '/settings': typeof SettingsRoute
   '/user-summary': typeof UserSummaryRoute
@@ -186,9 +204,11 @@ export interface FileRouteTypes {
     | '/'
     | '/announcements'
     | '/assessments'
+    | '/certificates'
     | '/courses'
     | '/dashboard'
     | '/login'
+    | '/messages'
     | '/my-courses'
     | '/settings'
     | '/user-summary'
@@ -206,9 +226,11 @@ export interface FileRouteTypes {
     | '/'
     | '/announcements'
     | '/assessments'
+    | '/certificates'
     | '/courses'
     | '/dashboard'
     | '/login'
+    | '/messages'
     | '/my-courses'
     | '/settings'
     | '/user-summary'
@@ -226,9 +248,11 @@ export interface FileRouteTypes {
     | '/'
     | '/announcements'
     | '/assessments'
+    | '/certificates'
     | '/courses'
     | '/dashboard'
     | '/login'
+    | '/messages'
     | '/my-courses'
     | '/settings'
     | '/user-summary'
@@ -247,9 +271,11 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AnnouncementsRoute: typeof AnnouncementsRoute
   AssessmentsRoute: typeof AssessmentsRoute
+  CertificatesRoute: typeof CertificatesRoute
   CoursesRoute: typeof CoursesRouteWithChildren
   DashboardRoute: typeof DashboardRoute
   LoginRoute: typeof LoginRoute
+  MessagesRoute: typeof MessagesRoute
   MyCoursesRoute: typeof MyCoursesRoute
   SettingsRoute: typeof SettingsRoute
   UserSummaryRoute: typeof UserSummaryRoute
@@ -299,6 +325,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MyCoursesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/messages': {
+      id: '/messages'
+      path: '/messages'
+      fullPath: '/messages'
+      preLoaderRoute: typeof MessagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -318,6 +351,13 @@ declare module '@tanstack/react-router' {
       path: '/courses'
       fullPath: '/courses'
       preLoaderRoute: typeof CoursesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/certificates': {
+      id: '/certificates'
+      path: '/certificates'
+      fullPath: '/certificates'
+      preLoaderRoute: typeof CertificatesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/assessments': {
@@ -410,9 +450,11 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AnnouncementsRoute: AnnouncementsRoute,
   AssessmentsRoute: AssessmentsRoute,
+  CertificatesRoute: CertificatesRoute,
   CoursesRoute: CoursesRouteWithChildren,
   DashboardRoute: DashboardRoute,
   LoginRoute: LoginRoute,
+  MessagesRoute: MessagesRoute,
   MyCoursesRoute: MyCoursesRoute,
   SettingsRoute: SettingsRoute,
   UserSummaryRoute: UserSummaryRoute,

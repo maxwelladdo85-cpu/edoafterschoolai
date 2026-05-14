@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, BookOpen, Users, Bell, LogOut, GraduationCap, PlusSquare, UserCircle, Settings, ClipboardCheck, Megaphone, Sparkles, Wand2, Video } from "lucide-react";
+import { LayoutDashboard, BookOpen, Users, Bell, LogOut, GraduationCap, PlusSquare, UserCircle, Settings, ClipboardCheck, Megaphone, Sparkles, Wand2, Video, MessageCircle, Award } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
   SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem,
@@ -12,6 +12,8 @@ const NAV: Record<AppRole, { title: string; url: string; icon: any }[]> = {
   learner: [
     { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
     { title: "Course Library", url: "/courses", icon: BookOpen },
+    { title: "Messages", url: "/messages", icon: MessageCircle },
+    { title: "Certificates", url: "/certificates", icon: Award },
     { title: "User Summary", url: "/user-summary", icon: UserCircle },
     { title: "VARK Learning Quiz", url: "/vark-quiz", icon: Sparkles },
     { title: "Virtual Classes", url: "/dashboard", icon: Video },
@@ -24,6 +26,7 @@ const NAV: Record<AppRole, { title: string; url: string; icon: any }[]> = {
     { title: "Course Builder", url: "/courses/builder", icon: Wand2 },
     { title: "Virtual Classes", url: "/virtual-classes", icon: Video },
     { title: "Assessments", url: "/assessments", icon: ClipboardCheck },
+    { title: "Messages", url: "/messages", icon: MessageCircle },
     { title: "Announcements", url: "/announcements", icon: Megaphone },
     { title: "Course Library", url: "/courses", icon: BookOpen },
     { title: "User Summary", url: "/user-summary", icon: UserCircle },

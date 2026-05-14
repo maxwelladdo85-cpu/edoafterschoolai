@@ -66,6 +66,57 @@ export type Database = {
           },
         ]
       }
+      badges: {
+        Row: {
+          awarded_at: string
+          code: string
+          id: string
+          learner_id: string
+        }
+        Insert: {
+          awarded_at?: string
+          code: string
+          id?: string
+          learner_id: string
+        }
+        Update: {
+          awarded_at?: string
+          code?: string
+          id?: string
+          learner_id?: string
+        }
+        Relationships: []
+      }
+      certificates: {
+        Row: {
+          certificate_code: string
+          course_id: string
+          course_name: string
+          id: string
+          issued_at: string
+          learner_id: string
+          learner_name: string
+        }
+        Insert: {
+          certificate_code: string
+          course_id: string
+          course_name: string
+          id?: string
+          issued_at?: string
+          learner_id: string
+          learner_name: string
+        }
+        Update: {
+          certificate_code?: string
+          course_id?: string
+          course_name?: string
+          id?: string
+          issued_at?: string
+          learner_id?: string
+          learner_name?: string
+        }
+        Relationships: []
+      }
       courses: {
         Row: {
           class_level: string | null
@@ -105,6 +156,33 @@ export type Database = {
         }
         Relationships: []
       }
+      direct_messages: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          read_at: string | null
+          recipient_id: string
+          sender_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          read_at?: string | null
+          recipient_id: string
+          sender_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          read_at?: string | null
+          recipient_id?: string
+          sender_id?: string
+        }
+        Relationships: []
+      }
       enrollments: {
         Row: {
           course_id: string
@@ -133,6 +211,44 @@ export type Database = {
             columns: ["course_id"]
             isOneToOne: false
             referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      forum_posts: {
+        Row: {
+          author_id: string
+          body: string
+          course_id: string
+          created_at: string
+          id: string
+          parent_id: string | null
+          title: string | null
+        }
+        Insert: {
+          author_id: string
+          body: string
+          course_id: string
+          created_at?: string
+          id?: string
+          parent_id?: string | null
+          title?: string | null
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          course_id?: string
+          created_at?: string
+          id?: string
+          parent_id?: string | null
+          title?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "forum_posts_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "forum_posts"
             referencedColumns: ["id"]
           },
         ]
@@ -719,6 +835,10 @@ export type Database = {
           enrollments: number
         }[]
       }
+      award_badge: {
+        Args: { _code: string; _learner: string }
+        Returns: undefined
+      }
       dispatch_due_announcements: { Args: never; Returns: number }
       enroll_class_in_course: {
         Args: { p_class_level: string; p_course_id: string }
@@ -736,6 +856,15 @@ export type Database = {
         Returns: {
           class_level: string
           learner_count: number
+        }[]
+      }
+      list_my_message_contacts: {
+        Args: never
+        Returns: {
+          email: string
+          full_name: string
+          role: string
+          user_id: string
         }[]
       }
       schedule_class_announcement: {
