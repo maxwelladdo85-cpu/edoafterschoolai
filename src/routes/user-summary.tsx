@@ -297,7 +297,9 @@ function UserSummaryPage() {
               eyebrow="Activity timeline"
               EyebrowIcon={ClipboardList}
               title="Activity"
-              description={role === "teacher" || role === "admin"
+              description={role === "admin"
+                ? "Platform-wide timeline of actions taken by every learner, teacher, and admin."
+                : role === "teacher"
                 ? "A timeline of every course, module, lesson, quiz, and material you've added."
                 : "Your enrollments and quiz activity."}
               backgroundImage={heroSummary}
