@@ -173,6 +173,15 @@ function CoursePlayer() {
             <h2 className="text-lg font-bold">{course.title}</h2>
             {course.subject && <p className="text-xs text-muted-foreground">{course.subject}</p>}
           </div>
+          {totalLessons > 0 && (
+            <div className="space-y-1.5 rounded-lg border bg-muted/30 p-3">
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-medium">Course progress</span>
+                <span className="text-muted-foreground">{completedCount}/{totalLessons} · {progressPct}%</span>
+              </div>
+              <Progress value={progressPct} className="h-2" />
+            </div>
+          )}
           <Button variant="outline" size="sm" asChild className="w-full">
             <Link to="/quizzes/$courseId" params={{ courseId }}>Quizzes & assessments</Link>
           </Button>
