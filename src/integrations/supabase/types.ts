@@ -816,6 +816,7 @@ export type Database = {
         }[]
       }
       admin_overview_stats: { Args: never; Returns: Json }
+      admin_performance_stats: { Args: never; Returns: Json }
       admin_set_user_status: {
         Args: { p_status: string; p_user_id: string }
         Returns: undefined
