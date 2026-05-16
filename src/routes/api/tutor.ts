@@ -38,6 +38,45 @@ export const Route = createFileRoute("/api/tutor")({
             return new Response("Message too long", { status: 400 });
           }
 
+          // Per-user rate limit: 10 messages/minute, 100/hour, 400/day
+          const nowIso = new Date().toISOString();
+          const minuteAgo = new Date(Date.now() - 60_000).toISOString();
+          const hourAgo = new Date(Date.now() - 60 * 60_000).toISOString();
+          const dayAgo = new Date(Date.now() - 24 * 60 * 60_000).toISOString();
+          const [perMinuteRes, perHourRes, perDayRes] = await Promise.all([
+            supabase
+              .from("tutor_messages")
+              .select("id", { count: "exact", head: true })
+              .eq("learner_id", userId)
+              .eq("role", "user")
+              .gte("created_at", minuteAgo)
+              .lte("created_at", nowIso),
+            supabase
+              .from("tutor_messages")
+              .select("id", { count: "exact", head: true })
+              .eq("learner_id", userId)
+              .eq("role", "user")
+              .gte("created_at", hourAgo)
+              .lte("created_at", nowIso),
+            supabase
+              .from("tutor_messages")
+              .select("id", { count: "exact", head: true })
+              .eq("learner_id", userId)
+              .eq("role", "user")
+              .gte("created_at", dayAgo)
+              .lte("created_at", nowIso),
+          ]);
+          if (
+            (perMinuteRes.count ?? 0) >= 10 ||
+            (perHourRes.count ?? 0) >= 100 ||
+            (perDayRes.count ?? 0) >= 400
+          ) {
+            return new Response(
+              JSON.stringify({ error: "You're sending messages too quickly. Please wait a moment." }),
+              { status: 429, headers: { "content-type": "application/json", "Retry-After": "60" } },
+            );
+          }
+
           // Load course context (RLS will allow if learner is enrolled / teacher / admin)
           const { data: course } = await supabase
             .from("courses")
