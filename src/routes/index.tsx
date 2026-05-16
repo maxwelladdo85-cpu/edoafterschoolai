@@ -1,4 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { setResponseHeaders } from "@tanstack/react-start/server";
+import { createServerFn } from "@tanstack/react-start";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
 import { GraduationCap, Users, Sparkles, BookOpen } from "lucide-react";
@@ -7,7 +9,20 @@ import teachersImg from "@/assets/teachers.jpg";
 import adminsImg from "@/assets/admins.jpg";
 import heroBg from "@/assets/hero-bg.jpg";
 
+// Tell the CDN to cache the landing page for 5 minutes and serve stale
+// content for up to a day while it refreshes in the background. This means
+// anonymous visitors hit the CDN, not the server / database.
+const setLandingCacheHeaders = createServerFn({ method: "GET" }).handler(async () => {
+  setResponseHeaders(
+    new Headers({
+      "Cache-Control": "public, max-age=300, s-maxage=300, stale-while-revalidate=86400",
+    }),
+  );
+  return { ok: true };
+});
+
 export const Route = createFileRoute("/")({
+  loader: () => setLandingCacheHeaders(),
   component: Index,
 });
 
