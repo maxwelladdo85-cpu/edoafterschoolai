@@ -21,6 +21,7 @@ import { Route as CoursesRouteImport } from './routes/courses'
 import { Route as CertificatesRouteImport } from './routes/certificates'
 import { Route as AssessmentsRouteImport } from './routes/assessments'
 import { Route as AnnouncementsRouteImport } from './routes/announcements'
+import { Route as AdminPerformanceRouteImport } from './routes/admin-performance'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as QuizzesCourseIdRouteImport } from './routes/quizzes.$courseId'
 import { Route as CoursesBuilderRouteImport } from './routes/courses.builder'
@@ -90,6 +91,11 @@ const AnnouncementsRoute = AnnouncementsRouteImport.update({
   path: '/announcements',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminPerformanceRoute = AdminPerformanceRouteImport.update({
+  id: '/admin-performance',
+  path: '/admin-performance',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -133,6 +139,7 @@ const QuizzesQuizIdEditRoute = QuizzesQuizIdEditRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin-performance': typeof AdminPerformanceRoute
   '/announcements': typeof AnnouncementsRoute
   '/assessments': typeof AssessmentsRoute
   '/certificates': typeof CertificatesRoute
@@ -155,6 +162,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin-performance': typeof AdminPerformanceRoute
   '/announcements': typeof AnnouncementsRoute
   '/assessments': typeof AssessmentsRoute
   '/certificates': typeof CertificatesRoute
@@ -178,6 +186,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin-performance': typeof AdminPerformanceRoute
   '/announcements': typeof AnnouncementsRoute
   '/assessments': typeof AssessmentsRoute
   '/certificates': typeof CertificatesRoute
@@ -202,6 +211,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin-performance'
     | '/announcements'
     | '/assessments'
     | '/certificates'
@@ -224,6 +234,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/admin-performance'
     | '/announcements'
     | '/assessments'
     | '/certificates'
@@ -246,6 +257,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/admin-performance'
     | '/announcements'
     | '/assessments'
     | '/certificates'
@@ -269,6 +281,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminPerformanceRoute: typeof AdminPerformanceRoute
   AnnouncementsRoute: typeof AnnouncementsRoute
   AssessmentsRoute: typeof AssessmentsRoute
   CertificatesRoute: typeof CertificatesRoute
@@ -374,6 +387,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AnnouncementsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin-performance': {
+      id: '/admin-performance'
+      path: '/admin-performance'
+      fullPath: '/admin-performance'
+      preLoaderRoute: typeof AdminPerformanceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -448,6 +468,7 @@ const CoursesRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminPerformanceRoute: AdminPerformanceRoute,
   AnnouncementsRoute: AnnouncementsRoute,
   AssessmentsRoute: AssessmentsRoute,
   CertificatesRoute: CertificatesRoute,

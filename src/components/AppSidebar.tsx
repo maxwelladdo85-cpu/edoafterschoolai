@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, BookOpen, Users, Bell, LogOut, GraduationCap, PlusSquare, UserCircle, Settings, ClipboardCheck, Megaphone, Sparkles, Wand2, Video, MessageCircle, Award } from "lucide-react";
+import { LayoutDashboard, BookOpen, Users, Bell, LogOut, GraduationCap, PlusSquare, UserCircle, Settings, ClipboardCheck, Megaphone, Sparkles, Wand2, Video, MessageCircle, Award, Activity } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
   SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem,
@@ -34,6 +34,7 @@ const NAV: Record<AppRole, { title: string; url: string; icon: any }[]> = {
   ],
   admin: [
     { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
+    { title: "Performance", url: "/admin-performance", icon: Activity },
     { title: "Course Library", url: "/courses", icon: BookOpen },
     { title: "Assessments", url: "/assessments", icon: ClipboardCheck },
     { title: "Announcements", url: "/announcements", icon: Megaphone },
