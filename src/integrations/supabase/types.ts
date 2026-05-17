@@ -403,6 +403,7 @@ export type Database = {
           avatar_url: string | null
           class_level: string | null
           created_at: string
+          date_of_birth: string | null
           email: string | null
           full_name: string | null
           id: string
@@ -413,6 +414,7 @@ export type Database = {
           avatar_url?: string | null
           class_level?: string | null
           created_at?: string
+          date_of_birth?: string | null
           email?: string | null
           full_name?: string | null
           id: string
@@ -423,6 +425,7 @@ export type Database = {
           avatar_url?: string | null
           class_level?: string | null
           created_at?: string
+          date_of_birth?: string | null
           email?: string | null
           full_name?: string | null
           id?: string
@@ -902,6 +905,7 @@ export type Database = {
         }
         Returns: string
       }
+      send_birthday_greeting_if_due: { Args: never; Returns: boolean }
       send_class_announcement: {
         Args: { p_class_level: string; p_message: string; p_title: string }
         Returns: number
