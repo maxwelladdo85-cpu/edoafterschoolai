@@ -327,6 +327,7 @@ function SettingsPage() {
               </CardContent>
             </Card>
 
+            {role === "learner" && (
               <Card className="border-border/60" style={{ boxShadow: "var(--shadow-card)" }}>
                 <CardHeader><CardTitle>My class</CardTitle></CardHeader>
                 <CardContent className="space-y-3">
