@@ -1,6 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { NotificationBell } from "@/components/NotificationBell";
@@ -19,6 +21,18 @@ function DashboardPage() {
   useEffect(() => {
     if (!loading && !user) nav({ to: "/login" });
   }, [loading, user, nav]);
+
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      const { data: sent } = await (supabase as any).rpc("send_birthday_greeting_if_due");
+      if (sent === true) toast.success("🎂 Happy Birthday from Edo SUBEB!");
+      const { data: p } = await supabase.from("profiles").select("date_of_birth" as any).eq("id", user.id).maybeSingle();
+      if (p && (p as any).date_of_birth == null) {
+        toast.message("Add your date of birth in Settings so we can wish you a happy birthday!", { duration: 6000 });
+      }
+    })();
+  }, [user]);
 
   if (loading || !user) {
     return <div className="flex min-h-screen items-center justify-center text-muted-foreground">Loading…</div>;
