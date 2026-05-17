@@ -150,7 +150,7 @@ function BuilderPage() {
         const { error } = await supabase.from("courses").update(payload).eq("id", cid);
         if (error) throw error;
       } else {
-        const { data, error } = await supabase.from("courses").insert({ ...payload, teacher_id: user.id, is_active: false }).select("id").single();
+        const { data, error } = await supabase.from("courses").insert({ ...payload, teacher_id: user.id, is_active: true }).select("id").single();
         if (error) throw error;
         cid = data.id;
         setCourseId(cid);

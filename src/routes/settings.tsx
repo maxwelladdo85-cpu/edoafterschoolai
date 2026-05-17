@@ -75,7 +75,9 @@ export const Route = createFileRoute("/settings")({
 function SettingsPage() {
   const { user, role, loading } = useAuth();
   const nav = useNavigate();
-  const [profile, setProfile] = useState<{ full_name: string | null; email: string | null; created_at: string; avatar_url: string | null; class_level: string | null; lga: string | null } | null>(null);
+  const [profile, setProfile] = useState<{ full_name: string | null; email: string | null; created_at: string; avatar_url: string | null; class_level: string | null; lga: string | null; date_of_birth: string | null } | null>(null);
+  const [dob, setDob] = useState("");
+  const [savingDob, setSavingDob] = useState(false);
   const [stats, setStats] = useState<{ label: string; value: number; icon: any }[]>([]);
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -90,10 +92,11 @@ function SettingsPage() {
   useEffect(() => {
     const load = async () => {
       if (!user || !role) return;
-      const { data: p } = await supabase.from("profiles").select("full_name,email,created_at,avatar_url,class_level,lga" as any).eq("id", user.id).maybeSingle();
+      const { data: p } = await supabase.from("profiles").select("full_name,email,created_at,avatar_url,class_level,lga,date_of_birth" as any).eq("id", user.id).maybeSingle();
       setProfile(p as any);
       setFullName((p as any)?.full_name ?? "");
       setEmail((p as any)?.email ?? user.email ?? "");
+      setDob((p as any)?.date_of_birth ?? "");
 
       if (role === "teacher") {
         const { data: cs } = await supabase.from("courses").select("id,is_active").eq("teacher_id", user.id);
@@ -284,6 +287,42 @@ function SettingsPage() {
                       {savingProfile ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Saving…</> : "Save changes"}
                     </Button>
                   </div>
+                </form>
+              </CardContent>
+            </Card>
+
+            <Card className={`border-border/60 ${!profile?.date_of_birth ? "ring-2 ring-gold/60" : ""}`} style={{ boxShadow: "var(--shadow-card)" }}>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2"><Calendar className="h-5 w-5 text-primary" /> Date of Birth</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <p className="text-sm text-muted-foreground">
+                  {profile?.date_of_birth
+                    ? "Update your date of birth below — we'll send you a birthday message every year on this day."
+                    : "Please add your date of birth so we can send you a birthday message every year. 🎂"}
+                </p>
+                <form
+                  className="flex flex-wrap items-end gap-2"
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    if (!user) return;
+                    if (!dob) return toast.error("Please pick a date");
+                    const d = new Date(dob);
+                    if (isNaN(d.getTime()) || d > new Date()) return toast.error("Enter a valid past date");
+                    setSavingDob(true);
+                    const { error } = await supabase.from("profiles").update({ date_of_birth: dob } as any).eq("id", user.id);
+                    setSavingDob(false);
+                    if (error) return toast.error(error.message);
+                    setProfile((prev) => prev ? { ...prev, date_of_birth: dob } : prev);
+                    toast.success("Date of birth saved");
+                  }}
+                >
+                  <div className="flex-1 min-w-[220px]">
+                    <Input type="date" value={dob} max={new Date().toISOString().slice(0, 10)} onChange={(e) => setDob(e.target.value)} />
+                  </div>
+                  <Button type="submit" size="sm" disabled={savingDob || !dob || dob === (profile?.date_of_birth ?? "")}>
+                    {savingDob ? "Saving…" : "Save"}
+                  </Button>
                 </form>
               </CardContent>
             </Card>
