@@ -75,7 +75,9 @@ export const Route = createFileRoute("/settings")({
 function SettingsPage() {
   const { user, role, loading } = useAuth();
   const nav = useNavigate();
-  const [profile, setProfile] = useState<{ full_name: string | null; email: string | null; created_at: string; avatar_url: string | null; class_level: string | null; lga: string | null } | null>(null);
+  const [profile, setProfile] = useState<{ full_name: string | null; email: string | null; created_at: string; avatar_url: string | null; class_level: string | null; lga: string | null; date_of_birth: string | null } | null>(null);
+  const [dob, setDob] = useState("");
+  const [savingDob, setSavingDob] = useState(false);
   const [stats, setStats] = useState<{ label: string; value: number; icon: any }[]>([]);
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -90,10 +92,11 @@ function SettingsPage() {
   useEffect(() => {
     const load = async () => {
       if (!user || !role) return;
-      const { data: p } = await supabase.from("profiles").select("full_name,email,created_at,avatar_url,class_level,lga" as any).eq("id", user.id).maybeSingle();
+      const { data: p } = await supabase.from("profiles").select("full_name,email,created_at,avatar_url,class_level,lga,date_of_birth" as any).eq("id", user.id).maybeSingle();
       setProfile(p as any);
       setFullName((p as any)?.full_name ?? "");
       setEmail((p as any)?.email ?? user.email ?? "");
+      setDob((p as any)?.date_of_birth ?? "");
 
       if (role === "teacher") {
         const { data: cs } = await supabase.from("courses").select("id,is_active").eq("teacher_id", user.id);
