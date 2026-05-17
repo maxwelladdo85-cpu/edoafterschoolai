@@ -46,13 +46,12 @@ function CoursesLibrary() {
       const [{ data: cs }, { data: es }] = await Promise.all([
         supabase
           .from("courses")
-          .select("id, title, subject, description, thumbnail_url, class_level, teacher_name, teacher_id, teacher:profiles!courses_teacher_id_fkey(full_name)")
+          .select("id, title, subject, description, thumbnail_url, class_level, teacher_name, teacher_id")
           .order("created_at", { ascending: false }),
         supabase.from("enrollments").select("course_id").eq("learner_id", user.id),
       ]);
-      // Fallback: if FK alias didn't resolve, fetch profiles separately
-      let rows: CourseRow[] = (cs as any) ?? [];
-      if (rows.length && !rows[0].teacher) {
+      let rows: CourseRow[] = ((cs as any) ?? []).map((r: any) => ({ ...r, teacher: null }));
+      if (rows.length) {
         const ids = Array.from(new Set(rows.map((r) => r.teacher_id)));
         const { data: profs } = await supabase.from("profiles").select("id, full_name").in("id", ids);
         const map = new Map((profs ?? []).map((p: any) => [p.id, p.full_name]));

@@ -41,7 +41,7 @@ export function VirtualClassesPanel({ mode, limit = 4 }: Props) {
       const cutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(); // last 7 days + future
       const q = (supabase as any)
         .from("virtual_classes")
-        .select("*, course:courses(title)")
+        .select("*")
         .gte("scheduled_at", cutoff)
         .order("scheduled_at", { ascending: true })
         .limit(limit);
@@ -51,7 +51,15 @@ export function VirtualClassesPanel({ mode, limit = 4 }: Props) {
         console.error(error);
         setRows([]);
       } else {
-        setRows((data as Row[]) ?? []);
+        const list = (data as Row[]) ?? [];
+        const courseIds = Array.from(new Set(list.map((r) => (r as any).course_id).filter(Boolean)));
+        if (courseIds.length) {
+          const { data: cs } = await supabase.from("courses").select("id,title").in("id", courseIds);
+          const map = new Map((cs ?? []).map((c: any) => [c.id, c.title]));
+          setRows(list.map((r) => ({ ...r, course: { title: map.get((r as any).course_id) ?? "" } })));
+        } else {
+          setRows(list);
+        }
       }
       setLoading(false);
     })();
