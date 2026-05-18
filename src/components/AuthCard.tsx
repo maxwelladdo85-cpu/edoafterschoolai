@@ -194,6 +194,35 @@ export function AuthCard() {
           </div>
         </CardContent>
       </Card>
+
+      <Dialog open={forgotOpen} onOpenChange={setForgotOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reset your password</DialogTitle>
+            <DialogDescription>
+              Enter the email address linked to your account. We'll send you a secure link to set a new password.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleForgot} className="space-y-3">
+            <div className="space-y-1">
+              <Label htmlFor="forgot-email">Email</Label>
+              <Input
+                id="forgot-email"
+                type="email"
+                required
+                value={forgotEmail}
+                onChange={(e) => setForgotEmail(e.target.value)}
+              />
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setForgotOpen(false)}>Cancel</Button>
+              <Button type="submit" disabled={forgotLoading}>
+                {forgotLoading ? "Sending..." : "Send reset link"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
