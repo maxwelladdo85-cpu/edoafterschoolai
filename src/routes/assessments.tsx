@@ -144,8 +144,18 @@ function AssessmentsPage() {
                   </div>
                   <div>
                     <Label>Time limit (min)</Label>
-                    <Input type="number" min={1} max={600} value={form.time_limit_minutes}
-                      onChange={(e) => setForm({ ...form, time_limit_minutes: parseInt(e.target.value || "10", 10) })} />
+                    <Input
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      value={form.time_limit_minutes === 0 ? "" : String(form.time_limit_minutes)}
+                      onChange={(e) => {
+                        const raw = e.target.value.replace(/[^0-9]/g, "");
+                        if (raw === "") { setForm({ ...form, time_limit_minutes: 0 }); return; }
+                        const n = Math.min(600, parseInt(raw, 10));
+                        setForm({ ...form, time_limit_minutes: n });
+                      }}
+                    />
                   </div>
                   <div className="flex items-end">
                     <Button onClick={create} disabled={creating} className="w-full">
