@@ -40,6 +40,11 @@ export function AdminDashboard() {
   const [pending, setPending] = useState<PendingTeacher[]>([]);
   const [users, setUsers] = useState<UserRow[]>([]);
   const [search, setSearch] = useState("");
+  const [deleteTarget, setDeleteTarget] = useState<UserRow | null>(null);
+  const [deleteConfirmEmail, setDeleteConfirmEmail] = useState("");
+  const [deleteReason, setDeleteReason] = useState("");
+  const [deleting, setDeleting] = useState(false);
+  const deleteUserFn = useServerFn(deleteUserAsAdmin);
 
   const loadAll = async () => {
     const [ov, wk, tc, cr, da, pt, profiles, roles] = await Promise.all([
