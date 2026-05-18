@@ -36,7 +36,7 @@ function AnnouncementsPage() {
   const { user, role, loading: authLoading } = useAuth();
   const nav = useNavigate();
   const [classLevels, setClassLevels] = useState<string[]>([]);
-  const [recentSent, setRecentSent] = useState<SentRow[]>([]);
+  const [history, setHistory] = useState<HistoryRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [form, setForm] = useState({ class_level: "", title: "", message: "" });
