@@ -13,6 +13,7 @@ import { Route as VirtualClassesRouteImport } from './routes/virtual-classes'
 import { Route as VarkQuizRouteImport } from './routes/vark-quiz'
 import { Route as UserSummaryRouteImport } from './routes/user-summary'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as MyCoursesRouteImport } from './routes/my-courses'
 import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as LoginRouteImport } from './routes/login'
@@ -49,6 +50,11 @@ const UserSummaryRoute = UserSummaryRouteImport.update({
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotificationsRoute = NotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MyCoursesRoute = MyCoursesRouteImport.update({
@@ -148,6 +154,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/messages': typeof MessagesRoute
   '/my-courses': typeof MyCoursesRoute
+  '/notifications': typeof NotificationsRoute
   '/settings': typeof SettingsRoute
   '/user-summary': typeof UserSummaryRoute
   '/vark-quiz': typeof VarkQuizRoute
@@ -171,6 +178,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/messages': typeof MessagesRoute
   '/my-courses': typeof MyCoursesRoute
+  '/notifications': typeof NotificationsRoute
   '/settings': typeof SettingsRoute
   '/user-summary': typeof UserSummaryRoute
   '/vark-quiz': typeof VarkQuizRoute
@@ -195,6 +203,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/messages': typeof MessagesRoute
   '/my-courses': typeof MyCoursesRoute
+  '/notifications': typeof NotificationsRoute
   '/settings': typeof SettingsRoute
   '/user-summary': typeof UserSummaryRoute
   '/vark-quiz': typeof VarkQuizRoute
@@ -220,6 +229,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/messages'
     | '/my-courses'
+    | '/notifications'
     | '/settings'
     | '/user-summary'
     | '/vark-quiz'
@@ -243,6 +253,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/messages'
     | '/my-courses'
+    | '/notifications'
     | '/settings'
     | '/user-summary'
     | '/vark-quiz'
@@ -266,6 +277,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/messages'
     | '/my-courses'
+    | '/notifications'
     | '/settings'
     | '/user-summary'
     | '/vark-quiz'
@@ -290,6 +302,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   MessagesRoute: typeof MessagesRoute
   MyCoursesRoute: typeof MyCoursesRoute
+  NotificationsRoute: typeof NotificationsRoute
   SettingsRoute: typeof SettingsRoute
   UserSummaryRoute: typeof UserSummaryRoute
   VarkQuizRoute: typeof VarkQuizRoute
@@ -329,6 +342,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notifications': {
+      id: '/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof NotificationsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/my-courses': {
@@ -477,6 +497,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   MessagesRoute: MessagesRoute,
   MyCoursesRoute: MyCoursesRoute,
+  NotificationsRoute: NotificationsRoute,
   SettingsRoute: SettingsRoute,
   UserSummaryRoute: UserSummaryRoute,
   VarkQuizRoute: VarkQuizRoute,
@@ -490,3 +511,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
