@@ -1,12 +1,20 @@
 import { useEffect, useMemo, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
+import { deleteUserAsAdmin } from "@/lib/admin-users.functions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
-import { Users, BookOpen, GraduationCap, Video, Search, Check, X, UserCog, Download } from "lucide-react";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Users, BookOpen, GraduationCap, Video, Search, Check, X, UserCog, Download, Trash2, Loader2 } from "lucide-react";
 import { PageHero } from "@/components/PageHero";
 import dashboardHero from "@/assets/dashboard-hero.jpg";
 import { toast } from "sonner";
@@ -32,6 +40,11 @@ export function AdminDashboard() {
   const [pending, setPending] = useState<PendingTeacher[]>([]);
   const [users, setUsers] = useState<UserRow[]>([]);
   const [search, setSearch] = useState("");
+  const [deleteTarget, setDeleteTarget] = useState<UserRow | null>(null);
+  const [deleteConfirmEmail, setDeleteConfirmEmail] = useState("");
+  const [deleteReason, setDeleteReason] = useState("");
+  const [deleting, setDeleting] = useState(false);
+  const deleteUserFn = useServerFn(deleteUserAsAdmin);
 
   const loadAll = async () => {
     const [ov, wk, tc, cr, da, pt, profiles, roles] = await Promise.all([
@@ -77,6 +90,31 @@ export function AdminDashboard() {
     if (error) return toast.error(error.message);
     toast.success(`User set to ${next}`);
     loadAll();
+  };
+
+  const openDelete = (u: UserRow) => {
+    setDeleteTarget(u);
+    setDeleteConfirmEmail("");
+    setDeleteReason("");
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      await deleteUserFn({ data: {
+        userId: deleteTarget.id,
+        confirmEmail: deleteConfirmEmail,
+        reason: deleteReason || undefined,
+      }});
+      toast.success(`Deleted ${deleteTarget.email ?? "user"}`);
+      setDeleteTarget(null);
+      loadAll();
+    } catch (e: any) {
+      toast.error(e?.message ?? "Failed to delete user");
+    } finally {
+      setDeleting(false);
+    }
   };
 
   const filteredUsers = useMemo(() => {
@@ -317,11 +355,16 @@ export function AdminDashboard() {
                     </TableCell>
                     <TableCell>{new Date(u.created_at).toLocaleDateString()}</TableCell>
                     <TableCell className="text-right">
-                      {u.status !== "pending" && (
-                        <Button size="sm" variant="outline" onClick={() => toggleStatus(u.id, u.status)}>
-                          {u.status === "active" ? "Deactivate" : "Activate"}
+                      <div className="flex justify-end gap-2">
+                        {u.status !== "pending" && (
+                          <Button size="sm" variant="outline" onClick={() => toggleStatus(u.id, u.status)}>
+                            {u.status === "active" ? "Deactivate" : "Activate"}
+                          </Button>
+                        )}
+                        <Button size="sm" variant="destructive" onClick={() => openDelete(u)}>
+                          <Trash2 className="mr-1 h-4 w-4" />Delete
                         </Button>
-                      )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -330,6 +373,53 @@ export function AdminDashboard() {
           </CardContent>
         </Card>
       </section>
+
+      <AlertDialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Permanently delete user?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete <strong>{deleteTarget?.full_name ?? deleteTarget?.email}</strong>{" "}
+              and all associated records (enrollments, completions, messages, certificates, etc.).
+              This action cannot be undone and will be recorded in the admin audit log.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="space-y-3">
+            <div>
+              <Label htmlFor="confirm-email">
+                Type the user's email <span className="font-mono">{deleteTarget?.email}</span> to confirm
+              </Label>
+              <Input
+                id="confirm-email"
+                value={deleteConfirmEmail}
+                onChange={(e) => setDeleteConfirmEmail(e.target.value)}
+                placeholder={deleteTarget?.email ?? ""}
+                autoComplete="off"
+              />
+            </div>
+            <div>
+              <Label htmlFor="reason">Reason (optional, logged for audit)</Label>
+              <Textarea
+                id="reason"
+                value={deleteReason}
+                onChange={(e) => setDeleteReason(e.target.value)}
+                placeholder="Why is this user being deleted?"
+                maxLength={500}
+              />
+            </div>
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => { e.preventDefault(); confirmDelete(); }}
+              disabled={deleting || !deleteConfirmEmail || deleteConfirmEmail.trim().toLowerCase() !== (deleteTarget?.email ?? "").trim().toLowerCase()}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleting ? <><Loader2 className="mr-1 h-4 w-4 animate-spin" />Deleting…</> : "Delete permanently"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
