@@ -79,7 +79,7 @@ export const deleteUserAsAdmin = createServerFn({ method: "POST" })
     await supabase.rpc("admin_log_action", {
       p_action: "delete_user",
       p_target_user_id: data.userId,
-      p_target_email: target.email,
+      p_target_email: target.email ?? "",
       p_details: {
         reason: data.reason ?? null,
         target_name: target.full_name ?? null,
