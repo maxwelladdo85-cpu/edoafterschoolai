@@ -37,21 +37,33 @@ export function VirtualClassesPanel({ mode, limit = 4 }: Props) {
     let cancelled = false;
     (async () => {
       setLoading(true);
-      // RLS handles visibility; just sort by upcoming first.
-      const cutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(); // last 7 days + future
-      const q = (supabase as any)
-        .from("virtual_classes")
-        .select("*")
-        .gte("scheduled_at", cutoff)
-        .order("scheduled_at", { ascending: true })
-        .limit(limit);
-      const { data, error } = await q;
+      // Fetch upcoming/live first (priority), then fill remaining slots with recent past sessions.
+      const nowIso = new Date().toISOString();
+      const pastCutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+      const [{ data: upcomingData, error: upErr }, { data: pastData, error: pastErr }] = await Promise.all([
+        (supabase as any)
+          .from("virtual_classes")
+          .select("*")
+          .gte("scheduled_at", nowIso)
+          .order("scheduled_at", { ascending: true })
+          .limit(limit),
+        (supabase as any)
+          .from("virtual_classes")
+          .select("*")
+          .lt("scheduled_at", nowIso)
+          .gte("scheduled_at", pastCutoff)
+          .order("scheduled_at", { ascending: false })
+          .limit(limit),
+      ]);
       if (cancelled) return;
-      if (error) {
-        console.error(error);
+      if (upErr || pastErr) {
+        console.error(upErr || pastErr);
         setRows([]);
       } else {
-        const list = (data as Row[]) ?? [];
+        // Upcoming/live first; then past to fill up to `limit`.
+        const upcoming = (upcomingData as Row[]) ?? [];
+        const past = (pastData as Row[]) ?? [];
+        const list = [...upcoming, ...past].slice(0, limit);
         const courseIds = Array.from(new Set(list.map((r) => (r as any).course_id).filter(Boolean)));
         if (courseIds.length) {
           const { data: cs } = await supabase.from("courses").select("id,title").in("id", courseIds);

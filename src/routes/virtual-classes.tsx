@@ -59,12 +59,24 @@ function VirtualClassesPage() {
       supabase.from("courses").select("id,title").eq("teacher_id", user.id).order("created_at", { ascending: false }),
       (supabase as any)
         .from("virtual_classes")
-        .select("*, course:courses(title)")
+        .select("*")
         .eq("teacher_id", user.id)
         .order("scheduled_at", { ascending: false }),
     ]);
-    setCourses((cs as CourseRow[]) ?? []);
-    setClasses((vcs as ClassRow[]) ?? []);
+    const courseList = (cs as CourseRow[]) ?? [];
+    setCourses(courseList);
+    const titleMap = new Map(courseList.map((c) => [c.id, c.title]));
+    // Also fetch any additional course titles not in the teacher's own list (e.g. admin scheduling)
+    const rows = ((vcs as any[]) ?? []).map((r) => ({ ...r, course: { title: titleMap.get(r.course_id) ?? "" } })) as ClassRow[];
+    const missing = Array.from(new Set(rows.filter((r) => !r.course?.title).map((r) => r.course_id)));
+    if (missing.length) {
+      const { data: extra } = await supabase.from("courses").select("id,title").in("id", missing);
+      const extraMap = new Map((extra ?? []).map((c: any) => [c.id, c.title]));
+      for (const r of rows) {
+        if (!r.course?.title) r.course = { title: extraMap.get(r.course_id) ?? "" };
+      }
+    }
+    setClasses(rows);
     setLoading(false);
   };
 
