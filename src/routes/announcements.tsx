@@ -20,12 +20,16 @@ export const Route = createFileRoute("/announcements")({
   component: AnnouncementsPage,
 });
 
-interface SentRow {
+interface HistoryRow {
   id: string;
   title: string;
   message: string | null;
-  created_at: string;
-  user_id: string;
+  class_level: string;
+  send_at: string;
+  sent_at: string | null;
+  status: string;
+  recipient_count: number;
+  sender_id: string;
 }
 
 function AnnouncementsPage() {
