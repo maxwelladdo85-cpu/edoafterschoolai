@@ -124,7 +124,7 @@ function AssessmentsPage() {
                   You don't have any courses yet. <Link to="/my-courses" className="text-primary underline">Create a course</Link> first.
                 </p>
               ) : (
-                <div className="grid gap-3 md:grid-cols-[1fr_1fr_1fr_140px_auto]">
+                <div className="grid gap-3 md:grid-cols-[1fr_1fr_1fr_160px_auto]">
                   <div>
                     <Label>Course</Label>
                     <Select value={form.course_id} onValueChange={(v) => setForm({ ...form, course_id: v })}>
