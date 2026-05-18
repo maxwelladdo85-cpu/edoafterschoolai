@@ -65,9 +65,8 @@ export const deleteUserAsAdmin = createServerFn({ method: "POST" })
 
     for (const t of userScopedTables) {
       if (!t.col) continue;
-      const { error } = await supabaseAdmin.from(t.table).delete().eq(t.col, data.userId);
+      const { error } = await (supabaseAdmin.from(t.table as any) as any).delete().eq(t.col, data.userId);
       if (error && !/does not exist/i.test(error.message)) {
-        // Continue best-effort but record on audit
         console.error(`Cleanup failed for ${t.table}.${t.col}:`, error.message);
       }
     }
