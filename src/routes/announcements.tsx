@@ -117,19 +117,13 @@ function AnnouncementsPage() {
       const count = Number(data ?? 0);
       if (count === 0) { toast.error("No learners in that class"); return; }
       toast.success(`Announcement sent to ${count} learner${count === 1 ? "" : "s"}`);
-      setRecentSent((prev) => [{
-        id: crypto.randomUUID(),
-        title: form.title.trim(),
-        message: form.message.trim() || null,
-        created_at: new Date().toISOString(),
-        user_id: form.class_level,
-      }, ...prev].slice(0, 8));
     }
 
     setForm((f) => ({ ...f, title: "", message: "" }));
     setSchedule(false);
     setSendAt("");
     setOpen(false);
+    load();
   };
 
   if (loading) {
