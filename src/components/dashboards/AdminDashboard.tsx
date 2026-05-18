@@ -92,6 +92,31 @@ export function AdminDashboard() {
     loadAll();
   };
 
+  const openDelete = (u: UserRow) => {
+    setDeleteTarget(u);
+    setDeleteConfirmEmail("");
+    setDeleteReason("");
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      await deleteUserFn({ data: {
+        userId: deleteTarget.id,
+        confirmEmail: deleteConfirmEmail,
+        reason: deleteReason || undefined,
+      }});
+      toast.success(`Deleted ${deleteTarget.email ?? "user"}`);
+      setDeleteTarget(null);
+      loadAll();
+    } catch (e: any) {
+      toast.error(e?.message ?? "Failed to delete user");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   const filteredUsers = useMemo(() => {
     const q = search.trim().toLowerCase();
     if (!q) return users;
