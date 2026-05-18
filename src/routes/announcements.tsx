@@ -56,14 +56,21 @@ function AnnouncementsPage() {
   const load = async () => {
     if (!user || !isStaff) return;
     setLoading(true);
-    const { data, error } = await supabase.rpc("list_learner_classes");
-    if (error) { toast.error(error.message); setClassLevels([]); setLoading(false); return; }
-    const rows = (data ?? []) as { class_level: string; learner_count: number }[];
+    const [classes, hist] = await Promise.all([
+      supabase.rpc("list_learner_classes"),
+      supabase
+        .from("scheduled_announcements")
+        .select("id, title, message, class_level, send_at, sent_at, status, recipient_count, sender_id")
+        .order("send_at", { ascending: false })
+        .limit(100),
+    ]);
+    if (classes.error) { toast.error(classes.error.message); setClassLevels([]); setLoading(false); return; }
+    const rows = (classes.data ?? []) as { class_level: string; learner_count: number }[];
     const levels = rows.map((r) => r.class_level);
     setClassLevels(levels);
     if (!form.class_level && levels.length) setForm((f) => ({ ...f, class_level: levels[0] }));
-    // map class -> count for recipient hint
     (window as any).__classCounts = Object.fromEntries(rows.map((r) => [r.class_level, Number(r.learner_count)]));
+    if (!hist.error) setHistory((hist.data ?? []) as HistoryRow[]);
     setLoading(false);
   };
 
