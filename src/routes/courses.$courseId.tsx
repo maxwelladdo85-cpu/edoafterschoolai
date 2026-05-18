@@ -309,19 +309,37 @@ function CoursePlayer() {
 }
 
 function LessonContent({ lesson }: { lesson: Lesson }) {
+  const downloadBtn = lesson.content_url ? (
+    <a
+      href={lesson.content_url}
+      download
+      target="_blank"
+      rel="noreferrer"
+      className="inline-flex items-center gap-1 rounded-md border bg-background px-3 py-1.5 text-sm font-medium text-foreground hover:bg-muted"
+    >
+      ⬇ Download
+    </a>
+  ) : null;
+
   if (lesson.content_type === "video") {
     const url = lesson.content_url ?? "";
     const yt = toYouTubeEmbed(url);
     if (yt) {
       return (
-        <div className="aspect-video w-full overflow-hidden rounded-lg bg-black">
-          <iframe src={yt} title={lesson.title} className="h-full w-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+        <div className="space-y-2">
+          <div className="aspect-video w-full overflow-hidden rounded-lg bg-black">
+            <iframe src={yt} title={lesson.title} className="h-full w-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+          </div>
+          {downloadBtn}
         </div>
       );
     }
     if (url) {
       return (
-        <video src={url} controls className="aspect-video w-full rounded-lg bg-black" />
+        <div className="space-y-2">
+          <video src={url} controls className="aspect-video w-full rounded-lg bg-black" />
+          {downloadBtn}
+        </div>
       );
     }
     return <EmptyMedia label="No video URL" />;
@@ -331,15 +349,23 @@ function LessonContent({ lesson }: { lesson: Lesson }) {
     return (
       <div className="space-y-2">
         <iframe src={lesson.content_url} title={lesson.title} className="h-[70vh] w-full rounded-lg border" />
-        <a href={lesson.content_url} target="_blank" rel="noreferrer" className="text-sm text-primary hover:underline">
-          Open PDF in new tab ↗
-        </a>
+        <div className="flex flex-wrap gap-3 items-center">
+          <a href={lesson.content_url} target="_blank" rel="noreferrer" className="text-sm text-primary hover:underline">
+            Open PDF in new tab ↗
+          </a>
+          {downloadBtn}
+        </div>
       </div>
     );
   }
   if (lesson.content_type === "audio") {
     if (!lesson.content_url) return <EmptyMedia label="No audio URL" />;
-    return <audio src={lesson.content_url} controls className="w-full" />;
+    return (
+      <div className="space-y-2">
+        <audio src={lesson.content_url} controls className="w-full" />
+        {downloadBtn}
+      </div>
+    );
   }
   if (lesson.content_type === "doc") {
     if (!lesson.content_url) return <EmptyMedia label="No document" />;
@@ -347,9 +373,12 @@ function LessonContent({ lesson }: { lesson: Lesson }) {
     return (
       <div className="space-y-2">
         <iframe src={office} title={lesson.title} className="h-[70vh] w-full rounded-lg border" />
-        <a href={lesson.content_url} target="_blank" rel="noreferrer" className="text-sm text-primary hover:underline">
-          Download document ↓
-        </a>
+        <div className="flex flex-wrap gap-3 items-center">
+          <a href={lesson.content_url} target="_blank" rel="noreferrer" className="text-sm text-primary hover:underline">
+            Open document in new tab ↗
+          </a>
+          {downloadBtn}
+        </div>
       </div>
     );
   }
