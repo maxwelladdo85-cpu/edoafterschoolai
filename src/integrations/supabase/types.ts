@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_audit_log: {
+        Row: {
+          action: string
+          actor_id: string
+          created_at: string
+          details: Json | null
+          id: string
+          target_email: string | null
+          target_user_id: string | null
+        }
+        Insert: {
+          action: string
+          actor_id: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          target_email?: string | null
+          target_user_id?: string | null
+        }
+        Update: {
+          action?: string
+          actor_id?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          target_email?: string | null
+          target_user_id?: string | null
+        }
+        Relationships: []
+      }
       attempt_answers: {
         Row: {
           attempt_id: string
@@ -817,6 +847,15 @@ export type Database = {
           full_name: string
           id: string
         }[]
+      }
+      admin_log_action: {
+        Args: {
+          p_action: string
+          p_details: Json
+          p_target_email: string
+          p_target_user_id: string
+        }
+        Returns: string
       }
       admin_overview_stats: { Args: never; Returns: Json }
       admin_performance_stats: { Args: never; Returns: Json }
