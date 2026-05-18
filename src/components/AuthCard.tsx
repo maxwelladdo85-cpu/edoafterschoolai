@@ -37,6 +37,22 @@ export function AuthCard() {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [role, setRole] = useState<"learner" | "teacher" | "admin">("learner");
+  const [forgotOpen, setForgotOpen] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotLoading, setForgotLoading] = useState(false);
+
+  const handleForgot = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!forgotEmail) return toast.error("Enter your email");
+    setForgotLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setForgotLoading(false);
+    if (error) return toast.error(error.message);
+    toast.success("Password reset email sent. Check your inbox.");
+    setForgotOpen(false);
+  };
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
