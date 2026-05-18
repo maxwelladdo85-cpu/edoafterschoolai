@@ -355,13 +355,74 @@ export function AdminDashboard() {
                     </TableCell>
                     <TableCell>{new Date(u.created_at).toLocaleDateString()}</TableCell>
                     <TableCell className="text-right">
-                      {u.status !== "pending" && (
-                        <Button size="sm" variant="outline" onClick={() => toggleStatus(u.id, u.status)}>
-                          {u.status === "active" ? "Deactivate" : "Activate"}
+                      <div className="flex justify-end gap-2">
+                        {u.status !== "pending" && (
+                          <Button size="sm" variant="outline" onClick={() => toggleStatus(u.id, u.status)}>
+                            {u.status === "active" ? "Deactivate" : "Activate"}
+                          </Button>
+                        )}
+                        <Button size="sm" variant="destructive" onClick={() => openDelete(u)}>
+                          <Trash2 className="mr-1 h-4 w-4" />Delete
                         </Button>
-                      )}
+                      </div>
                     </TableCell>
                   </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </section>
+
+      <AlertDialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Permanently delete user?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete <strong>{deleteTarget?.full_name ?? deleteTarget?.email}</strong>{" "}
+              and all associated records (enrollments, completions, messages, certificates, etc.).
+              This action cannot be undone and will be recorded in the admin audit log.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="space-y-3">
+            <div>
+              <Label htmlFor="confirm-email">
+                Type the user's email <span className="font-mono">{deleteTarget?.email}</span> to confirm
+              </Label>
+              <Input
+                id="confirm-email"
+                value={deleteConfirmEmail}
+                onChange={(e) => setDeleteConfirmEmail(e.target.value)}
+                placeholder={deleteTarget?.email ?? ""}
+                autoComplete="off"
+              />
+            </div>
+            <div>
+              <Label htmlFor="reason">Reason (optional, logged for audit)</Label>
+              <Textarea
+                id="reason"
+                value={deleteReason}
+                onChange={(e) => setDeleteReason(e.target.value)}
+                placeholder="Why is this user being deleted?"
+                maxLength={500}
+              />
+            </div>
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => { e.preventDefault(); confirmDelete(); }}
+              disabled={deleting || !deleteConfirmEmail || deleteConfirmEmail.trim().toLowerCase() !== (deleteTarget?.email ?? "").trim().toLowerCase()}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleting ? <><Loader2 className="mr-1 h-4 w-4 animate-spin" />Deleting…</> : "Delete permanently"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
+}
                 ))}
               </TableBody>
             </Table>
