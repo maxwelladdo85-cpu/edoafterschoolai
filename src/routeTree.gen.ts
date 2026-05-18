@@ -13,6 +13,7 @@ import { Route as VirtualClassesRouteImport } from './routes/virtual-classes'
 import { Route as VarkQuizRouteImport } from './routes/vark-quiz'
 import { Route as UserSummaryRouteImport } from './routes/user-summary'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as MyCoursesRouteImport } from './routes/my-courses'
 import { Route as MessagesRouteImport } from './routes/messages'
@@ -50,6 +51,11 @@ const UserSummaryRoute = UserSummaryRouteImport.update({
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NotificationsRoute = NotificationsRouteImport.update({
@@ -155,6 +161,7 @@ export interface FileRoutesByFullPath {
   '/messages': typeof MessagesRoute
   '/my-courses': typeof MyCoursesRoute
   '/notifications': typeof NotificationsRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/settings': typeof SettingsRoute
   '/user-summary': typeof UserSummaryRoute
   '/vark-quiz': typeof VarkQuizRoute
@@ -179,6 +186,7 @@ export interface FileRoutesByTo {
   '/messages': typeof MessagesRoute
   '/my-courses': typeof MyCoursesRoute
   '/notifications': typeof NotificationsRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/settings': typeof SettingsRoute
   '/user-summary': typeof UserSummaryRoute
   '/vark-quiz': typeof VarkQuizRoute
@@ -204,6 +212,7 @@ export interface FileRoutesById {
   '/messages': typeof MessagesRoute
   '/my-courses': typeof MyCoursesRoute
   '/notifications': typeof NotificationsRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/settings': typeof SettingsRoute
   '/user-summary': typeof UserSummaryRoute
   '/vark-quiz': typeof VarkQuizRoute
@@ -230,6 +239,7 @@ export interface FileRouteTypes {
     | '/messages'
     | '/my-courses'
     | '/notifications'
+    | '/reset-password'
     | '/settings'
     | '/user-summary'
     | '/vark-quiz'
@@ -254,6 +264,7 @@ export interface FileRouteTypes {
     | '/messages'
     | '/my-courses'
     | '/notifications'
+    | '/reset-password'
     | '/settings'
     | '/user-summary'
     | '/vark-quiz'
@@ -278,6 +289,7 @@ export interface FileRouteTypes {
     | '/messages'
     | '/my-courses'
     | '/notifications'
+    | '/reset-password'
     | '/settings'
     | '/user-summary'
     | '/vark-quiz'
@@ -303,6 +315,7 @@ export interface RootRouteChildren {
   MessagesRoute: typeof MessagesRoute
   MyCoursesRoute: typeof MyCoursesRoute
   NotificationsRoute: typeof NotificationsRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   SettingsRoute: typeof SettingsRoute
   UserSummaryRoute: typeof UserSummaryRoute
   VarkQuizRoute: typeof VarkQuizRoute
@@ -342,6 +355,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/notifications': {
@@ -498,6 +518,7 @@ const rootRouteChildren: RootRouteChildren = {
   MessagesRoute: MessagesRoute,
   MyCoursesRoute: MyCoursesRoute,
   NotificationsRoute: NotificationsRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   SettingsRoute: SettingsRoute,
   UserSummaryRoute: UserSummaryRoute,
   VarkQuizRoute: VarkQuizRoute,
