@@ -423,15 +423,6 @@ export function AdminDashboard() {
     </div>
   );
 }
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-      </section>
-    </div>
-  );
-}
 
 function Stat({ icon, label, value, tint = "from-primary/15 to-primary/5" }: { icon: React.ReactNode; label: string; value: React.ReactNode; tint?: string }) {
   return (
