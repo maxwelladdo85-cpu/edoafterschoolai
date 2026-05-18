@@ -20,19 +20,23 @@ export const Route = createFileRoute("/announcements")({
   component: AnnouncementsPage,
 });
 
-interface SentRow {
+interface HistoryRow {
   id: string;
   title: string;
   message: string | null;
-  created_at: string;
-  user_id: string;
+  class_level: string;
+  send_at: string;
+  sent_at: string | null;
+  status: string;
+  recipient_count: number;
+  sender_id: string;
 }
 
 function AnnouncementsPage() {
   const { user, role, loading: authLoading } = useAuth();
   const nav = useNavigate();
   const [classLevels, setClassLevels] = useState<string[]>([]);
-  const [recentSent, setRecentSent] = useState<SentRow[]>([]);
+  const [history, setHistory] = useState<HistoryRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [form, setForm] = useState({ class_level: "", title: "", message: "" });
@@ -52,14 +56,21 @@ function AnnouncementsPage() {
   const load = async () => {
     if (!user || !isStaff) return;
     setLoading(true);
-    const { data, error } = await supabase.rpc("list_learner_classes");
-    if (error) { toast.error(error.message); setClassLevels([]); setLoading(false); return; }
-    const rows = (data ?? []) as { class_level: string; learner_count: number }[];
+    const [classes, hist] = await Promise.all([
+      supabase.rpc("list_learner_classes"),
+      supabase
+        .from("scheduled_announcements")
+        .select("id, title, message, class_level, send_at, sent_at, status, recipient_count, sender_id")
+        .order("send_at", { ascending: false })
+        .limit(100),
+    ]);
+    if (classes.error) { toast.error(classes.error.message); setClassLevels([]); setLoading(false); return; }
+    const rows = (classes.data ?? []) as { class_level: string; learner_count: number }[];
     const levels = rows.map((r) => r.class_level);
     setClassLevels(levels);
     if (!form.class_level && levels.length) setForm((f) => ({ ...f, class_level: levels[0] }));
-    // map class -> count for recipient hint
     (window as any).__classCounts = Object.fromEntries(rows.map((r) => [r.class_level, Number(r.learner_count)]));
+    if (!hist.error) setHistory((hist.data ?? []) as HistoryRow[]);
     setLoading(false);
   };
 
@@ -106,19 +117,13 @@ function AnnouncementsPage() {
       const count = Number(data ?? 0);
       if (count === 0) { toast.error("No learners in that class"); return; }
       toast.success(`Announcement sent to ${count} learner${count === 1 ? "" : "s"}`);
-      setRecentSent((prev) => [{
-        id: crypto.randomUUID(),
-        title: form.title.trim(),
-        message: form.message.trim() || null,
-        created_at: new Date().toISOString(),
-        user_id: form.class_level,
-      }, ...prev].slice(0, 8));
     }
 
     setForm((f) => ({ ...f, title: "", message: "" }));
     setSchedule(false);
     setSendAt("");
     setOpen(false);
+    load();
   };
 
   if (loading) {
@@ -242,27 +247,47 @@ function AnnouncementsPage() {
           </CardHeader>
         </Card>
 
-        {recentSent.length > 0 && (
-          <Card className="border-border/60">
-            <CardHeader><CardTitle className="text-base">Recently sent (this session)</CardTitle></CardHeader>
-            <CardContent className="space-y-2">
-              {recentSent.map((r) => (
+        <Card className="border-border/60">
+          <CardHeader>
+            <CardTitle className="text-base">Announcement history</CardTitle>
+            <p className="text-sm text-muted-foreground mt-1">
+              {role === "admin" ? "All announcements sent or scheduled across the platform." : "Announcements you have sent or scheduled."}
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {history.length === 0 ? (
+              <p className="py-6 text-center text-sm text-muted-foreground">No announcements yet.</p>
+            ) : history.map((r) => {
+              const isScheduledFuture = r.status === "pending";
+              const displayDate = r.sent_at ?? r.send_at;
+              return (
                 <div key={r.id} className="flex items-start justify-between gap-3 rounded-md border border-border/60 p-3">
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
                       <p className="font-medium truncate">{r.title}</p>
-                      <Badge variant="secondary">{r.user_id}</Badge>
+                      <Badge variant="outline">{r.class_level}</Badge>
+                      <Badge
+                        variant={r.status === "sent" ? "default" : r.status === "pending" ? "secondary" : "destructive"}
+                      >
+                        {r.status}
+                      </Badge>
+                      {r.status === "sent" && (
+                        <span className="text-xs text-muted-foreground">
+                          · {r.recipient_count} recipient{r.recipient_count === 1 ? "" : "s"}
+                        </span>
+                      )}
                     </div>
-                    {r.message && <p className="text-sm text-muted-foreground line-clamp-2 mt-0.5">{r.message}</p>}
+                    {r.message && <p className="text-sm text-muted-foreground line-clamp-3 mt-1">{r.message}</p>}
                   </div>
-                  <span className="text-xs text-muted-foreground whitespace-nowrap">
-                    {new Date(r.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                  <span className="text-xs text-muted-foreground whitespace-nowrap pt-0.5">
+                    {isScheduledFuture ? "Scheduled " : ""}
+                    {new Date(displayDate).toLocaleString([], { dateStyle: "medium", timeStyle: "short" })}
                   </span>
                 </div>
-              ))}
-            </CardContent>
-          </Card>
-        )}
+              );
+            })}
+          </CardContent>
+        </Card>
       </div>
     </DashboardShell>
   );
