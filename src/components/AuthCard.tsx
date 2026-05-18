@@ -138,6 +138,15 @@ export function AuthCard() {
                   </Select>
                 </div>
                 <Button type="submit" disabled={loading} className="w-full">Sign In</Button>
+                <div className="text-right">
+                  <button
+                    type="button"
+                    onClick={() => { setForgotEmail(email); setForgotOpen(true); }}
+                    className="text-xs text-primary hover:underline"
+                  >
+                    Forgot password?
+                  </button>
+                </div>
               </form>
               <p className="mt-4 text-center text-sm text-muted-foreground">
                 Don't have an account?{" "}
