@@ -24,12 +24,13 @@ interface HistoryRow {
   id: string;
   title: string;
   message: string | null;
-  class_level: string;
+  class_level: string | null;
   send_at: string;
   sent_at: string | null;
   status: string;
   recipient_count: number;
   sender_id: string;
+  audience?: string | null;
 }
 
 function AnnouncementsPage() {
@@ -39,6 +40,7 @@ function AnnouncementsPage() {
   const [history, setHistory] = useState<HistoryRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+  const [audience, setAudience] = useState<"learners" | "teachers">("learners");
   const [form, setForm] = useState({ class_level: "", title: "", message: "" });
   const [recipientCount, setRecipientCount] = useState<number | null>(null);
   const [open, setOpen] = useState(false);
