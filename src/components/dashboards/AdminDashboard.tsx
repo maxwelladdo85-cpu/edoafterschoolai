@@ -15,6 +15,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Users, BookOpen, GraduationCap, Video, Search, Check, X, UserCog, Download, Trash2, Loader2 } from "lucide-react";
+import { BulkUploadUsers } from "@/components/dashboards/BulkUploadUsers";
 import { PageHero } from "@/components/PageHero";
 import dashboardHero from "@/assets/dashboard-hero.jpg";
 import { toast } from "sonner";
