@@ -46,6 +46,16 @@ function AdminPerformancePage() {
   const [refreshedAt, setRefreshedAt] = useState<Date | null>(null);
   const [busy, setBusy] = useState(false);
 
+  const today = format(new Date(), "yyyy-MM-dd");
+  const sevenAgo = format(new Date(Date.now() - 6 * 86400000), "yyyy-MM-dd");
+  const [fromDate, setFromDate] = useState(sevenAgo);
+  const [toDate, setToDate] = useState(today);
+  const [activity, setActivity] = useState<ActivityRow[]>([]);
+  const [activitySearch, setActivitySearch] = useState("");
+  const [actionFilter, setActionFilter] = useState("");
+  const [actLoading, setActLoading] = useState(false);
+  const [actLoaded, setActLoaded] = useState(false);
+
   useEffect(() => {
     if (!loading && !user) nav({ to: "/login" });
     if (!loading && user && role && role !== "admin") nav({ to: "/dashboard" });
@@ -60,17 +70,58 @@ function AdminPerformancePage() {
     setRefreshedAt(new Date());
   };
 
-  useEffect(() => {
-    if (role === "admin") {
-      load();
-      const t = setInterval(load, 30000);
-      return () => clearInterval(t);
-    }
-  }, [role]);
+  const loadActivity = async () => {
+    if (!fromDate || !toDate) return toast.error("Pick a date range");
+    if (fromDate > toDate) return toast.error("From date must be on or before To date");
+    setActLoading(true);
+    const fromIso = new Date(`${fromDate}T00:00:00`).toISOString();
+    const toIso = new Date(`${toDate}T23:59:59.999`).toISOString();
+    const { data, error } = await supabase.rpc("admin_activity_log_range", {
+      p_from: fromIso, p_to: toIso, p_limit: 10000,
+    });
+    setActLoading(false);
+    if (error) return toast.error(error.message);
+    setActivity((data ?? []) as ActivityRow[]);
+    setActLoaded(true);
+    toast.success(`Loaded ${(data ?? []).length} event(s)`);
+  };
 
-  if (loading || !user || role !== "admin") {
-    return <div className="flex min-h-screen items-center justify-center text-muted-foreground">Loading…</div>;
-  }
+  const filteredActivity = useMemo(() => {
+    const q = activitySearch.trim().toLowerCase();
+    return activity.filter((r) => {
+      if (actionFilter && r.action !== actionFilter) return false;
+      if (!q) return true;
+      return (r.full_name ?? "").toLowerCase().includes(q)
+        || (r.email ?? "").toLowerCase().includes(q)
+        || (r.detail ?? "").toLowerCase().includes(q)
+        || r.action.toLowerCase().includes(q);
+    });
+  }, [activity, activitySearch, actionFilter]);
+
+  const actionOptions = useMemo(() => Array.from(new Set(activity.map((a) => a.action))).sort(), [activity]);
+
+  const downloadActivity = () => {
+    if (filteredActivity.length === 0) return toast.error("No data to download");
+    const headers = ["occurred_at", "full_name", "email", "role", "action", "detail"];
+    const escape = (v: any) => {
+      if (v == null) return "";
+      const s = String(v);
+      return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+    const csv = [headers.join(","), ...filteredActivity.map((r) => headers.map((h) => escape((r as any)[h])).join(","))].join("\n");
+    const blob = new Blob([`\ufeff${csv}`], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = `activity-${fromDate}_to_${toDate}.csv`; a.click();
+    URL.revokeObjectURL(url);
+    toast.success(`Downloaded ${filteredActivity.length} event(s)`);
+  };
+
+  const setPreset = (days: number) => {
+    setFromDate(format(new Date(Date.now() - (days - 1) * 86400000), "yyyy-MM-dd"));
+    setToDate(today);
+  };
+
 
   return (
     <DashboardShell title="Performance">
