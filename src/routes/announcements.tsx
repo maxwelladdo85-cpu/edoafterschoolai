@@ -62,7 +62,7 @@ function AnnouncementsPage() {
       supabase.rpc("list_learner_classes"),
       supabase
         .from("scheduled_announcements")
-        .select("id, title, message, class_level, send_at, sent_at, status, recipient_count, sender_id")
+        .select("id, title, message, class_level, send_at, sent_at, status, recipient_count, sender_id, audience")
         .order("send_at", { ascending: false })
         .limit(100),
     ]);
