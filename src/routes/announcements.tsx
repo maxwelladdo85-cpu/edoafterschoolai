@@ -86,12 +86,25 @@ function AnnouncementsPage() {
   }, [form.class_level, classLevels]);
 
   const send = async () => {
-    if (!form.class_level) { toast.error("Select a class"); return; }
+    if (audience === "learners" && !form.class_level) { toast.error("Select a class"); return; }
     if (!form.title.trim()) { toast.error("Title required"); return; }
     if (form.title.length > 150) { toast.error("Title too long (max 150)"); return; }
     if (form.message.length > 2000) { toast.error("Message too long (max 2000)"); return; }
 
-    if (schedule) {
+    if (audience === "teachers") {
+      if (schedule) { toast.error("Scheduling is only available for learner announcements"); return; }
+      setSending(true);
+      const { data, error } = await supabase.rpc("send_teacher_announcement", {
+        p_class_level: form.class_level || "",
+        p_title: form.title.trim(),
+        p_message: form.message.trim() || "",
+      });
+      setSending(false);
+      if (error) { toast.error(error.message); return; }
+      const count = Number(data ?? 0);
+      if (count === 0) { toast.error(form.class_level ? "No teachers found for that class" : "No teachers found"); return; }
+      toast.success(`Announcement sent to ${count} teacher${count === 1 ? "" : "s"}`);
+    } else if (schedule) {
       if (!sendAt) { toast.error("Pick a date and time"); return; }
       const when = new Date(sendAt);
       if (isNaN(when.getTime()) || when.getTime() <= Date.now()) {
