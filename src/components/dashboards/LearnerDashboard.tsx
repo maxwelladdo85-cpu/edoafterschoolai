@@ -11,6 +11,7 @@ import { PageHero } from "@/components/PageHero";
 import dashboardHero from "@/assets/dashboard-hero.jpg";
 import { STYLE_LABELS, STYLE_TIPS, type VarkStyle } from "@/lib/vark";
 import { VirtualClassesPanel } from "@/components/VirtualClassesPanel";
+import { ReportTeacherCard } from "@/components/dashboards/ReportTeacherCard";
 
 interface Enrollment {
   id: string;
@@ -105,6 +106,8 @@ export function LearnerDashboard() {
       </section>
 
       <VirtualClassesPanel mode="learner" />
+
+      <ReportTeacherCard />
 
       <section>
         <h2 className="mb-3 text-xl font-semibold">Courses</h2>
