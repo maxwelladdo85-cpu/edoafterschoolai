@@ -31,7 +31,7 @@ export function TeacherReportsPanel() {
 
   const load = async () => {
     const { data, error } = await supabase.rpc("admin_list_teacher_reports", {
-      p_status: filter === "all" ? null : filter,
+      p_status: filter === "all" ? undefined : filter,
     });
     if (error) return toast.error(error.message);
     setReports((data as Report[]) ?? []);
@@ -42,7 +42,7 @@ export function TeacherReportsPanel() {
   const save = async () => {
     if (!editing) return;
     const { error } = await supabase.rpc("admin_update_teacher_report", {
-      p_report_id: editing.id, p_status: status, p_admin_notes: notes || null,
+      p_report_id: editing.id, p_status: status, p_admin_notes: notes || undefined,
     });
     if (error) return toast.error(error.message);
     toast.success("Report updated");

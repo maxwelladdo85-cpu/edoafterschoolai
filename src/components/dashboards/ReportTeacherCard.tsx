@@ -53,7 +53,7 @@ export function ReportTeacherCard() {
       p_teacher_id: teacher_id,
       p_category: category,
       p_details: details.trim(),
-      p_course_id: course_id || null,
+      p_course_id: course_id || undefined,
     });
     setSubmitting(false);
     if (error) return toast.error(error.message);
