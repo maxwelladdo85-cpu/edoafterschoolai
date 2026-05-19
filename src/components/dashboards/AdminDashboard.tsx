@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Users, BookOpen, GraduationCap, Video, Search, Check, X, UserCog, Download, Trash2, Loader2 } from "lucide-react";
 import { BulkUploadUsers } from "@/components/dashboards/BulkUploadUsers";
+import { TeacherReportsPanel } from "@/components/dashboards/TeacherReportsPanel";
 import { PageHero } from "@/components/PageHero";
 import dashboardHero from "@/assets/dashboard-hero.jpg";
 import { toast } from "sonner";
@@ -317,6 +318,12 @@ export function AdminDashboard() {
       <section>
         <h2 className="mb-3 text-xl font-semibold">Bulk onboarding</h2>
         <BulkUploadUsers onDone={loadAll} />
+      </section>
+
+      {/* Teacher reports */}
+      <section>
+        <h2 className="mb-3 text-xl font-semibold">Whistle-blow · Teacher reports</h2>
+        <TeacherReportsPanel />
       </section>
 
       {/* User management */}
