@@ -122,6 +122,19 @@ function AdminPerformancePage() {
     setToDate(today);
   };
 
+  useEffect(() => {
+    if (role === "admin") {
+      load();
+      const t = setInterval(load, 30000);
+      return () => clearInterval(t);
+    }
+  }, [role]);
+
+  if (loading || !user || role !== "admin") {
+    return <div className="flex min-h-screen items-center justify-center text-muted-foreground">Loading…</div>;
+  }
+
+
 
   return (
     <DashboardShell title="Performance">
