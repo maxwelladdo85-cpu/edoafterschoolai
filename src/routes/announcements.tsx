@@ -293,7 +293,11 @@ function AnnouncementsPage() {
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <p className="font-medium truncate">{r.title}</p>
-                      <Badge variant="outline">{r.class_level}</Badge>
+                      <Badge variant="outline">
+                        {r.audience === "teachers"
+                          ? (r.class_level ? `Teachers · ${r.class_level}` : "All teachers")
+                          : (r.class_level ?? "—")}
+                      </Badge>
                       <Badge
                         variant={r.status === "sent" ? "default" : r.status === "pending" ? "secondary" : "destructive"}
                       >
