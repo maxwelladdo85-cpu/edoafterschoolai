@@ -313,6 +313,12 @@ export function AdminDashboard() {
         </section>
       )}
 
+      {/* Bulk onboarding */}
+      <section>
+        <h2 className="mb-3 text-xl font-semibold">Bulk onboarding</h2>
+        <BulkUploadUsers onDone={loadAll} />
+      </section>
+
       {/* User management */}
       <section>
         <div className="mb-3 flex items-center justify-between gap-3 flex-wrap">
