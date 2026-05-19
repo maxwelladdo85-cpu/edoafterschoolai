@@ -59,7 +59,7 @@ export const bulkCreateUsers = createServerFn({ method: "POST" })
         if (r.class_level) profilePatch.class_level = r.class_level;
         if (r.lga) profilePatch.lga = r.lga;
         profilePatch.status = "active";
-        await supabaseAdmin.from("profiles").update(profilePatch).eq("id", uid);
+        await (supabaseAdmin.from("profiles") as any).update(profilePatch).eq("id", uid);
 
         if (r.role === "teacher") {
           await supabaseAdmin.from("user_roles").insert({ user_id: uid, role: "teacher" } as any);
