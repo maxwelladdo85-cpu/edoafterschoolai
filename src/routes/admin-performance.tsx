@@ -194,12 +194,113 @@ function AdminPerformancePage() {
           </CardContent>
         </Card>
 
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              <CalendarRange className="h-4 w-4 text-primary" /> Activity by date range
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto_auto] items-end">
+              <div>
+                <Label htmlFor="from-date" className="text-xs">From</Label>
+                <Input id="from-date" type="date" value={fromDate} max={toDate || today} onChange={(e) => setFromDate(e.target.value)} />
+              </div>
+              <div>
+                <Label htmlFor="to-date" className="text-xs">To</Label>
+                <Input id="to-date" type="date" value={toDate} min={fromDate} max={today} onChange={(e) => setToDate(e.target.value)} />
+              </div>
+              <Button onClick={loadActivity} disabled={actLoading}>
+                {actLoading ? <><RefreshCw className="h-4 w-4 mr-2 animate-spin" />Loading…</> : "View activity"}
+              </Button>
+              <Button variant="outline" onClick={downloadActivity} disabled={filteredActivity.length === 0}>
+                <Download className="h-4 w-4 mr-2" /> Download CSV
+              </Button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Button size="sm" variant="ghost" onClick={() => setPreset(1)}>Today</Button>
+              <Button size="sm" variant="ghost" onClick={() => setPreset(7)}>Last 7 days</Button>
+              <Button size="sm" variant="ghost" onClick={() => setPreset(30)}>Last 30 days</Button>
+              <Button size="sm" variant="ghost" onClick={() => setPreset(90)}>Last 90 days</Button>
+            </div>
+
+            {actLoaded && (
+              <>
+                <div className="grid gap-2 sm:grid-cols-[1fr_220px] items-center">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Search name, email, action or detail"
+                      value={activitySearch}
+                      onChange={(e) => setActivitySearch(e.target.value)}
+                      className="pl-9"
+                    />
+                  </div>
+                  <select
+                    className="h-9 rounded-md border border-input bg-transparent px-3 text-sm"
+                    value={actionFilter}
+                    onChange={(e) => setActionFilter(e.target.value)}
+                  >
+                    <option value="">All actions</option>
+                    {actionOptions.map((a) => <option key={a} value={a}>{a}</option>)}
+                  </select>
+                </div>
+
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Badge variant="secondary">{filteredActivity.length}</Badge>
+                  <span>event(s) shown {filteredActivity.length !== activity.length && `(of ${activity.length} loaded)`}</span>
+                </div>
+
+                <div className="rounded-md border max-h-[480px] overflow-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>When</TableHead>
+                        <TableHead>User</TableHead>
+                        <TableHead>Role</TableHead>
+                        <TableHead>Action</TableHead>
+                        <TableHead>Detail</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredActivity.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={5} className="py-8 text-center text-muted-foreground">
+                            No activity in this range.
+                          </TableCell>
+                        </TableRow>
+                      ) : filteredActivity.slice(0, 500).map((r, i) => (
+                        <TableRow key={i}>
+                          <TableCell className="text-xs whitespace-nowrap">{new Date(r.occurred_at).toLocaleString()}</TableCell>
+                          <TableCell>
+                            <div className="font-medium">{r.full_name ?? "—"}</div>
+                            <div className="text-xs text-muted-foreground">{r.email ?? ""}</div>
+                          </TableCell>
+                          <TableCell><Badge variant={r.role === "admin" ? "destructive" : r.role === "teacher" ? "default" : "secondary"}>{r.role}</Badge></TableCell>
+                          <TableCell className="whitespace-nowrap text-sm">{r.action}</TableCell>
+                          <TableCell className="text-xs">{r.detail ?? "—"}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                  {filteredActivity.length > 500 && (
+                    <p className="p-3 text-center text-xs text-muted-foreground border-t">
+                      Showing first 500 — download CSV to see all {filteredActivity.length}.
+                    </p>
+                  )}
+                </div>
+              </>
+            )}
+          </CardContent>
+        </Card>
+
         <Card className="bg-muted/40 border-dashed">
           <CardContent className="p-4 text-xs text-muted-foreground space-y-1">
             <p><strong>About these metrics:</strong> "Online now" counts unique learners who viewed a lesson, sent an AI message, or sent a direct message in the last 5 minutes.</p>
             <p>AI Tutor rate limits per learner: 10/minute, 100/hour, 400/day.</p>
           </CardContent>
         </Card>
+
       </div>
     </DashboardShell>
   );
