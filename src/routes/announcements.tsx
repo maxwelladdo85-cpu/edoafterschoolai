@@ -180,24 +180,35 @@ function AnnouncementsPage() {
                 <DialogHeader>
                   <DialogTitle>Create new message</DialogTitle>
                   <DialogDescription>
-                    Choose a class — every learner in that class will get this notification.
+                    Choose who should receive this notification.
                   </DialogDescription>
                 </DialogHeader>
-                {classLevels.length === 0 ? (
+                {classLevels.length === 0 && audience === "learners" ? (
                   <div className="rounded-md border border-dashed border-border/60 bg-muted/40 p-4 text-sm text-muted-foreground">
                     There are no classes to broadcast to yet. Each learner has to set their <strong>class</strong> in their profile (Settings) before they can receive announcements.
                   </div>
                 ) : (
                   <div className="space-y-4">
                     <div>
-                      <Label>Class</Label>
-                      <Select value={form.class_level} onValueChange={(v) => setForm({ ...form, class_level: v })}>
+                      <Label>Audience</Label>
+                      <Select value={audience} onValueChange={(v) => setAudience(v as "learners" | "teachers")}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="learners">Learners in a class</SelectItem>
+                          <SelectItem value="teachers">Teachers{role === "admin" ? "" : " of a class"}</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label>{audience === "teachers" ? "Class (optional — leave blank for all teachers)" : "Class"}</Label>
+                      <Select value={form.class_level || "__all__"} onValueChange={(v) => setForm({ ...form, class_level: v === "__all__" ? "" : v })}>
                         <SelectTrigger><SelectValue placeholder="Select class" /></SelectTrigger>
                         <SelectContent>
+                          {audience === "teachers" && <SelectItem value="__all__">All teachers</SelectItem>}
                           {classLevels.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
                         </SelectContent>
                       </Select>
-                      {recipientCount !== null && (
+                      {audience === "learners" && recipientCount !== null && (
                         <p className="mt-2 flex items-center gap-1 text-xs text-muted-foreground">
                           <Users className="h-3 w-3" /> {recipientCount} learner{recipientCount === 1 ? "" : "s"} will receive this
                         </p>
