@@ -661,6 +661,48 @@ export type Database = {
         }
         Relationships: []
       }
+      teacher_reports: {
+        Row: {
+          admin_notes: string | null
+          category: string
+          course_id: string | null
+          created_at: string
+          details: string
+          id: string
+          reporter_id: string
+          resolved_at: string | null
+          resolved_by: string | null
+          status: string
+          teacher_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          category: string
+          course_id?: string | null
+          created_at?: string
+          details: string
+          id?: string
+          reporter_id: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+          teacher_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          category?: string
+          course_id?: string | null
+          created_at?: string
+          details?: string
+          id?: string
+          reporter_id?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+          teacher_id?: string
+        }
+        Relationships: []
+      }
       tutor_messages: {
         Row: {
           content: string
@@ -863,6 +905,26 @@ export type Database = {
           id: string
         }[]
       }
+      admin_list_teacher_reports: {
+        Args: { p_status?: string }
+        Returns: {
+          admin_notes: string
+          category: string
+          course_id: string
+          course_title: string
+          created_at: string
+          details: string
+          id: string
+          reporter_email: string
+          reporter_id: string
+          reporter_name: string
+          resolved_at: string
+          status: string
+          teacher_email: string
+          teacher_id: string
+          teacher_name: string
+        }[]
+      }
       admin_log_action: {
         Args: {
           p_action: string
@@ -885,6 +947,10 @@ export type Database = {
           enrollments: number
           title: string
         }[]
+      }
+      admin_update_teacher_report: {
+        Args: { p_admin_notes?: string; p_report_id: string; p_status: string }
+        Returns: undefined
       }
       admin_user_activity_log: {
         Args: { p_limit?: number }
@@ -950,6 +1016,16 @@ export type Database = {
           user_id: string
         }[]
       }
+      list_reportable_teachers: {
+        Args: never
+        Returns: {
+          course_id: string
+          course_title: string
+          email: string
+          full_name: string
+          teacher_id: string
+        }[]
+      }
       schedule_class_announcement: {
         Args: {
           p_class_level: string
@@ -967,6 +1043,15 @@ export type Database = {
       send_teacher_announcement: {
         Args: { p_class_level: string; p_message: string; p_title: string }
         Returns: number
+      }
+      submit_teacher_report: {
+        Args: {
+          p_category: string
+          p_course_id?: string
+          p_details: string
+          p_teacher_id: string
+        }
+        Returns: string
       }
     }
     Enums: {
