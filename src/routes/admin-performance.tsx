@@ -1,17 +1,32 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { format } from "date-fns";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { DashboardShell } from "@/components/DashboardShell";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Activity, Users, Sparkles, BookOpen, ClipboardCheck, UserPlus, RefreshCw, Wifi } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Activity, Users, Sparkles, BookOpen, ClipboardCheck, UserPlus, RefreshCw, Wifi, CalendarRange, Download, Search } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin-performance")({
   component: AdminPerformancePage,
 });
+
+type ActivityRow = {
+  occurred_at: string;
+  user_id: string;
+  full_name: string | null;
+  email: string | null;
+  role: string;
+  action: string;
+  detail: string | null;
+};
+
 
 type Perf = {
   active_today: number;
