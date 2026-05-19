@@ -234,36 +234,38 @@ function AnnouncementsPage() {
                       />
                       <p className="mt-1 text-xs text-muted-foreground text-right">{form.message.length}/2000</p>
                     </div>
-                    <div className="rounded-md border border-border/60 p-3 space-y-3">
-                      <label className="flex items-center gap-2 text-sm font-medium cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={schedule}
-                          onChange={(e) => setSchedule(e.target.checked)}
-                          className="h-4 w-4 accent-primary"
-                        />
-                        Schedule for later
-                      </label>
-                      {schedule && (
-                        <div>
-                          <Label>Send on</Label>
-                          <Input
-                            type="datetime-local"
-                            value={sendAt}
-                            onChange={(e) => setSendAt(e.target.value)}
-                            min={new Date(Date.now() + 60_000).toISOString().slice(0, 16)}
+                    {audience === "learners" && (
+                      <div className="rounded-md border border-border/60 p-3 space-y-3">
+                        <label className="flex items-center gap-2 text-sm font-medium cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={schedule}
+                            onChange={(e) => setSchedule(e.target.checked)}
+                            className="h-4 w-4 accent-primary"
                           />
-                          <p className="mt-1 text-xs text-muted-foreground">
-                            Uses your local time zone. The message is delivered automatically within ~1 minute of this time.
-                          </p>
-                        </div>
-                      )}
-                    </div>
+                          Schedule for later
+                        </label>
+                        {schedule && (
+                          <div>
+                            <Label>Send on</Label>
+                            <Input
+                              type="datetime-local"
+                              value={sendAt}
+                              onChange={(e) => setSendAt(e.target.value)}
+                              min={new Date(Date.now() + 60_000).toISOString().slice(0, 16)}
+                            />
+                            <p className="mt-1 text-xs text-muted-foreground">
+                              Uses your local time zone. The message is delivered automatically within ~1 minute of this time.
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
                 <DialogFooter>
                   <Button variant="outline" onClick={() => setOpen(false)} disabled={sending}>Cancel</Button>
-                  <Button onClick={send} disabled={sending || !form.class_level || !form.title.trim() || (schedule && !sendAt)}>
+                  <Button onClick={send} disabled={sending || !form.title.trim() || (audience === "learners" && !form.class_level) || (schedule && !sendAt)}>
                     {sending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
                     {schedule ? "Schedule announcement" : "Send announcement"}
                   </Button>
