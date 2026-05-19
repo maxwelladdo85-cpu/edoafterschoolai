@@ -15,6 +15,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Users, BookOpen, GraduationCap, Video, Search, Check, X, UserCog, Download, Trash2, Loader2 } from "lucide-react";
+import { BulkUploadUsers } from "@/components/dashboards/BulkUploadUsers";
 import { PageHero } from "@/components/PageHero";
 import dashboardHero from "@/assets/dashboard-hero.jpg";
 import { toast } from "sonner";
@@ -311,6 +312,12 @@ export function AdminDashboard() {
           </Card>
         </section>
       )}
+
+      {/* Bulk onboarding */}
+      <section>
+        <h2 className="mb-3 text-xl font-semibold">Bulk onboarding</h2>
+        <BulkUploadUsers onDone={loadAll} />
+      </section>
 
       {/* User management */}
       <section>
