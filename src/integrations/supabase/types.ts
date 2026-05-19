@@ -823,6 +823,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_activity_log_range: {
+        Args: { p_from: string; p_limit?: number; p_to: string }
+        Returns: {
+          action: string
+          detail: string
+          email: string
+          full_name: string
+          occurred_at: string
+          role: string
+          user_id: string
+        }[]
+      }
       admin_approve_teacher: { Args: { p_user_id: string }; Returns: undefined }
       admin_completion_rates: {
         Args: never
