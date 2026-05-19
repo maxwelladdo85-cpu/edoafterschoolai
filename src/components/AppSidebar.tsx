@@ -36,6 +36,7 @@ const NAV: Record<AppRole, { title: string; url: string; icon: any }[]> = {
     { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
     { title: "Performance", url: "/admin-performance", icon: Activity },
     { title: "Course Library", url: "/courses", icon: BookOpen },
+    { title: "Course Builder", url: "/courses/builder", icon: Wand2 },
     { title: "Assessments", url: "/assessments", icon: ClipboardCheck },
     { title: "Announcements", url: "/announcements", icon: Megaphone },
     { title: "User Summary", url: "/user-summary", icon: UserCircle },
