@@ -618,7 +618,8 @@ export type Database = {
       }
       scheduled_announcements: {
         Row: {
-          class_level: string
+          audience: string
+          class_level: string | null
           created_at: string
           error: string | null
           id: string
@@ -631,7 +632,8 @@ export type Database = {
           title: string
         }
         Insert: {
-          class_level: string
+          audience?: string
+          class_level?: string | null
           created_at?: string
           error?: string | null
           id?: string
@@ -644,7 +646,8 @@ export type Database = {
           title: string
         }
         Update: {
-          class_level?: string
+          audience?: string
+          class_level?: string | null
           created_at?: string
           error?: string | null
           id?: string
@@ -958,6 +961,10 @@ export type Database = {
       }
       send_birthday_greeting_if_due: { Args: never; Returns: boolean }
       send_class_announcement: {
+        Args: { p_class_level: string; p_message: string; p_title: string }
+        Returns: number
+      }
+      send_teacher_announcement: {
         Args: { p_class_level: string; p_message: string; p_title: string }
         Returns: number
       }
