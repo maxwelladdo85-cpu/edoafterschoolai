@@ -1,0 +1,7 @@
+# Force LF line endings for GitHub Actions workflow files
+.github/workflows/*.yml text eol=lf
+.github/workflows/*.yaml text eol=lf
+.github/*.plist text eol=lf
+
+# Auto-detect text files
+* text=auto
