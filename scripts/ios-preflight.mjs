@@ -9,15 +9,17 @@
  *   3. ios/App/App/Info.plist       → CFBundleIdentifier (usually $(PRODUCT_BUNDLE_IDENTIFIER))
  *   4. Your registered Apple App ID → passed via --apple-id or APPLE_APP_ID env var
  *                                     (and/or the team id via --team / APPLE_TEAM_ID)
- *
- * Also surfaces, when present in pbxproj:
- *   - DEVELOPMENT_TEAM
- *   - CODE_SIGN_STYLE  (Automatic vs Manual)
- *   - PROVISIONING_PROFILE_SPECIFIER
+ *   5. Provisioning profile         → parsed from --profile <path> or looked up by
+ *                                     PROVISIONING_PROFILE_SPECIFIER in
+ *                                     ~/Library/MobileDevice/Provisioning Profiles
+ *                                     (override with --profiles-dir / APPLE_PROFILES_DIR).
+ *                                     Verifies application-identifier covers the bundle id,
+ *                                     TeamIdentifier matches, and the profile is not expired.
  *
  * Usage:
  *   bun run ios:preflight
  *   bun run ios:preflight -- --apple-id ng.gov.edosubeb.edolearn --team ABCDE12345
+ *   bun run ios:preflight -- --profile ~/Downloads/EdoLearn_AppStore.mobileprovision
  *   APPLE_APP_ID=ng.gov.edosubeb.edolearn APPLE_TEAM_ID=ABCDE12345 bun run ios:preflight
  *
  * Exit code 0 = all checks passed, 1 = mismatch (blocks CI).
@@ -26,24 +28,85 @@
  * capacitor.config.ts appId and Xcode's PRODUCT_BUNDLE_IDENTIFIER is the
  * #1 cause of "No matching provisioning profile" errors at upload time.
  */
-import { readFileSync, existsSync } from "node:fs";
-import { resolve } from "node:path";
+import { readFileSync, existsSync, readdirSync } from "node:fs";
+import { resolve, join } from "node:path";
+import { homedir } from "node:os";
 
 const ROOT = process.cwd();
 const CONFIG = resolve(ROOT, "capacitor.config.ts");
 const PBXPROJ = resolve(ROOT, "ios/App/App.xcodeproj/project.pbxproj");
 const INFO_PLIST = resolve(ROOT, "ios/App/App/Info.plist");
+const PROFILES_DIR = join(homedir(), "Library/MobileDevice/Provisioning Profiles");
 
 const args = process.argv.slice(2);
 let appleId = process.env.APPLE_APP_ID ?? null;
 let teamId = process.env.APPLE_TEAM_ID ?? null;
+let profilePath = process.env.APPLE_PROFILE_PATH ?? null;
+let profilesDir = process.env.APPLE_PROFILES_DIR ?? PROFILES_DIR;
 for (let i = 0; i < args.length; i++) {
   if (args[i] === "--apple-id") appleId = args[++i];
   else if (args[i] === "--team") teamId = args[++i];
+  else if (args[i] === "--profile") profilePath = args[++i];
+  else if (args[i] === "--profiles-dir") profilesDir = args[++i];
   else {
     console.error(`Unknown arg: ${args[i]}`);
     process.exit(1);
   }
+}
+
+/**
+ * .mobileprovision is a CMS-signed container wrapping an XML plist.
+ * Slice from `<?xml` through `</plist>` and parse the few keys we need.
+ */
+function parseProvisioningProfile(filePath) {
+  const buf = readFileSync(filePath);
+  const text = buf.toString("utf8");
+  const start = text.indexOf("<?xml");
+  const end = text.indexOf("</plist>");
+  if (start === -1 || end === -1) return null;
+  const plist = text.slice(start, end + "</plist>".length);
+  const pick = (key) => {
+    const re = new RegExp(
+      `<key>${key}</key>\\s*<string>([^<]+)</string>`,
+    );
+    const m = plist.match(re);
+    return m ? m[1] : null;
+  };
+  const pickArray = (key) => {
+    const re = new RegExp(
+      `<key>${key}</key>\\s*<array>([\\s\\S]*?)</array>`,
+    );
+    const m = plist.match(re);
+    if (!m) return [];
+    return [...m[1].matchAll(/<string>([^<]+)<\/string>/g)].map((x) => x[1]);
+  };
+  return {
+    name: pick("Name"),
+    uuid: pick("UUID"),
+    appIdName: pick("AppIDName"),
+    teamIdentifier: pickArray("TeamIdentifier")[0] ?? null,
+    teamName: pick("TeamName"),
+    applicationIdentifier:
+      // Inside the Entitlements dict
+      (plist.match(
+        /<key>application-identifier<\/key>\s*<string>([^<]+)<\/string>/,
+      ) || [])[1] ?? null,
+    expirationDate: pick("ExpirationDate"),
+    platform: pickArray("Platform"),
+  };
+}
+
+function findProfileByName(dir, name) {
+  if (!existsSync(dir)) return null;
+  for (const f of readdirSync(dir)) {
+    if (!f.endsWith(".mobileprovision")) continue;
+    const full = join(dir, f);
+    const parsed = parseProvisioningProfile(full);
+    if (parsed && (parsed.name === name || parsed.uuid === name)) {
+      return { path: full, parsed };
+    }
+  }
+  return null;
 }
 
 const problems = [];
@@ -166,6 +229,102 @@ if (appleId) {
     "• Pass --apple-id <bundle-id> or set APPLE_APP_ID to verify against your " +
       "registered App ID at developer.apple.com.",
   );
+}
+
+// 5. Provisioning profile
+// Resolve a profile: explicit --profile path wins, else look up
+// PROVISIONING_PROFILE_SPECIFIER from pbxproj in ~/Library/MobileDevice/Provisioning Profiles.
+let resolvedProfile = null;
+if (profilePath) {
+  if (!existsSync(profilePath)) {
+    problems.push(`✗ Provisioning profile not found at ${profilePath}`);
+  } else {
+    const parsed = parseProvisioningProfile(profilePath);
+    if (!parsed) problems.push(`✗ Could not parse provisioning profile at ${profilePath}`);
+    else resolvedProfile = { path: profilePath, parsed };
+  }
+} else {
+  const specifiers = [...new Set(pbxProfiles.filter(Boolean))];
+  if (specifiers.length === 1) {
+    const found = findProfileByName(profilesDir, specifiers[0]);
+    if (found) resolvedProfile = found;
+    else if (existsSync(profilesDir)) {
+      notes.push(
+        `• Provisioning profile "${specifiers[0]}" not found in ${profilesDir}. ` +
+          "Download it from Xcode (Preferences → Accounts → Download Manual Profiles) " +
+          "or pass --profile <path-to-.mobileprovision>.",
+      );
+    } else {
+      notes.push(
+        "• Pass --profile <path-to-.mobileprovision> to validate the profile " +
+          "(default macOS location ~/Library/MobileDevice/Provisioning Profiles is not present).",
+      );
+    }
+  } else if (specifiers.length > 1) {
+    problems.push(
+      `✗ Xcode pbxproj has multiple PROVISIONING_PROFILE_SPECIFIER values: ${specifiers.join(", ")}`,
+    );
+  } else {
+    notes.push(
+      "• No PROVISIONING_PROFILE_SPECIFIER in pbxproj (likely Automatic signing). " +
+        "Pass --profile <path> to validate a specific .mobileprovision.",
+    );
+  }
+}
+
+if (resolvedProfile) {
+  const { parsed, path: pPath } = resolvedProfile;
+  notes.push(`• Provisioning profile: ${parsed.name} (${parsed.uuid}) at ${pPath}`);
+
+  // application-identifier is "<TEAMID>.<bundle-id>". Wildcards end with ".*".
+  const appIdent = parsed.applicationIdentifier ?? "";
+  const dot = appIdent.indexOf(".");
+  const profileTeam = parsed.teamIdentifier ?? (dot >= 0 ? appIdent.slice(0, dot) : null);
+  const profileBundle = dot >= 0 ? appIdent.slice(dot + 1) : null;
+
+  if (profileBundle) {
+    const matches =
+      profileBundle === capAppId ||
+      (profileBundle.endsWith(".*") &&
+        capAppId.startsWith(profileBundle.slice(0, -2) + "."));
+    check(
+      `Profile application-identifier = ${appIdent}`,
+      matches,
+      matches ? null : `does not cover bundle id ${capAppId}`,
+    );
+  } else {
+    problems.push("✗ Profile has no application-identifier entitlement");
+  }
+
+  if (profileTeam) {
+    if (teamId) {
+      check(
+        `Profile TeamIdentifier = ${profileTeam}`,
+        profileTeam === teamId,
+        profileTeam === teamId ? null : `expected --team ${teamId}`,
+      );
+    } else if (pbxTeamIds.length) {
+      const uniqTeams = [...new Set(pbxTeamIds.filter(Boolean))];
+      const xcodeTeam = uniqTeams[0];
+      check(
+        `Profile TeamIdentifier matches Xcode DEVELOPMENT_TEAM (${xcodeTeam})`,
+        uniqTeams.length === 1 && profileTeam === xcodeTeam,
+        profileTeam === xcodeTeam ? null : `profile=${profileTeam}, xcode=${xcodeTeam}`,
+      );
+    } else {
+      notes.push(`• Profile TeamIdentifier = ${profileTeam} (no --team to verify against)`);
+    }
+  }
+
+  if (parsed.expirationDate) {
+    const exp = new Date(parsed.expirationDate);
+    const days = Math.floor((exp.getTime() - Date.now()) / 86_400_000);
+    if (Number.isFinite(days)) {
+      if (days < 0) problems.push(`✗ Profile expired ${-days} day(s) ago (${parsed.expirationDate})`);
+      else if (days < 14) notes.push(`• Profile expires in ${days} day(s) — renew soon`);
+      else notes.push(`• Profile expires in ${days} day(s)`);
+    }
+  }
 }
 
 console.log("\niOS preflight\n=============");
