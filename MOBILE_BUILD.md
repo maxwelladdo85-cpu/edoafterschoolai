@@ -108,6 +108,7 @@ the config by hand:
 ```bash
 bun run ios:preflight              # verify bundle ID matches Xcode + Apple
 bun run ios:preflight -- --apple-id ng.gov.edosubeb.edolearn --team ABCDE12345
+bun run ios:preflight -- --profile ~/Downloads/EdoLearn_AppStore.mobileprovision
 ```
 
 The preflight (`scripts/ios-preflight.mjs`) compares `appId` in
