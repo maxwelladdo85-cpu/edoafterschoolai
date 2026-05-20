@@ -111,6 +111,26 @@ bun run ios:preflight -- --apple-id ng.gov.edosubeb.edolearn --team ABCDE12345
 bun run ios:preflight -- --profile ~/Downloads/EdoLearn_AppStore.mobileprovision
 ```
 
+### CI: GitHub Actions
+
+`.github/workflows/ios-preflight.yml` runs the same preflight on every push
+/ PR that touches `capacitor.config.ts`, `ios/**`, or the preflight script.
+The job fails (exit 1) if any check doesn't pass, so a bad bundle id or
+expired provisioning profile never reaches the archive step.
+
+`.github/workflows/ios-build.yml` calls the preflight workflow as a
+required `needs:` dependency before invoking `xcodebuild archive`. If
+preflight fails, the build job never runs.
+
+Required repository secrets (Settings → Secrets and variables → Actions):
+
+| Secret | Value |
+|---|---|
+| `APPLE_APP_ID` | `ng.gov.edosubeb.edolearn` |
+| `APPLE_TEAM_ID` | your 10-char Apple Developer Team ID |
+| `APPLE_PROVISIONING_PROFILE_B64` | `base64 -i EdoLearn_AppStore.mobileprovision` (optional — omit to skip profile parsing) |
+
+
 The preflight (`scripts/ios-preflight.mjs`) compares `appId` in
 `capacitor.config.ts` against `PRODUCT_BUNDLE_IDENTIFIER` in
 `ios/App/App.xcodeproj/project.pbxproj`, `CFBundleIdentifier` in
