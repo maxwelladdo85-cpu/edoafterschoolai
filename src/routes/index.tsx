@@ -84,7 +84,14 @@ function Index() {
       </main>
 
       <footer className="mx-auto max-w-6xl px-6 py-10 text-center text-sm text-muted-foreground">
-        © {new Date().getFullYear()} Edo State Universal Basic Education Board (SUBEB)
+        <div className="flex flex-col items-center gap-2">
+          <div className="flex items-center gap-4">
+            <Link to="/privacy" className="underline underline-offset-2 hover:text-foreground transition-colors">
+              Privacy Policy
+            </Link>
+          </div>
+          <p>© {new Date().getFullYear()} Edo State Universal Basic Education Board (SUBEB)</p>
+        </div>
       </footer>
     </div>
   );

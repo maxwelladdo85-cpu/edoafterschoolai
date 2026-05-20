@@ -99,8 +99,7 @@ Replace the default Capacitor placeholders before submitting:
 - **Splash screen** — 2732×2732 PNG, centered logo on `#00843D`.
 - **Screenshots** — capture from a real device or simulator at the
   required store sizes.
-- **Privacy policy URL** — required by both stores. Host a simple page
-  at e.g. `https://edoafterschoolai.lovable.app/privacy`.
+- **Privacy policy URL** — required by both stores. The page is live at `https://edodlah.com/privacy`.
 
 The fastest way to generate icons + splash from one source image:
 
