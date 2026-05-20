@@ -363,6 +363,26 @@ function SettingsPage() {
               </Card>
             )}
 
+            <Card className="border-border/60" style={{ boxShadow: "var(--shadow-card)" }}>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2"><FileText className="h-5 w-5 text-primary" /> Legal</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <p className="text-sm text-muted-foreground">Review the legal agreements that govern your use of the EdoLearn platform.</p>
+                <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+                  <Link to="/privacy" className="inline-flex items-center gap-2 rounded-lg border bg-muted/30 px-4 py-2.5 text-sm font-medium text-foreground hover:bg-muted/50 transition-colors">
+                    <Shield className="h-4 w-4 text-primary" /> Privacy Policy
+                  </Link>
+                  <Link to="/terms" className="inline-flex items-center gap-2 rounded-lg border bg-muted/30 px-4 py-2.5 text-sm font-medium text-foreground hover:bg-muted/50 transition-colors">
+                    <FileText className="h-4 w-4 text-primary" /> Terms of Service
+                  </Link>
+                  <Link to="/cookies" className="inline-flex items-center gap-2 rounded-lg border bg-muted/30 px-4 py-2.5 text-sm font-medium text-foreground hover:bg-muted/50 transition-colors">
+                    <Cookie className="h-4 w-4 text-primary" /> Cookie Policy
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+
             {stats.length > 0 && (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {stats.map((s, i) => {
