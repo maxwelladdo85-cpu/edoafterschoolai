@@ -42,16 +42,28 @@ jobs:
           if [ -n "$KEYSTORE_B64" ]; then
             printf '%s' "$KEYSTORE_B64" > /tmp/keystore.b64
             base64 -d /tmp/keystore.b64 > android/app/keystore.jks
-            sed -i "/defaultConfig {/i\
-          signingConfigs {\
-              release {\
-                  storeFile file('keystore.jks')\
-                  storePassword '$STORE_PASS'\
-                  keyAlias '$KEY_ALIAS'\
-                  keyPassword '$KEY_PASS'\
-              }\
-          }" android/app/build.gradle
-            sed -i 's|signingConfig = signingConfigs.debug|signingConfig = signingConfigs.release|' android/app/build.gradle
+            python3 -c "
+import os, re
+with open('android/app/build.gradle') as f:
+    content = f.read()
+indent = re.search(r'^(\s*)defaultConfig \{', content, re.MULTILINE).group(1)
+sp = os.environ['STORE_PASS']
+ka = os.environ['KEY_ALIAS']
+kp = os.environ['KEY_PASS']
+signing = f'''{indent}signingConfigs {{
+{indent}    release {{
+{indent}        storeFile file('keystore.jks')
+{indent}        storePassword '{sp}'
+{indent}        keyAlias '{ka}'
+{indent}        keyPassword '{kp}'
+{indent}    }}
+{indent}}}}
+'''
+content = re.sub(r'^(\s*)defaultConfig \{', lambda m: signing + m.group(1) + 'defaultConfig {', content, flags=re.MULTILINE)
+content = content.replace('signingConfig = signingConfigs.debug', 'signingConfig = signingConfigs.release')
+with open('android/app/build.gradle', 'w') as f:
+    f.write(content)
+"
           fi
           cd android
           ./gradlew bundleRelease assembleRelease
