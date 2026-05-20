@@ -5,10 +5,6 @@ on:
     branches: [main]
     tags: ["v*"]
   workflow_dispatch:
-    inputs:
-      version:
-        description: "Override version (e.g. 1.0.1)"
-        required: false
 
 concurrency: android-release
 
@@ -19,79 +15,25 @@ jobs:
       contents: read
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-
-      - name: Setup Java 17
-        uses: actions/setup-java@v4
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
+      - uses: android-actions/setup-android@v3
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+      - run: bun install --frozen-lockfile
+      - run: npx cap add android
+      - run: npx cap sync android
 
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
-
-      - name: Generate Android native project
-        run: npx cap add android
-
-      - name: Sync Capacitor
-        run: npx cap sync android
-
-      - name: Configure signing & build release AAB
-        env:
-          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+      - name: Build release AAB
         run: |
-          set -e
-          if [ -n "$ANDROID_KEYSTORE_BASE64" ]; then
-            echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > android/app/keystore.jks
-
-            cat >> android/app/build.gradle << 'SIGNEOF'
-          android {
-              signingConfigs {
-                  release {
-                      storeFile file("keystore.jks")
-                      storePassword "$ANDROID_KEYSTORE_PASSWORD"
-                      keyAlias "$ANDROID_KEY_ALIAS"
-                      keyPassword "$ANDROID_KEY_PASSWORD"
-                  }
-              }
-          }
-          SIGNEOF
-            sed -i 's|signingConfig = signingConfigs.debug|signingConfig = signingConfigs.release|' android/app/build.gradle
-          fi
           cd android
           ./gradlew bundleRelease
 
-      - name: Upload AAB artifact
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: edolearn-android-aab
           path: android/app/build/outputs/bundle/release/app-release.aab
           retention-days: 30
-
-      - name: Upload APK artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: edolearn-android-apk
-          path: android/app/build/outputs/apk/release/app-release.apk
-          retention-days: 30
-
-      - name: Upload to Google Play Console
-        if: ${{ github.ref_type == 'tag' && secrets.PLAY_SERVICE_ACCOUNT_JSON != '' }}
-        uses: r0adkll/upload-google-play@v1
-        with:
-          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
-          packageName: ng.gov.edosubeb.edolearn
-          releaseFiles: android/app/build/outputs/bundle/release/app-release.aab
-          track: production
-          status: completed
-          whatsNewDirectory: .github/release-notes/
