@@ -22,6 +22,7 @@ import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CoursesRouteImport } from './routes/courses'
+import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as CertificatesRouteImport } from './routes/certificates'
 import { Route as AssessmentsRouteImport } from './routes/assessments'
 import { Route as AnnouncementsRouteImport } from './routes/announcements'
@@ -100,6 +101,11 @@ const CoursesRoute = CoursesRouteImport.update({
   path: '/courses',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CookiesRoute = CookiesRouteImport.update({
+  id: '/cookies',
+  path: '/cookies',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CertificatesRoute = CertificatesRouteImport.update({
   id: '/certificates',
   path: '/certificates',
@@ -167,6 +173,7 @@ export interface FileRoutesByFullPath {
   '/announcements': typeof AnnouncementsRoute
   '/assessments': typeof AssessmentsRoute
   '/certificates': typeof CertificatesRoute
+  '/cookies': typeof CookiesRoute
   '/courses': typeof CoursesRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
@@ -194,6 +201,7 @@ export interface FileRoutesByTo {
   '/announcements': typeof AnnouncementsRoute
   '/assessments': typeof AssessmentsRoute
   '/certificates': typeof CertificatesRoute
+  '/cookies': typeof CookiesRoute
   '/courses': typeof CoursesRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
@@ -222,6 +230,7 @@ export interface FileRoutesById {
   '/announcements': typeof AnnouncementsRoute
   '/assessments': typeof AssessmentsRoute
   '/certificates': typeof CertificatesRoute
+  '/cookies': typeof CookiesRoute
   '/courses': typeof CoursesRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
@@ -251,6 +260,7 @@ export interface FileRouteTypes {
     | '/announcements'
     | '/assessments'
     | '/certificates'
+    | '/cookies'
     | '/courses'
     | '/dashboard'
     | '/login'
@@ -278,6 +288,7 @@ export interface FileRouteTypes {
     | '/announcements'
     | '/assessments'
     | '/certificates'
+    | '/cookies'
     | '/courses'
     | '/dashboard'
     | '/login'
@@ -305,6 +316,7 @@ export interface FileRouteTypes {
     | '/announcements'
     | '/assessments'
     | '/certificates'
+    | '/cookies'
     | '/courses'
     | '/dashboard'
     | '/login'
@@ -333,6 +345,7 @@ export interface RootRouteChildren {
   AnnouncementsRoute: typeof AnnouncementsRoute
   AssessmentsRoute: typeof AssessmentsRoute
   CertificatesRoute: typeof CertificatesRoute
+  CookiesRoute: typeof CookiesRoute
   CoursesRoute: typeof CoursesRouteWithChildren
   DashboardRoute: typeof DashboardRoute
   LoginRoute: typeof LoginRoute
@@ -446,6 +459,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CoursesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cookies': {
+      id: '/cookies'
+      path: '/cookies'
+      fullPath: '/cookies'
+      preLoaderRoute: typeof CookiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/certificates': {
       id: '/certificates'
       path: '/certificates'
@@ -552,6 +572,7 @@ const rootRouteChildren: RootRouteChildren = {
   AnnouncementsRoute: AnnouncementsRoute,
   AssessmentsRoute: AssessmentsRoute,
   CertificatesRoute: CertificatesRoute,
+  CookiesRoute: CookiesRoute,
   CoursesRoute: CoursesRouteWithChildren,
   DashboardRoute: DashboardRoute,
   LoginRoute: LoginRoute,
@@ -574,13 +595,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
