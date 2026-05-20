@@ -1,0 +1,45 @@
+name: iOS Build
+
+# Builds the iOS app only after the preflight job passes. If preflight fails
+# (bad bundle id, expired profile, team mismatch), the build job never runs.
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ["ios-v*"]
+
+jobs:
+  preflight:
+    uses: ./.github/workflows/ios-preflight.yml
+    secrets: inherit
+
+  build:
+    name: Archive & export IPA
+    needs: preflight
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Sync Capacitor iOS
+        run: npx cap sync ios
+
+      - name: Archive
+        working-directory: ios/App
+        run: |
+          xcodebuild -workspace App.xcworkspace \
+            -scheme App \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/App.xcarchive" \
+            archive
+
+      # Export step intentionally omitted — add an ExportOptions.plist and
+      # `xcodebuild -exportArchive` once signing secrets are wired into the
+      # runner keychain (fastlane match or apple-actions/import-codesign-certs).
