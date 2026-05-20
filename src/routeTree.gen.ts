@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as VirtualClassesRouteImport } from './routes/virtual-classes'
 import { Route as VarkQuizRouteImport } from './routes/vark-quiz'
 import { Route as UserSummaryRouteImport } from './routes/user-summary'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as PrivacyRouteImport } from './routes/privacy'
@@ -47,6 +48,11 @@ const VarkQuizRoute = VarkQuizRouteImport.update({
 const UserSummaryRoute = UserSummaryRouteImport.update({
   id: '/user-summary',
   path: '/user-summary',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SettingsRoute = SettingsRouteImport.update({
@@ -170,6 +176,7 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/settings': typeof SettingsRoute
+  '/terms': typeof TermsRoute
   '/user-summary': typeof UserSummaryRoute
   '/vark-quiz': typeof VarkQuizRoute
   '/virtual-classes': typeof VirtualClassesRoute
@@ -196,6 +203,7 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/settings': typeof SettingsRoute
+  '/terms': typeof TermsRoute
   '/user-summary': typeof UserSummaryRoute
   '/vark-quiz': typeof VarkQuizRoute
   '/virtual-classes': typeof VirtualClassesRoute
@@ -223,6 +231,7 @@ export interface FileRoutesById {
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/settings': typeof SettingsRoute
+  '/terms': typeof TermsRoute
   '/user-summary': typeof UserSummaryRoute
   '/vark-quiz': typeof VarkQuizRoute
   '/virtual-classes': typeof VirtualClassesRoute
@@ -251,6 +260,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/reset-password'
     | '/settings'
+    | '/terms'
     | '/user-summary'
     | '/vark-quiz'
     | '/virtual-classes'
@@ -277,6 +287,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/reset-password'
     | '/settings'
+    | '/terms'
     | '/user-summary'
     | '/vark-quiz'
     | '/virtual-classes'
@@ -303,6 +314,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/reset-password'
     | '/settings'
+    | '/terms'
     | '/user-summary'
     | '/vark-quiz'
     | '/virtual-classes'
@@ -330,6 +342,7 @@ export interface RootRouteChildren {
   PrivacyRoute: typeof PrivacyRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SettingsRoute: typeof SettingsRoute
+  TermsRoute: typeof TermsRoute
   UserSummaryRoute: typeof UserSummaryRoute
   VarkQuizRoute: typeof VarkQuizRoute
   VirtualClassesRoute: typeof VirtualClassesRoute
@@ -361,6 +374,13 @@ declare module '@tanstack/react-router' {
       path: '/user-summary'
       fullPath: '/user-summary'
       preLoaderRoute: typeof UserSummaryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/settings': {
@@ -541,6 +561,7 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacyRoute: PrivacyRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SettingsRoute: SettingsRoute,
+  TermsRoute: TermsRoute,
   UserSummaryRoute: UserSummaryRoute,
   VarkQuizRoute: VarkQuizRoute,
   VirtualClassesRoute: VirtualClassesRoute,

@@ -89,6 +89,10 @@ function Index() {
             <Link to="/privacy" className="underline underline-offset-2 hover:text-foreground transition-colors">
               Privacy Policy
             </Link>
+            <span className="text-muted-foreground">|</span>
+            <Link to="/terms" className="underline underline-offset-2 hover:text-foreground transition-colors">
+              Terms of Service
+            </Link>
           </div>
           <p>© {new Date().getFullYear()} Edo State Universal Basic Education Board (SUBEB)</p>
         </div>
