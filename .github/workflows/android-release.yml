@@ -43,39 +43,31 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync android
 
-      - name: Configure app/build.gradle for signing
-        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
-        shell: bash
+      - name: Configure signing & build release AAB
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
-          # Decode keystore
-          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > android/app/keystore.jks
+          set -e
+          if [ -n "$ANDROID_KEYSTORE_BASE64" ]; then
+            echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > android/app/keystore.jks
 
-          # Inject signing config into android/app/build.gradle at end of defaultConfig block
-          sed -i 's|minSdk = [0-9]*|minSdk = 24|' android/app/build.gradle
-
-          # Add signingConfigs + reference inside release buildType
-          awk '
-          /android {/ {
-            print;
-            print "    signingConfigs {";
-            print "        release {";
-            print "            storeFile file(\"keystore.jks\")";
-            print "            storePassword \"${{ secrets.ANDROID_KEYSTORE_PASSWORD }}\"";
-            print "            keyAlias \"${{ secrets.ANDROID_KEY_ALIAS }}\"";
-            print "            keyPassword \"${{ secrets.ANDROID_KEY_PASSWORD }}\"";
-            print "        }";
-            print "    }";
-            next;
+            cat >> android/app/build.gradle << 'SIGNEOF'
+          android {
+              signingConfigs {
+                  release {
+                      storeFile file("keystore.jks")
+                      storePassword "$ANDROID_KEYSTORE_PASSWORD"
+                      keyAlias "$ANDROID_KEY_ALIAS"
+                      keyPassword "$ANDROID_KEY_PASSWORD"
+                  }
+              }
           }
-          /signingConfig = signingConfigs.debug/ {
-            print "            signingConfig = signingConfigs.release";
-            next;
-          }
-          { print }
-          ' android/app/build.gradle > android/app/build.gradle.tmp && mv android/app/build.gradle.tmp android/app/build.gradle
-
-      - name: Build release AAB
-        run: |
+          SIGNEOF
+            sed -i 's|signingConfig = signingConfigs.debug|signingConfig = signingConfigs.release|' android/app/build.gradle
+          fi
           cd android
           ./gradlew bundleRelease
 
