@@ -85,13 +85,17 @@ function Index() {
 
       <footer className="mx-auto max-w-6xl px-6 py-10 text-center text-sm text-muted-foreground">
         <div className="flex flex-col items-center gap-2">
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center justify-center gap-2">
             <Link to="/privacy" className="underline underline-offset-2 hover:text-foreground transition-colors">
               Privacy Policy
             </Link>
             <span className="text-muted-foreground">|</span>
             <Link to="/terms" className="underline underline-offset-2 hover:text-foreground transition-colors">
               Terms of Service
+            </Link>
+            <span className="text-muted-foreground">|</span>
+            <Link to="/cookies" className="underline underline-offset-2 hover:text-foreground transition-colors">
+              Cookie Policy
             </Link>
           </div>
           <p>© {new Date().getFullYear()} Edo State Universal Basic Education Board (SUBEB)</p>
