@@ -102,8 +102,20 @@ These are read every time you run `npx cap sync ios`:
 | `SplashScreen` plugin | green + 1.5s | LaunchScreen storyboard tint |
 | `StatusBar` plugin | dark icons on green | Info.plist `UIStatusBarStyle` |
 
-When you ship a new build, bump `ios.buildNumber` (e.g. `"1"` → `"2"`) and
-run `npx cap sync ios` before opening Xcode.
+When you ship a new build, run the automated bump script instead of editing
+the config by hand:
+
+```bash
+bun run ios:release                 # buildNumber += 1, then `cap sync ios`
+bun run ios:release -- 42           # set buildNumber to "42"
+bun run ios:release -- --version 1.1.0   # also bump marketing version
+bun run ios:release -- --no-sync    # bump only, skip cap sync
+```
+
+The script (`scripts/ios-release.mjs`) rewrites `ios.buildNumber` in
+`capacitor.config.ts` and runs `npx cap sync ios` so Xcode's Info.plist
+picks up the new `CFBundleVersion` before you archive. App Store Connect
+rejects re-uploads that reuse a build number, so run this every time.
 
 ### Building the IPA
 
