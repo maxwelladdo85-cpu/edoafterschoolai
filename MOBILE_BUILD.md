@@ -122,6 +122,14 @@ mismatch is the #1 cause of "No matching provisioning profile" errors at
 upload time. `bun run ios:release` runs the preflight automatically and
 aborts if any check fails.
 
+When you pass `--profile <path-to-.mobileprovision>` (or have a
+`PROVISIONING_PROFILE_SPECIFIER` set in Xcode and the matching profile in
+`~/Library/MobileDevice/Provisioning Profiles`), preflight also parses the
+profile's embedded plist and verifies:
+- `application-identifier` covers your bundle id (wildcard `.*` is honored)
+- `TeamIdentifier` matches `--team` (or Xcode's `DEVELOPMENT_TEAM`)
+- `ExpirationDate` is in the future (warns within 14 days)
+
 
 
 ```bash
