@@ -229,6 +229,102 @@ if (appleId) {
   );
 }
 
+// 5. Provisioning profile
+// Resolve a profile: explicit --profile path wins, else look up
+// PROVISIONING_PROFILE_SPECIFIER from pbxproj in ~/Library/MobileDevice/Provisioning Profiles.
+let resolvedProfile = null;
+if (profilePath) {
+  if (!existsSync(profilePath)) {
+    problems.push(`✗ Provisioning profile not found at ${profilePath}`);
+  } else {
+    const parsed = parseProvisioningProfile(profilePath);
+    if (!parsed) problems.push(`✗ Could not parse provisioning profile at ${profilePath}`);
+    else resolvedProfile = { path: profilePath, parsed };
+  }
+} else {
+  const specifiers = [...new Set(pbxProfiles.filter(Boolean))];
+  if (specifiers.length === 1) {
+    const found = findProfileByName(profilesDir, specifiers[0]);
+    if (found) resolvedProfile = found;
+    else if (existsSync(profilesDir)) {
+      notes.push(
+        `• Provisioning profile "${specifiers[0]}" not found in ${profilesDir}. ` +
+          "Download it from Xcode (Preferences → Accounts → Download Manual Profiles) " +
+          "or pass --profile <path-to-.mobileprovision>.",
+      );
+    } else {
+      notes.push(
+        "• Pass --profile <path-to-.mobileprovision> to validate the profile " +
+          "(default macOS location ~/Library/MobileDevice/Provisioning Profiles is not present).",
+      );
+    }
+  } else if (specifiers.length > 1) {
+    problems.push(
+      `✗ Xcode pbxproj has multiple PROVISIONING_PROFILE_SPECIFIER values: ${specifiers.join(", ")}`,
+    );
+  } else {
+    notes.push(
+      "• No PROVISIONING_PROFILE_SPECIFIER in pbxproj (likely Automatic signing). " +
+        "Pass --profile <path> to validate a specific .mobileprovision.",
+    );
+  }
+}
+
+if (resolvedProfile) {
+  const { parsed, path: pPath } = resolvedProfile;
+  notes.push(`• Provisioning profile: ${parsed.name} (${parsed.uuid}) at ${pPath}`);
+
+  // application-identifier is "<TEAMID>.<bundle-id>". Wildcards end with ".*".
+  const appIdent = parsed.applicationIdentifier ?? "";
+  const dot = appIdent.indexOf(".");
+  const profileTeam = parsed.teamIdentifier ?? (dot >= 0 ? appIdent.slice(0, dot) : null);
+  const profileBundle = dot >= 0 ? appIdent.slice(dot + 1) : null;
+
+  if (profileBundle) {
+    const matches =
+      profileBundle === capAppId ||
+      (profileBundle.endsWith(".*") &&
+        capAppId.startsWith(profileBundle.slice(0, -2) + "."));
+    check(
+      `Profile application-identifier = ${appIdent}`,
+      matches,
+      matches ? null : `does not cover bundle id ${capAppId}`,
+    );
+  } else {
+    problems.push("✗ Profile has no application-identifier entitlement");
+  }
+
+  if (profileTeam) {
+    if (teamId) {
+      check(
+        `Profile TeamIdentifier = ${profileTeam}`,
+        profileTeam === teamId,
+        profileTeam === teamId ? null : `expected --team ${teamId}`,
+      );
+    } else if (pbxTeamIds.length) {
+      const uniqTeams = [...new Set(pbxTeamIds.filter(Boolean))];
+      const xcodeTeam = uniqTeams[0];
+      check(
+        `Profile TeamIdentifier matches Xcode DEVELOPMENT_TEAM (${xcodeTeam})`,
+        uniqTeams.length === 1 && profileTeam === xcodeTeam,
+        profileTeam === xcodeTeam ? null : `profile=${profileTeam}, xcode=${xcodeTeam}`,
+      );
+    } else {
+      notes.push(`• Profile TeamIdentifier = ${profileTeam} (no --team to verify against)`);
+    }
+  }
+
+  if (parsed.expirationDate) {
+    const exp = new Date(parsed.expirationDate);
+    const days = Math.floor((exp.getTime() - Date.now()) / 86_400_000);
+    if (Number.isFinite(days)) {
+      if (days < 0) problems.push(`✗ Profile expired ${-days} day(s) ago (${parsed.expirationDate})`);
+      else if (days < 14) notes.push(`• Profile expires in ${days} day(s) — renew soon`);
+      else notes.push(`• Profile expires in ${days} day(s)`);
+    }
+  }
+}
+
 console.log("\niOS preflight\n=============");
 ok.forEach((l) => console.log(l));
 if (notes.length) {
