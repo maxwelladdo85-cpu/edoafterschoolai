@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "ios:release": "node scripts/ios-release.mjs",
+    "ios:preflight": "node scripts/ios-preflight.mjs",
+    "ios:release": "node scripts/ios-preflight.mjs && node scripts/ios-release.mjs",
     "ios:release:version": "node scripts/ios-release.mjs --version"
   },
   "dependencies": {
