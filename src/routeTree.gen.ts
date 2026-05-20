@@ -14,6 +14,7 @@ import { Route as VarkQuizRouteImport } from './routes/vark-quiz'
 import { Route as UserSummaryRouteImport } from './routes/user-summary'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as MyCoursesRouteImport } from './routes/my-courses'
 import { Route as MessagesRouteImport } from './routes/messages'
@@ -56,6 +57,11 @@ const SettingsRoute = SettingsRouteImport.update({
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NotificationsRoute = NotificationsRouteImport.update({
@@ -161,6 +167,7 @@ export interface FileRoutesByFullPath {
   '/messages': typeof MessagesRoute
   '/my-courses': typeof MyCoursesRoute
   '/notifications': typeof NotificationsRoute
+  '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/settings': typeof SettingsRoute
   '/user-summary': typeof UserSummaryRoute
@@ -186,6 +193,7 @@ export interface FileRoutesByTo {
   '/messages': typeof MessagesRoute
   '/my-courses': typeof MyCoursesRoute
   '/notifications': typeof NotificationsRoute
+  '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/settings': typeof SettingsRoute
   '/user-summary': typeof UserSummaryRoute
@@ -212,6 +220,7 @@ export interface FileRoutesById {
   '/messages': typeof MessagesRoute
   '/my-courses': typeof MyCoursesRoute
   '/notifications': typeof NotificationsRoute
+  '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/settings': typeof SettingsRoute
   '/user-summary': typeof UserSummaryRoute
@@ -239,6 +248,7 @@ export interface FileRouteTypes {
     | '/messages'
     | '/my-courses'
     | '/notifications'
+    | '/privacy'
     | '/reset-password'
     | '/settings'
     | '/user-summary'
@@ -264,6 +274,7 @@ export interface FileRouteTypes {
     | '/messages'
     | '/my-courses'
     | '/notifications'
+    | '/privacy'
     | '/reset-password'
     | '/settings'
     | '/user-summary'
@@ -289,6 +300,7 @@ export interface FileRouteTypes {
     | '/messages'
     | '/my-courses'
     | '/notifications'
+    | '/privacy'
     | '/reset-password'
     | '/settings'
     | '/user-summary'
@@ -315,6 +327,7 @@ export interface RootRouteChildren {
   MessagesRoute: typeof MessagesRoute
   MyCoursesRoute: typeof MyCoursesRoute
   NotificationsRoute: typeof NotificationsRoute
+  PrivacyRoute: typeof PrivacyRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SettingsRoute: typeof SettingsRoute
   UserSummaryRoute: typeof UserSummaryRoute
@@ -362,6 +375,13 @@ declare module '@tanstack/react-router' {
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/notifications': {
@@ -518,6 +538,7 @@ const rootRouteChildren: RootRouteChildren = {
   MessagesRoute: MessagesRoute,
   MyCoursesRoute: MyCoursesRoute,
   NotificationsRoute: NotificationsRoute,
+  PrivacyRoute: PrivacyRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SettingsRoute: SettingsRoute,
   UserSummaryRoute: UserSummaryRoute,
