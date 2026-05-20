@@ -26,24 +26,85 @@
  * capacitor.config.ts appId and Xcode's PRODUCT_BUNDLE_IDENTIFIER is the
  * #1 cause of "No matching provisioning profile" errors at upload time.
  */
-import { readFileSync, existsSync } from "node:fs";
-import { resolve } from "node:path";
+import { readFileSync, existsSync, readdirSync } from "node:fs";
+import { resolve, join } from "node:path";
+import { homedir } from "node:os";
 
 const ROOT = process.cwd();
 const CONFIG = resolve(ROOT, "capacitor.config.ts");
 const PBXPROJ = resolve(ROOT, "ios/App/App.xcodeproj/project.pbxproj");
 const INFO_PLIST = resolve(ROOT, "ios/App/App/Info.plist");
+const PROFILES_DIR = join(homedir(), "Library/MobileDevice/Provisioning Profiles");
 
 const args = process.argv.slice(2);
 let appleId = process.env.APPLE_APP_ID ?? null;
 let teamId = process.env.APPLE_TEAM_ID ?? null;
+let profilePath = process.env.APPLE_PROFILE_PATH ?? null;
+let profilesDir = process.env.APPLE_PROFILES_DIR ?? PROFILES_DIR;
 for (let i = 0; i < args.length; i++) {
   if (args[i] === "--apple-id") appleId = args[++i];
   else if (args[i] === "--team") teamId = args[++i];
+  else if (args[i] === "--profile") profilePath = args[++i];
+  else if (args[i] === "--profiles-dir") profilesDir = args[++i];
   else {
     console.error(`Unknown arg: ${args[i]}`);
     process.exit(1);
   }
+}
+
+/**
+ * .mobileprovision is a CMS-signed container wrapping an XML plist.
+ * Slice from `<?xml` through `</plist>` and parse the few keys we need.
+ */
+function parseProvisioningProfile(filePath) {
+  const buf = readFileSync(filePath);
+  const text = buf.toString("utf8");
+  const start = text.indexOf("<?xml");
+  const end = text.indexOf("</plist>");
+  if (start === -1 || end === -1) return null;
+  const plist = text.slice(start, end + "</plist>".length);
+  const pick = (key) => {
+    const re = new RegExp(
+      `<key>${key}</key>\\s*<string>([^<]+)</string>`,
+    );
+    const m = plist.match(re);
+    return m ? m[1] : null;
+  };
+  const pickArray = (key) => {
+    const re = new RegExp(
+      `<key>${key}</key>\\s*<array>([\\s\\S]*?)</array>`,
+    );
+    const m = plist.match(re);
+    if (!m) return [];
+    return [...m[1].matchAll(/<string>([^<]+)<\/string>/g)].map((x) => x[1]);
+  };
+  return {
+    name: pick("Name"),
+    uuid: pick("UUID"),
+    appIdName: pick("AppIDName"),
+    teamIdentifier: pickArray("TeamIdentifier")[0] ?? null,
+    teamName: pick("TeamName"),
+    applicationIdentifier:
+      // Inside the Entitlements dict
+      (plist.match(
+        /<key>application-identifier<\/key>\s*<string>([^<]+)<\/string>/,
+      ) || [])[1] ?? null,
+    expirationDate: pick("ExpirationDate"),
+    platform: pickArray("Platform"),
+  };
+}
+
+function findProfileByName(dir, name) {
+  if (!existsSync(dir)) return null;
+  for (const f of readdirSync(dir)) {
+    if (!f.endsWith(".mobileprovision")) continue;
+    const full = join(dir, f);
+    const parsed = parseProvisioningProfile(full);
+    if (parsed && (parsed.name === name || parsed.uuid === name)) {
+      return { path: full, parsed };
+    }
+  }
+  return null;
 }
 
 const problems = [];
