@@ -9,15 +9,17 @@
  *   3. ios/App/App/Info.plist       → CFBundleIdentifier (usually $(PRODUCT_BUNDLE_IDENTIFIER))
  *   4. Your registered Apple App ID → passed via --apple-id or APPLE_APP_ID env var
  *                                     (and/or the team id via --team / APPLE_TEAM_ID)
- *
- * Also surfaces, when present in pbxproj:
- *   - DEVELOPMENT_TEAM
- *   - CODE_SIGN_STYLE  (Automatic vs Manual)
- *   - PROVISIONING_PROFILE_SPECIFIER
+ *   5. Provisioning profile         → parsed from --profile <path> or looked up by
+ *                                     PROVISIONING_PROFILE_SPECIFIER in
+ *                                     ~/Library/MobileDevice/Provisioning Profiles
+ *                                     (override with --profiles-dir / APPLE_PROFILES_DIR).
+ *                                     Verifies application-identifier covers the bundle id,
+ *                                     TeamIdentifier matches, and the profile is not expired.
  *
  * Usage:
  *   bun run ios:preflight
  *   bun run ios:preflight -- --apple-id ng.gov.edosubeb.edolearn --team ABCDE12345
+ *   bun run ios:preflight -- --profile ~/Downloads/EdoLearn_AppStore.mobileprovision
  *   APPLE_APP_ID=ng.gov.edosubeb.edolearn APPLE_TEAM_ID=ABCDE12345 bun run ios:preflight
  *
  * Exit code 0 = all checks passed, 1 = mismatch (blocks CI).
