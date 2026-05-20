@@ -24,8 +24,9 @@ jobs:
       - uses: android-actions/setup-android@v3
 
       - run: bun install --frozen-lockfile
-      - run: bunx cap add android
-      - run: bunx cap sync android
+      - run: bun run cap add android 2>&1
+      - run: mkdir -p android/app/src/main/assets
+      - run: bun run cap sync android 2>&1
 
       - name: Build release AAB
         run: |
