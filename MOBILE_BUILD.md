@@ -100,6 +100,7 @@ Replace the default Capacitor placeholders before submitting:
 - **Screenshots** — capture from a real device or simulator at the
   required store sizes.
 - **Privacy policy URL** — required by both stores. The page is live at `https://edodlah.com/privacy`.
+- **Terms of Service URL** — required by both stores. The page is live at `https://edodlah.com/terms`.
 
 The fastest way to generate icons + splash from one source image:
 
