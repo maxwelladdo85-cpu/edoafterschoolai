@@ -78,38 +78,80 @@ you want a different bundle ID — must be done before first Play upload).
 
 ## iOS — building an IPA for App Store
 
-1. In Xcode: select the **App** target → **Signing & Capabilities** →
-   pick your Apple Developer team. Xcode auto-creates the provisioning profile.
-2. Set **Bundle Identifier** to `ng.gov.edosubeb.edolearn` (register it
-   first at https://developer.apple.com/account/resources/identifiers).
-3. **Product → Archive** (with "Any iOS Device" selected as the build target).
-4. In the Organizer window that opens: **Distribute App → App Store Connect → Upload**.
-5. App Store Connect → My Apps → New App → fill out metadata, screenshots
-   (6.7", 6.5", 5.5" iPhone + 12.9" iPad), privacy details, age rating.
-6. Add the uploaded build to a version → Submit for review (1–2 days).
+### One-time setup in Apple Developer portal
+
+1. **Register the App ID** at https://developer.apple.com/account/resources/identifiers
+   → "+" → App IDs → App → Bundle ID = `ng.gov.edosubeb.edolearn` (explicit).
+   Enable any capabilities the app needs (Push Notifications, Sign in with
+   Apple, etc.). Today EdoLearn needs none of these.
+2. **Create an App Store Connect record** at https://appstoreconnect.apple.com
+   → My Apps → "+" → New App. Select the Bundle ID you just registered,
+   SKU = `edolearn-ios-001`, primary language = English (Nigeria).
+
+### Project settings already configured in `capacitor.config.ts`
+
+These are read every time you run `npx cap sync ios`:
+
+| Setting | Value | Maps to in Xcode / Info.plist |
+|---|---|---|
+| `appId` | `ng.gov.edosubeb.edolearn` | Bundle Identifier (PRODUCT_BUNDLE_IDENTIFIER) |
+| `appName` | `EdoLearn` | Display Name (CFBundleDisplayName) |
+| `version` | `1.0.0` | Marketing Version (CFBundleShortVersionString) |
+| `ios.buildNumber` | `1` | Build (CFBundleVersion) — **must increase on every upload** |
+| `ios.backgroundColor` | `#00843D` (Edo green) | Window background |
+| `SplashScreen` plugin | green + 1.5s | LaunchScreen storyboard tint |
+| `StatusBar` plugin | dark icons on green | Info.plist `UIStatusBarStyle` |
+
+When you ship a new build, bump `ios.buildNumber` (e.g. `"1"` → `"2"`) and
+run `npx cap sync ios` before opening Xcode.
+
+### Building the IPA
+
+1. `npx cap open ios` — opens `ios/App/App.xcworkspace` in Xcode.
+2. Select the **App** target → **Signing & Capabilities** → tick
+   *Automatically manage signing* → pick your Apple Developer team.
+   Xcode creates the provisioning profile and signing cert.
+3. Confirm **Bundle Identifier** = `ng.gov.edosubeb.edolearn` and
+   **Deployment Target** = iOS 14.0 (Capacitor 8 minimum).
+4. Top bar: change run destination to **Any iOS Device (arm64)**.
+5. **Product → Archive**. When the build finishes, the Organizer opens.
+6. In Organizer: **Distribute App → App Store Connect → Upload**.
+   Xcode uploads the `.ipa` directly to App Store Connect.
+7. App Store Connect → your app → TestFlight tab shows the build after
+   ~10 min of processing. Add it to a version, fill in metadata
+   (screenshots: 6.7", 6.5", 5.5" iPhone + 12.9" iPad; privacy details;
+   age rating) → **Submit for Review** (typically 1–2 days).
 
 ---
 
 ## App assets you still need to create
 
-Replace the default Capacitor placeholders before submitting:
+Source images live in `assets/`:
 
-- **App icon** — 1024×1024 PNG. Generate all sizes with
-  https://icon.kitchen or `npx @capacitor/assets generate`.
-- **Splash screen** — 2732×2732 PNG, centered logo on `#00843D`.
-- **Screenshots** — capture from a real device or simulator at the
-  required store sizes.
-- **Privacy policy URL** — required by both stores. The page is live at `https://edodlah.com/privacy`.
-- **Terms of Service URL** — required by both stores. The page is live at `https://edodlah.com/terms`.
-- **Cookie Policy URL** — required by both stores. The page is live at `https://edodlah.com/cookies`.
+- `assets/icon.png` — 1024×1024, no transparency, no rounded corners
+  (iOS masks them automatically).
+- `assets/splash.png` — 2732×2732, centered logo on `#00843D`.
 
-The fastest way to generate icons + splash from one source image:
+Generate every platform-specific size with one command:
 
 ```bash
 bun add -d @capacitor/assets
-# put a 1024x1024 icon.png and 2732x2732 splash.png in ./assets
-npx @capacitor/assets generate
+npx @capacitor/assets generate --iconBackgroundColor "#00843D" --splashBackgroundColor "#00843D"
 ```
+
+This writes:
+- `ios/App/App/Assets.xcassets/AppIcon.appiconset/*` (all required iOS sizes)
+- `ios/App/App/Assets.xcassets/Splash.imageset/*`
+- Equivalent Android resources under `android/app/src/main/res/`
+
+Other required URLs (already live):
+- Privacy Policy — https://edodlah.com/privacy
+- Terms of Service — https://edodlah.com/terms
+- Cookie Policy — https://edodlah.com/cookies
+
+App Store screenshots: capture in the iOS Simulator
+(`xcrun simctl io booted screenshot shot.png`) on an iPhone 15 Pro Max
+(6.7") and iPad Pro 12.9" — those two sizes satisfy Apple's minimum.
 
 ---
 
