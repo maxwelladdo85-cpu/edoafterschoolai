@@ -27,12 +27,31 @@ jobs:
       - uses: android-actions/setup-android@v3
 
       - run: bun install --frozen-lockfile
-      - run: npx cap add android 2>&1
+      - run: npx cap add android
       - run: mkdir -p android/app/src/main/assets
-      - run: npx cap sync android 2>&1
+      - run: npx cap sync android
 
-      - name: Build release AAB
+      - name: Configure signing & build AAB
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          STORE_PASS: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASS: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
+          set -e
+          if [ -n "$KEYSTORE_B64" ]; then
+            echo "$KEYSTORE_B64" | base64 -d > android/app/keystore.jks
+            sed -i "/defaultConfig {/i\
+          signingConfigs {\
+              release {\
+                  storeFile file('keystore.jks')\
+                  storePassword '$STORE_PASS'\
+                  keyAlias '$KEY_ALIAS'\
+                  keyPassword '$KEY_PASS'\
+              }\
+          }" android/app/build.gradle
+            sed -i 's|signingConfig = signingConfigs.debug|signingConfig = signingConfigs.release|' android/app/build.gradle
+          fi
           cd android
           ./gradlew bundleRelease
 
@@ -41,3 +60,21 @@ jobs:
           name: edolearn-android-aab
           path: android/app/build/outputs/bundle/release/app-release.aab
           retention-days: 30
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: edolearn-android-apk
+          path: android/app/build/outputs/apk/release/app-release.apk
+          retention-days: 30
+
+      # Uncomment when Play Console secrets are configured (STORE_SETUP.md):
+      # - name: Upload to Google Play
+      #   if: github.ref_type == 'tag'
+      #   uses: r0adkll/upload-google-play@v1
+      #   with:
+      #     serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+      #     packageName: ng.gov.edosubeb.edolearn
+      #     releaseFiles: android/app/build/outputs/bundle/release/app-release.aab
+      #     track: production
+      #     status: completed
+      #     whatsNewDirectory: .github/release-notes/
