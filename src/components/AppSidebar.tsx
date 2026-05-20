@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, BookOpen, Users, Bell, LogOut, GraduationCap, PlusSquare, UserCircle, Settings, ClipboardCheck, Megaphone, Sparkles, Wand2, Video, MessageCircle, Award, Activity } from "lucide-react";
+import { LayoutDashboard, BookOpen, Users, Bell, LogOut, GraduationCap, PlusSquare, UserCircle, Settings, ClipboardCheck, Megaphone, Sparkles, Wand2, Video, MessageCircle, Award, Activity, FileText, Shield, Cookie } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
   SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem,
@@ -78,6 +78,17 @@ export function AppSidebar() {
       </SidebarContent>
       <SidebarFooter className="border-t border-sidebar-border p-3">
         <div className="mb-2 px-2 text-xs text-sidebar-foreground/70 truncate">{user?.email}</div>
+        <div className="mb-3 flex flex-wrap gap-x-3 gap-y-1 px-2">
+          <Link to="/privacy" className="text-[11px] text-sidebar-foreground/50 hover:text-sidebar-foreground/80 transition-colors">
+            Privacy
+          </Link>
+          <Link to="/terms" className="text-[11px] text-sidebar-foreground/50 hover:text-sidebar-foreground/80 transition-colors">
+            Terms
+          </Link>
+          <Link to="/cookies" className="text-[11px] text-sidebar-foreground/50 hover:text-sidebar-foreground/80 transition-colors">
+            Cookies
+          </Link>
+        </div>
         <Button variant="secondary" size="sm" onClick={signOut} className="w-full justify-start gap-2">
           <LogOut className="h-4 w-4" /> Sign out
         </Button>
