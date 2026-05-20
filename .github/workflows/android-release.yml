@@ -1,0 +1,105 @@
+name: Android Release
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Override version (e.g. 1.0.1)"
+        required: false
+
+concurrency: android-release
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Generate Android native project
+        run: npx cap add android
+
+      - name: Sync Capacitor
+        run: npx cap sync android
+
+      - name: Configure app/build.gradle for signing
+        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+        shell: bash
+        run: |
+          # Decode keystore
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > android/app/keystore.jks
+
+          # Inject signing config into android/app/build.gradle at end of defaultConfig block
+          sed -i 's|minSdk = [0-9]*|minSdk = 24|' android/app/build.gradle
+
+          # Add signingConfigs + reference inside release buildType
+          awk '
+          /android {/ {
+            print;
+            print "    signingConfigs {";
+            print "        release {";
+            print "            storeFile file(\"keystore.jks\")";
+            print "            storePassword \"${{ secrets.ANDROID_KEYSTORE_PASSWORD }}\"";
+            print "            keyAlias \"${{ secrets.ANDROID_KEY_ALIAS }}\"";
+            print "            keyPassword \"${{ secrets.ANDROID_KEY_PASSWORD }}\"";
+            print "        }";
+            print "    }";
+            next;
+          }
+          /signingConfig = signingConfigs.debug/ {
+            print "            signingConfig = signingConfigs.release";
+            next;
+          }
+          { print }
+          ' android/app/build.gradle > android/app/build.gradle.tmp && mv android/app/build.gradle.tmp android/app/build.gradle
+
+      - name: Build release AAB
+        run: |
+          cd android
+          ./gradlew bundleRelease
+
+      - name: Upload AAB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: edolearn-android-aab
+          path: android/app/build/outputs/bundle/release/app-release.aab
+          retention-days: 30
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: edolearn-android-apk
+          path: android/app/build/outputs/apk/release/app-release.apk
+          retention-days: 30
+
+      - name: Upload to Google Play Console
+        if: ${{ github.ref_type == 'tag' && secrets.PLAY_SERVICE_ACCOUNT_JSON != '' }}
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: ng.gov.edosubeb.edolearn
+          releaseFiles: android/app/build/outputs/bundle/release/app-release.aab
+          track: production
+          status: completed
+          whatsNewDirectory: .github/release-notes/
