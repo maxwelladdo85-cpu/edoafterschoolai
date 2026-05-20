@@ -1,0 +1,66 @@
+name: iOS Preflight
+
+# Runs the iOS bundle-id / signing / provisioning-profile preflight before any
+# iOS build job. Fails the workflow (exit 1) if checks don't pass, so a bad
+# bundle id or expired profile never reaches Xcode archive.
+#
+# Required repository secrets (Settings → Secrets and variables → Actions):
+#   APPLE_APP_ID                  e.g. ng.gov.edosubeb.edolearn
+#   APPLE_TEAM_ID                 10-char Apple Developer Team ID
+#   APPLE_PROVISIONING_PROFILE_B64  base64 of your .mobileprovision
+#       (generate with: base64 -i EdoLearn_AppStore.mobileprovision | pbcopy)
+#
+# The profile secret is optional — omit it to skip profile parsing and only
+# validate bundle-id consistency across capacitor.config.ts, Xcode, Info.plist
+# and the registered Apple App ID.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "capacitor.config.ts"
+      - "ios/**"
+      - "scripts/ios-preflight.mjs"
+      - ".github/workflows/ios-preflight.yml"
+  pull_request:
+    paths:
+      - "capacitor.config.ts"
+      - "ios/**"
+      - "scripts/ios-preflight.mjs"
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+  preflight:
+    name: Verify bundle id, signing & provisioning profile
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Decode provisioning profile
+        if: ${{ secrets.APPLE_PROVISIONING_PROFILE_B64 != '' }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/profiles"
+          echo "$APPLE_PROVISIONING_PROFILE_B64" | base64 --decode \
+            > "$RUNNER_TEMP/profiles/app.mobileprovision"
+          echo "PROFILE_PATH=$RUNNER_TEMP/profiles/app.mobileprovision" >> "$GITHUB_ENV"
+        env:
+          APPLE_PROVISIONING_PROFILE_B64: ${{ secrets.APPLE_PROVISIONING_PROFILE_B64 }}
+
+      - name: Run iOS preflight
+        env:
+          APPLE_APP_ID: ${{ secrets.APPLE_APP_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          ARGS=()
+          if [ -n "${PROFILE_PATH:-}" ]; then
+            ARGS+=(--profile "$PROFILE_PATH")
+          fi
+          bun run scripts/ios-preflight.mjs "${ARGS[@]}"
