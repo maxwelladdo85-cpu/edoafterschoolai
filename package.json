@@ -9,7 +9,9 @@
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "ios:release": "node scripts/ios-release.mjs",
+    "ios:release:version": "node scripts/ios-release.mjs --version"
   },
   "dependencies": {
     "@capacitor/android": "^8.3.4",
