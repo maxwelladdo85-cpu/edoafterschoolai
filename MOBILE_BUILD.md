@@ -128,7 +128,18 @@ Required repository secrets (Settings → Secrets and variables → Actions):
 |---|---|
 | `APPLE_APP_ID` | `ng.gov.edosubeb.edolearn` |
 | `APPLE_TEAM_ID` | your 10-char Apple Developer Team ID |
-| `APPLE_PROVISIONING_PROFILE_B64` | `base64 -i EdoLearn_AppStore.mobileprovision` (optional — omit to skip profile parsing) |
+| `APPLE_PROVISIONING_PROFILE_B64` | `base64 -i EdoLearn_AppStore.mobileprovision` |
+| `APPLE_BUILD_CERTIFICATE_BASE64` | `base64 -i DistributionCert.p12` (App Store distribution cert) |
+| `APPLE_P12_PASSWORD` | password you set when exporting the `.p12` |
+| `APPLE_KEYCHAIN_PASSWORD` | any random string — unlocks the temporary CI keychain |
+
+After `xcodebuild archive`, the build job imports the cert + profile into a
+temporary keychain, generates an `ExportOptions.plist` (`method=app-store`,
+manual signing, profile UUID auto-resolved), runs `xcodebuild -exportArchive`,
+and uploads the resulting `.ipa` as a workflow artifact named `EdoLearn-ios`
+(14-day retention). Download it from the Actions run summary and upload to
+App Store Connect via Transporter, or wire in `xcrun altool --upload-app` /
+`fastlane pilot` as a follow-up step.
 
 
 The preflight (`scripts/ios-preflight.mjs`) compares `appId` in
