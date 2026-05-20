@@ -101,9 +101,8 @@ Features:
 
 ### 2.1 Prerequisites
 
-- A Mac (needed to create certificates and provisioning profiles)
-- Apple Developer Program membership ($99/year)
-- Register at https://developer.apple.com/programs
+- Apple Developer Program membership ($99/year) — Register at https://developer.apple.com/programs
+- **No Mac needed** — CI pipeline uses Fastlane Match to create and manage signing certificates automatically
 
 ### 2.2 Register the App ID
 
@@ -122,31 +121,13 @@ Features:
 5. Bundle ID: `ng.gov.edosubeb.edolearn`
 6. SKU: `edolearn-ios-001`
 
-### 2.4 Create a distribution certificate
+### 2.4 Find your Apple Team ID
 
-On a Mac:
+1. Go to https://developer.apple.com/account/membership
+2. Find **Team ID** (10-character string like `AB12CD3EFG`)
+3. Save this for the GitHub secret
 
-1. Open **Keychain Access → Certificate Assistant → Request a Certificate from a Certificate Authority**
-2. Save the CSR to disk
-3. https://developer.apple.com/account/resources/certificates → **+**
-4. **Apple Distribution → Continue**
-5. Upload the CSR → Download the `.cer`
-6. Double-click to install in Keychain
-7. Export the private key:
-   - In Keychain, find the certificate → expand → select the private key
-   - **File → Export Items → .p12**
-   - Set a password
-
-### 2.5 Create a provisioning profile
-
-1. https://developer.apple.com/account/resources/profiles → **+**
-2. **App Store → Continue**
-3. Select your App ID (`ng.gov.edosubeb.edolearn`)
-4. Select the distribution certificate
-5. Name: `EdoLearn App Store`
-6. Download the `.mobileprovision` file
-
-### 2.6 Create an App Store Connect API key
+### 2.5 Create an App Store Connect API key
 
 1. https://appstoreconnect.apple.com/access/api → **+**
 2. Name: `EdoLearn CI/CD`
@@ -154,30 +135,35 @@ On a Mac:
 4. Download the `.p8` API key file
 5. Note the **Key ID** and **Issuer ID** shown on the page
 
-### 2.7 Encode secrets
+### 2.6 Encode the API key for GitHub
+
+On any machine (Windows/Mac/Linux):
 
 ```bash
-# Certificate
-base64 -i distribution.p12 | pbcopy
-
-# Provisioning profile
-base64 -i EdoLearn.mobileprovision | pbcopy
-
-# API key
+# macOS / Linux
 base64 -i AuthKey_XXXXXXXXXX.p8 | pbcopy
+
+# Windows (PowerShell)
+[Convert]::ToBase64String([IO.File]::ReadAllBytes("AuthKey_XXXXXXXXXX.p8"))
 ```
 
-### 2.8 Set GitHub secrets
+### 2.7 Set GitHub secrets
 
 | Secret key | Value |
 |---|---|
-| `APPLE_TEAM_ID` | Your 10-character team ID (find in Apple Developer → Membership) |
-| `IOS_CERTIFICATE_BASE64` | base64 of `.p12` distribution certificate |
-| `IOS_CERTIFICATE_PASSWORD` | Password set when exporting `.p12` |
-| `IOS_PROVISIONING_PROFILE_BASE64` | base64 of `.mobileprovision` |
-| `APPLE_API_KEY_BASE64` | base64 of the `.p8` API key file |
+| `APPLE_API_KEY_BASE64` | Base64-encoded `.p8` API key file |
 | `APPLE_API_KEY_ID` | Key ID from App Store Connect API Keys page |
 | `APPLE_API_ISSUER_ID` | Issuer ID from App Store Connect API Keys page |
+| `APPLE_TEAM_ID` | Your 10-character Team ID from Apple Developer Membership page |
+| `MATCH_PASSWORD` | Encryption passphrase for Fastlane Match (set to any secure string, e.g. `EdoLearnMatch2026!`) |
+
+The CI pipeline uses **Fastlane Match** to automatically:
+- Generate Apple Distribution certificates (via OpenSSL on the runner)
+- Create and download provisioning profiles
+- Sign the IPA
+- Upload to App Store Connect
+
+No Mac or manual certificate management required.
 
 ### 2.9 Fill in App Store listing (one-time)
 
@@ -234,8 +220,7 @@ respective stores automatically.
 | File | Purpose |
 |---|---|
 | `.github/workflows/android-release.yml` | Builds signed AAB + uploads to Google Play |
-| `.github/workflows/ios-release.yml` | Builds signed IPA + uploads to App Store Connect |
-| `.github/export-options.plist` | iOS export configuration for App Store |
+| `.github/workflows/ios-release.yml` | Builds signed IPA + uploads to App Store Connect (Fastlane Match) |
 | `.github/release-notes/production.txt` | What's new text for Android releases |
 
 ---

@@ -11,49 +11,46 @@ jobs:
   build:
     runs-on: macos-latest
     permissions:
-      contents: read
+      contents: write
 
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.2
 
       - run: bun install --frozen-lockfile
       - run: npx cap add ios
       - run: npx cap sync ios
 
-      - name: Import signing certificate & provisioning profile
+      - name: Install Fastlane & setup signing
         env:
-          BUILD_CERTIFICATE_BASE64: ${{ secrets.IOS_CERTIFICATE_BASE64 }}
-          P12_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
-          KEYCHAIN_PASSWORD: ${{ secrets.IOS_KEYCHAIN_PASSWORD }}
-          PROVISIONING_PROFILE_B64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
+          APPLE_API_KEY_BASE64: ${{ secrets.APPLE_API_KEY_BASE64 }}
+          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+          APPLE_API_ISSUER_ID: ${{ secrets.APPLE_API_ISSUER_ID }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
         run: |
-          set -euo pipefail
-          if [ -z "${BUILD_CERTIFICATE_BASE64:-}" ]; then
-            echo "No signing secrets set — skipping import (unsigned build)"
-            exit 0
-          fi
-          CERT_PATH="$RUNNER_TEMP/build_certificate.p12"
-          PROFILE_PATH="$RUNNER_TEMP/profile.mobileprovision"
-          KEYCHAIN_PATH="$RUNNER_TEMP/app-signing.keychain-db"
+          gem install fastlane -q --no-document
 
-          echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o "$CERT_PATH"
-          echo -n "$PROVISIONING_PROFILE_B64" | base64 --decode -o "$PROFILE_PATH"
+          # Decode Apple API key
+          echo "$APPLE_API_KEY_BASE64" | base64 -d > /tmp/AuthKey_$APPLE_API_KEY_ID.p8
 
-          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
-          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
-          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
-          security import "$CERT_PATH" -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
-          security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
-          security list-keychain -d user -s "$KEYCHAIN_PATH"
+          # Configure git auth for Fastlane match (uses current GITHUB_TOKEN)
+          git config --global url."https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
 
-          PROFILES_DIR="$HOME/Library/MobileDevice/Provisioning Profiles"
-          mkdir -p "$PROFILES_DIR"
-          UUID=$(/usr/libexec/PlistBuddy -c "Print :UUID" /dev/stdin <<< "$(security cms -D -i "$PROFILE_PATH")")
-          cp "$PROFILE_PATH" "$PROFILES_DIR/$UUID.mobileprovision"
-          echo "PROFILE_UUID=$UUID" >> "$GITHUB_ENV"
+          # Create or download signing certs & provisioning profiles
+          fastlane match appstore \
+            --app_identifier "ng.gov.edosubeb.edolearn" \
+            --git_url "https://github.com/maxwelladdo85-cpu/edoafterschoolai.git" \
+            --git_branch "match-certs" \
+            --key_id "$APPLE_API_KEY_ID" \
+            --issuer_id "$APPLE_API_ISSUER_ID" \
+            --readonly false \
+            --force_for_new_devices true \
+            --skip_docs true
 
-      - name: Archive
+      - name: Build archive
         env:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
@@ -64,63 +61,39 @@ jobs:
             -destination 'generic/platform=iOS' \
             -archivePath "$RUNNER_TEMP/App.xcarchive" \
             -allowProvisioningUpdates \
-            DEVELOPMENT_TEAM="${APPLE_TEAM_ID:-}" || true
-          echo "Archive created"
+            DEVELOPMENT_TEAM="${APPLE_TEAM_ID}"
 
       - name: Export IPA
-        env:
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-          APPLE_APP_ID: ng.gov.edosubeb.edolearn
         run: |
-          if [ ! -d "$RUNNER_TEMP/App.xcarchive" ]; then
-            echo "No archive found — skipping export"
-            exit 0
-          fi
-          cat > "$RUNNER_TEMP/ExportOptions.plist" << EOF
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0">
-          <dict>
-            <key>method</key><string>app-store</string>
-            <key>teamID</key><string>${APPLE_TEAM_ID}</string>
-            <key>signingStyle</key><string>manual</string>
-            <key>stripSwiftSymbols</key><true/>
-            <key>uploadSymbols</key><true/>
-            <key>provisioningProfiles</key>
-            <dict>
-              <key>${APPLE_APP_ID}</key><string>${PROFILE_UUID:-}</string>
-            </dict>
-          </dict>
-          </plist>
-          EOF
           xcodebuild -exportArchive \
             -archivePath "$RUNNER_TEMP/App.xcarchive" \
             -exportPath "$RUNNER_TEMP/ipa" \
-            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" || true
+            -exportOptionsPlist <(echo '<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+  <key>method</key><string>app-store</string>
+  <key>teamID</key><string>'"$APPLE_TEAM_ID"'</string>
+  <key>signingStyle</key><string>automatic</string>
+  <key>stripSwiftSymbols</key><true/>
+  <key>uploadSymbols</key><true/>
+</dict></plist>')
 
       - uses: actions/upload-artifact@v4
         with:
           name: edolearn-ios-ipa
           path: ${{ runner.temp }}/ipa/*.ipa
-          if-no-files-found: warn
+          if-no-files-found: error
           retention-days: 30
 
-      # Uncomment when App Store Connect API key secrets are configured (STORE_SETUP.md):
-      # - name: Upload to App Store Connect
-      #   if: github.ref_type == 'tag'
-      #   env:
-      #     APPLE_API_KEY_BASE64: ${{ secrets.APPLE_API_KEY_BASE64 }}
-      #     APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
-      #     APPLE_API_ISSUER_ID: ${{ secrets.APPLE_API_ISSUER_ID }}
-      #   run: |
-      #     echo "$APPLE_API_KEY_BASE64" | base64 --decode > /tmp/AuthKey_$APPLE_API_KEY_ID.p8
-      #     xcrun altool --upload-app \
-      #       --file "$RUNNER_TEMP/ipa"/*.ipa \
-      #       --apiKey "$APPLE_API_KEY_ID" \
-      #       --apiIssuer "$APPLE_API_ISSUER_ID" \
-      #       --type ios
-
-      - name: Clean up keychain
-        if: always()
+      - name: Upload to App Store Connect
+        env:
+          APPLE_API_KEY_BASE64: ${{ secrets.APPLE_API_KEY_BASE64 }}
+          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+          APPLE_API_ISSUER_ID: ${{ secrets.APPLE_API_ISSUER_ID }}
         run: |
-          security delete-keychain "$RUNNER_TEMP/app-signing.keychain-db" || true
+          echo "$APPLE_API_KEY_BASE64" | base64 -d > /tmp/AuthKey_$APPLE_API_KEY_ID.p8
+          xcrun altool --upload-app \
+            --file "$RUNNER_TEMP/ipa"/*.ipa \
+            --apiKey "$APPLE_API_KEY_ID" \
+            --apiIssuer "$APPLE_API_ISSUER_ID" \
+            --type ios
