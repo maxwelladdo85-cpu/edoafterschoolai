@@ -48,7 +48,7 @@ jobs:
             awk -v sp="$STORE_PASS" -v ka="$KEY_ALIAS" -v kp="$KEY_PASS" '
           {
               if (match($0, /^[ \t]*defaultConfig \{/)) {
-                  indent = substr($0, RSTART, RLENGTH - 16)
+                  indent = $0; gsub(/[^ \t].*/, "", indent)
                   print indent "signingConfigs {"
                   print indent "    release {"
                   print indent "        storeFile file(\"keystore.jks\")"
@@ -60,10 +60,21 @@ jobs:
                   print
                   next
               }
+              if (match($0, /^[ \t]*release \{/)) {
+                  in_release = 1
+                  print
+                  next
+              }
+              if (in_release && match($0, /^[ \t]*\}/)) {
+                  indent = $0; gsub(/[^ \t].*/, "", indent)
+                  print indent "    signingConfig signingConfigs.release"
+                  in_release = 0
+                  print
+                  next
+              }
               print
           }
           ' android/app/build.gradle > /tmp/build.gradle.new && mv /tmp/build.gradle.new android/app/build.gradle
-            sed -i 's|signingConfig = signingConfigs.debug|signingConfig = signingConfigs.release|' android/app/build.gradle
           fi
           cd android
           ./gradlew bundleRelease assembleRelease
