@@ -46,6 +46,8 @@ jobs:
             SIGNING_PROPS="$SIGNING_PROPS -Pandroid.injected.signing.store.password=$STORE_PASS"
             SIGNING_PROPS="$SIGNING_PROPS -Pandroid.injected.signing.key.alias=$KEY_ALIAS"
             SIGNING_PROPS="$SIGNING_PROPS -Pandroid.injected.signing.key.password=$KEY_PASS"
+            # Debug: verify keystore
+            keytool -list -keystore android/app/keystore.jks -storepass "$STORE_PASS" 2>&1
           fi
           cd android
           ./gradlew bundleRelease assembleRelease $SIGNING_PROPS
