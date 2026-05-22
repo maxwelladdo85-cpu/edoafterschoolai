@@ -31,7 +31,7 @@ jobs:
       - run: mkdir -p android/app/src/main/assets
       - run: npx cap sync android
 
-      - name: Configure signing & build AAB
+      - name: Build & sign AAB + APK
         env:
           KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
           STORE_PASS: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
@@ -42,39 +42,13 @@ jobs:
           if [ -n "$KEYSTORE_B64" ]; then
             printf '%s' "$KEYSTORE_B64" > /tmp/keystore.b64
             base64 -d /tmp/keystore.b64 > android/app/keystore.jks
-            awk -v sp="$STORE_PASS" -v ka="$KEY_ALIAS" -v kp="$KEY_PASS" '
-          {
-              if (match($0, /^[ \t]*defaultConfig \{/)) {
-                  indent = $0; gsub(/[^ \t].*/, "", indent)
-                  print indent "signingConfigs {"
-                  print indent "    release {"
-                  print indent "        storeFile file(\"keystore.jks\")"
-                  print indent "        storePassword \"" sp "\""
-                  print indent "        keyAlias \"" ka "\""
-                  print indent "        keyPassword \"" kp "\""
-                  print indent "    }"
-                  print indent "}"
-                  print
-                  next
-              }
-              if (match($0, /^[ \t]*release \{/)) {
-                  in_release = 1
-                  print
-                  next
-              }
-              if (in_release && match($0, /^[ \t]*\}/)) {
-                  indent = $0; gsub(/[^ \t].*/, "", indent)
-                  print indent "    signingConfig signingConfigs.release"
-                  in_release = 0
-                  print
-                  next
-              }
-              print
-          }
-          ' android/app/build.gradle > /tmp/build.gradle.new && mv /tmp/build.gradle.new android/app/build.gradle
+            SIGNING_PROPS="-Pandroid.injected.signing.store.file=$(pwd)/android/app/keystore.jks"
+            SIGNING_PROPS="$SIGNING_PROPS -Pandroid.injected.signing.store.password=$STORE_PASS"
+            SIGNING_PROPS="$SIGNING_PROPS -Pandroid.injected.signing.key.alias=$KEY_ALIAS"
+            SIGNING_PROPS="$SIGNING_PROPS -Pandroid.injected.signing.key.password=$KEY_PASS"
           fi
           cd android
-          ./gradlew bundleRelease assembleRelease
+          ./gradlew bundleRelease assembleRelease $SIGNING_PROPS
 
       - uses: actions/upload-artifact@v4
         with:
