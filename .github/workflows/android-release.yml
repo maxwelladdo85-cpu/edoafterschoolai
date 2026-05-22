@@ -74,7 +74,8 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: edolearn-android-apk
-          path: android/app/build/outputs/apk/release/app-release.apk
+          path: android/app/build/outputs/apk/**/*.apk
+          if-no-files-found: warn
           retention-days: 30
 
       # Uncomment when Play Console secrets are configured (STORE_SETUP.md):
