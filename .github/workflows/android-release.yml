@@ -30,9 +30,9 @@ jobs:
       - run: npx cap add android
       - run: mkdir -p android/app/src/main/assets
       - run: npx cap sync android
-      - run: |
-          mkdir -p android/app/src/main/res/drawable
-          cp assets/splash.png android/app/src/main/res/drawable/splash.png
+
+      - name: Generate splash & icon assets
+        run: npx @capacitor/assets@3.0.5 generate
 
       - name: Build & sign AAB + APK
         env:
