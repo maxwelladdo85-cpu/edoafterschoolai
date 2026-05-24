@@ -50,19 +50,17 @@ jobs:
             --force_for_new_devices true \
             --skip_docs true
 
-      - name: Archive
+      - name: Build app
         env:
           TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
-          xcodebuild -resolvePackageDependencies -project ios/App/App.xcodeproj -scheme App
-          xcodebuild archive \
+          xcodebuild build \
             -project ios/App/App.xcodeproj \
             -scheme App \
             -configuration Release \
             -destination 'generic/platform=iOS' \
-            -archivePath "$RUNNER_TEMP/App.xcarchive" \
             -allowProvisioningUpdates \
-            DEVELOPMENT_TEAM="${TEAM_ID}"
+            DEVELOPMENT_TEAM="${TEAM_ID}" 2>&1 | tail -20
 
       - name: Export IPA
         env:
