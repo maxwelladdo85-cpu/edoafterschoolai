@@ -33,13 +33,20 @@ jobs:
         run: |
           gem install fastlane -q --no-document
           echo "$KEY_B64" | base64 -d > /tmp/AuthKey_$KEY_ID.p8
+          cat > /tmp/api_key.json <<EOF
+          {
+            "key_id": "$KEY_ID",
+            "issuer_id": "$ISS_ID",
+            "key": "$(cat /tmp/AuthKey_$KEY_ID.p8 | tr -d '\n')",
+            "duration": 1200
+          }
+          EOF
           git config --global url."https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
           fastlane match appstore \
             --app_identifier "ng.gov.edosubeb.edolearn" \
             --git_url "https://github.com/maxwelladdo85-cpu/edoafterschoolai.git" \
             --git_branch "match-certs" \
-            --key_id "$KEY_ID" \
-            --issuer_id "$ISS_ID" \
+            --api_key_path /tmp/api_key.json \
             --readonly false \
             --force_for_new_devices true \
             --skip_docs true
