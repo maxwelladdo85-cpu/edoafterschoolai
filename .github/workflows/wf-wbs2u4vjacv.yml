@@ -1,6 +1,11 @@
 name: Publish iOS
 
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+
+concurrency: publish-ios
 
 jobs:
   build:
@@ -19,7 +24,7 @@ jobs:
       - run: npx cap add ios
       - run: npx cap sync ios
 
-      - name: Signing certs via Fastlane Match
+      - name: Install Fastlane & setup signing
         env:
           KEY_B64: ${{ secrets.APPLE_API_KEY_BASE64 }}
           KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}

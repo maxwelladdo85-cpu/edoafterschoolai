@@ -1,9 +1,0 @@
-name: Z Test
-
-on: workflow_dispatch
-
-jobs:
-  test:
-    runs-on: macos-latest
-    steps:
-      - run: sw_vers
