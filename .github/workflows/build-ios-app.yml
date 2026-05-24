@@ -33,6 +33,7 @@ jobs:
         run: |
           gem install fastlane -q --no-document
           echo "$KEY_B64" | base64 -d > /tmp/AuthKey_$KEY_ID.p8
+          git config --global url."https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
           APP_STORE_CONNECT_API_KEY_KEY=$(cat /tmp/AuthKey_$KEY_ID.p8) \
           APP_STORE_CONNECT_API_KEY_KEY_ID="$KEY_ID" \
           APP_STORE_CONNECT_API_KEY_ISSUER_ID="$ISS_ID" \
