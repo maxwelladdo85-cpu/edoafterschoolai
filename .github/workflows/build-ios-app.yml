@@ -10,7 +10,7 @@ concurrency: build-ios
 jobs:
   build:
     runs-on: macos-14
-    timeout-minutes: 20
+    timeout-minutes: 40
     permissions:
       contents: write
 
@@ -50,17 +50,18 @@ jobs:
             --force_for_new_devices true \
             --skip_docs true
 
-      - name: Build app
+      - name: Archive
         env:
           TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
-          xcodebuild -version
-          xcodebuild build \
+          xcodebuild archive \
             -project ios/App/App.xcodeproj \
             -scheme App \
             -configuration Release \
             -destination 'generic/platform=iOS' \
-            DEVELOPMENT_TEAM="${TEAM_ID}" 2>&1 | tail -200
+            -archivePath "$RUNNER_TEMP/App.xcarchive" \
+            -allowProvisioningUpdates \
+            DEVELOPMENT_TEAM="${TEAM_ID}"
 
       - name: Export IPA
         env:
