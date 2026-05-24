@@ -10,7 +10,7 @@ concurrency: build-ios
 jobs:
   build:
     runs-on: macos-14
-    timeout-minutes: 90
+    timeout-minutes: 120
     permissions:
       contents: write
 
@@ -49,6 +49,16 @@ jobs:
             --readonly false \
             --force_for_new_devices true \
             --skip_docs true
+
+      - name: Cache DerivedData (SPM)
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/Library/Developer/Xcode/DerivedData
+            ~/Library/Caches/org.swift.swiftpm
+          key: deriveddata-${{ runner.os }}-${{ hashFiles('ios/App/App.xcodeproj/project.pbxproj') }}
+          restore-keys: |
+            deriveddata-${{ runner.os }}-
 
       - name: Archive
         env:
