@@ -1,12 +1,93 @@
 name: Build iOS
 
 on:
+  push:
+    tags: ["v*"]
   workflow_dispatch:
+
+concurrency: build-ios
 
 jobs:
   build:
     runs-on: macos-latest
     permissions:
       contents: write
+
     steps:
-      - run: sw_vers
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.2
+
+      - run: bun install --frozen-lockfile
+      - run: npx cap add ios
+      - run: npx cap sync ios
+
+      - name: Install Fastlane & setup signing
+        env:
+          KEY_B64: ${{ secrets.APPLE_API_KEY_BASE64 }}
+          KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+          ISS_ID: ${{ secrets.APPLE_API_ISSUER_ID }}
+          MATCH_PASS: ${{ secrets.MATCH_PASSWORD }}
+        run: |
+          gem install fastlane -q --no-document
+          echo "$KEY_B64" | base64 -d > /tmp/AuthKey_$KEY_ID.p8
+          git config --global url."https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
+          fastlane match appstore \
+            --app_identifier "ng.gov.edosubeb.edolearn" \
+            --git_url "https://github.com/maxwelladdo85-cpu/edoafterschoolai.git" \
+            --git_branch "match-certs" \
+            --key_id "$KEY_ID" \
+            --issuer_id "$ISS_ID" \
+            --readonly false \
+            --force_for_new_devices true \
+            --skip_docs true
+
+      - name: Archive
+        env:
+          TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          xcodebuild archive \
+            -workspace ios/App/App.xcworkspace \
+            -scheme App \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/App.xcarchive" \
+            -allowProvisioningUpdates \
+            DEVELOPMENT_TEAM="${TEAM_ID}"
+
+      - name: Export IPA
+        run: |
+          xcodebuild -exportArchive \
+            -archivePath "$RUNNER_TEMP/App.xcarchive" \
+            -exportPath "$RUNNER_TEMP/ipa" \
+            -exportOptionsPlist <(echo '<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+  <key>method</key><string>app-store</string>
+  <key>teamID</key><string>'"$TEAM_ID"'</string>
+  <key>signingStyle</key><string>automatic</string>
+  <key>stripSwiftSymbols</key><true/>
+  <key>uploadSymbols</key><true/>
+</dict></plist>')
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: edodlah-ios-ipa
+          path: ${{ runner.temp }}/ipa/*.ipa
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload to App Store Connect
+        env:
+          KEY_B64: ${{ secrets.APPLE_API_KEY_BASE64 }}
+          KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+          ISS_ID: ${{ secrets.APPLE_API_ISSUER_ID }}
+        run: |
+          echo "$KEY_B64" | base64 -d > /tmp/AuthKey_$KEY_ID.p8
+          xcrun altool --upload-app \
+            --file "$RUNNER_TEMP/ipa"/*.ipa \
+            --apiKey "$KEY_ID" \
+            --apiIssuer "$ISS_ID" \
+            --type ios
