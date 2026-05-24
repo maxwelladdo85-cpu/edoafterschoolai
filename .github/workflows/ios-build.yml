@@ -107,7 +107,7 @@ jobs:
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
         with:
-          name: EdoLearn-ios
+          name: EdoDLAH-ios
           path: ${{ runner.temp }}/ipa/*.ipa
           if-no-files-found: error
           retention-days: 14

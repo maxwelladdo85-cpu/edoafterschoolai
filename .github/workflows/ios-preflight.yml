@@ -8,7 +8,7 @@ name: iOS Preflight
 #   APPLE_APP_ID                  e.g. ng.gov.edosubeb.edolearn
 #   APPLE_TEAM_ID                 10-char Apple Developer Team ID
 #   APPLE_PROVISIONING_PROFILE_B64  base64 of your .mobileprovision
-#       (generate with: base64 -i EdoLearn_AppStore.mobileprovision | pbcopy)
+#       (generate with: base64 -i EdoDLAH_AppStore.mobileprovision | pbcopy)
 #
 # The profile secret is optional — omit it to skip profile parsing and only
 # validate bundle-id consistency across capacitor.config.ts, Xcode, Info.plist

@@ -155,7 +155,7 @@ base64 -i AuthKey_XXXXXXXXXX.p8 | pbcopy
 | `APPLE_API_KEY_ID` | Key ID from App Store Connect API Keys page |
 | `APPLE_API_ISSUER_ID` | Issuer ID from App Store Connect API Keys page |
 | `APPLE_TEAM_ID` | Your 10-character Team ID from Apple Developer Membership page |
-| `MATCH_PASSWORD` | Encryption passphrase for Fastlane Match (set to any secure string, e.g. `EdoLearnMatch2026!`) |
+| `MATCH_PASSWORD` | Encryption passphrase for Fastlane Match (`EdoDLAHMatch2026!`) |
 
 The CI pipeline uses **Fastlane Match** to automatically:
 - Generate Apple Distribution certificates (via OpenSSL on the runner)

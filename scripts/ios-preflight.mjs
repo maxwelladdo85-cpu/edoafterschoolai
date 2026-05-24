@@ -19,7 +19,7 @@
  * Usage:
  *   bun run ios:preflight
  *   bun run ios:preflight -- --apple-id ng.gov.edosubeb.edolearn --team ABCDE12345
- *   bun run ios:preflight -- --profile ~/Downloads/EdoLearn_AppStore.mobileprovision
+ *   bun run ios:preflight -- --profile ~/Downloads/EdoDLAH_AppStore.mobileprovision
  *   APPLE_APP_ID=ng.gov.edosubeb.edolearn APPLE_TEAM_ID=ABCDE12345 bun run ios:preflight
  *
  * Exit code 0 = all checks passed, 1 = mismatch (blocks CI).

@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from "@capacitor/cli";
 
 /**
- * Capacitor configuration for EdoLearn.
+ * Capacitor configuration for EdoDLAH.
  *
  * The native shell loads the published web app via `server.url`, so most
  * content updates ship instantly without resubmitting binaries. The
@@ -15,7 +15,7 @@ const config: CapacitorConfig = {
   appId: "ng.gov.edosubeb.edolearn",
 
   // Display name shown under the icon on the Home Screen.
-  appName: "EdoLearn",
+  appName: "EdoDLAH",
 
   // Web bundle directory (used only if you switch off `server.url`).
   webDir: "dist",
