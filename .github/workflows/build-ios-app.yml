@@ -58,19 +58,21 @@ jobs:
             DEVELOPMENT_TEAM="${TEAM_ID}"
 
       - name: Export IPA
+        env:
+          TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
           xcodebuild -exportArchive \
             -archivePath "$RUNNER_TEMP/App.xcarchive" \
             -exportPath "$RUNNER_TEMP/ipa" \
             -exportOptionsPlist <(echo '<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0"><dict>
-  <key>method</key><string>app-store</string>
-  <key>teamID</key><string>'"$TEAM_ID"'</string>
-  <key>signingStyle</key><string>automatic</string>
-  <key>stripSwiftSymbols</key><true/>
-  <key>uploadSymbols</key><true/>
-</dict></plist>')
+            <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+            <plist version="1.0"><dict>
+              <key>method</key><string>app-store</string>
+              <key>teamID</key><string>'"$TEAM_ID"'</string>
+              <key>signingStyle</key><string>automatic</string>
+              <key>stripSwiftSymbols</key><true/>
+              <key>uploadSymbols</key><true/>
+            </dict></plist>')
 
       - uses: actions/upload-artifact@v4
         with:
