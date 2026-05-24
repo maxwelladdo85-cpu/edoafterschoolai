@@ -24,9 +24,6 @@ jobs:
       - run: npx cap add ios
       - run: npx cap sync ios
 
-      - name: Debug iOS project structure
-        run: find ios -name "*.xcodeproj" -o -name "*.xcworkspace" 2>/dev/null || echo "No Xcode files found"; ls -la ios/App/ 2>/dev/null || echo "No ios/App dir"
-
       - name: Install Fastlane & setup signing
         env:
           KEY_B64: ${{ secrets.APPLE_API_KEY_BASE64 }}
@@ -57,7 +54,7 @@ jobs:
           TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
           xcodebuild archive \
-            -workspace ios/App/App.xcworkspace \
+            -project ios/App/App.xcodeproj \
             -scheme App \
             -configuration Release \
             -destination 'generic/platform=iOS' \
