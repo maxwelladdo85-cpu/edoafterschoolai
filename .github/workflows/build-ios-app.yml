@@ -10,7 +10,7 @@ concurrency: build-ios
 jobs:
   build:
     runs-on: macos-14
-    timeout-minutes: 40
+    timeout-minutes: 60
     permissions:
       contents: write
 
@@ -50,6 +50,13 @@ jobs:
             --force_for_new_devices true \
             --skip_docs true
 
+      - name: Resolve SPM packages
+        run: |
+          xcodebuild -resolvePackageDependencies \
+            -project ios/App/App.xcodeproj \
+            -scheme App \
+            -configuration Release
+
       - name: Archive
         env:
           TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
@@ -60,7 +67,6 @@ jobs:
             -configuration Release \
             -destination 'generic/platform=iOS' \
             -archivePath "$RUNNER_TEMP/App.xcarchive" \
-            -allowProvisioningUpdates \
             DEVELOPMENT_TEAM="${TEAM_ID}"
 
       - name: Export IPA
