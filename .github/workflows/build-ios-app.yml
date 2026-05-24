@@ -36,7 +36,7 @@ jobs:
           ruby -e '
             require "json"
             key = File.read("/tmp/AuthKey_'"$KEY_ID"'.p8")
-            j = {key_id: "'"$KEY_ID"'", issuer_id: "'"$ISS_ID"'", key: key, duration: 1200}
+            j = {key_id: "'"$KEY_ID"'", issuer_id: "'"$ISS_ID"'", key: key, in_house: false, duration: 1200}
             File.write("/tmp/api_key.json", JSON.generate(j))
           '
           git config --global url."https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
