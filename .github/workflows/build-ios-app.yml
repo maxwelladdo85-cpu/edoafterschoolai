@@ -50,13 +50,6 @@ jobs:
             --force_for_new_devices true \
             --skip_docs true
 
-      - name: Resolve SPM packages
-        run: |
-          xcodebuild -resolvePackageDependencies \
-            -project ios/App/App.xcodeproj \
-            -scheme App \
-            -configuration Release
-
       - name: Archive
         env:
           TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
