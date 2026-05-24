@@ -95,7 +95,7 @@ These are read every time you run `npx cap sync ios`:
 | Setting | Value | Maps to in Xcode / Info.plist |
 |---|---|---|
 | `appId` | `ng.gov.edosubeb.edolearn` | Bundle Identifier (PRODUCT_BUNDLE_IDENTIFIER) |
-| `appName` | `EdoLearn` | Display Name (CFBundleDisplayName) |
+| `appName` | `EdoDLAH` | Display Name (CFBundleDisplayName) |
 | `version` | `1.0.0` | Marketing Version (CFBundleShortVersionString) |
 | `ios.buildNumber` | `1` | Build (CFBundleVersion) — **must increase on every upload** |
 | `ios.backgroundColor` | `#00843D` (Edo green) | Window background |
