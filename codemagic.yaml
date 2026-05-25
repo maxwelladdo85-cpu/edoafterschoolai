@@ -3,13 +3,10 @@ workflows:
     name: Build & Upload iOS to App Store
     max_build_duration: 30
     instance_type: mac_mini_m2
-    integrations:
-      app_store_connect: Codemagic API Key
     environment:
       vars:
         XCODE_PROJECT: ios/App/App.xcodeproj
         XCODE_SCHEME: App
-        APP_STORE_APP_ID: 6738959786
         TEAM_ID: UPH4MRP52S
       node: latest
       xcode: latest
@@ -54,8 +51,3 @@ workflows:
             </dict></plist>')
     artifacts:
       - build/ios/ipa/*.ipa
-    publishing:
-      app_store_connect:
-        auth: integration
-        submit_to_testflight: true
-        submit_to_app_store: false
