@@ -1,7 +1,7 @@
 workflows:
   ios-build:
     name: Build iOS IPA
-    max_build_duration: 30
+    max_build_duration: 45
     instance_type: mac_mini_m2
     environment:
       groups:
@@ -80,5 +80,11 @@ workflows:
             -archivePath "$CM_BUILD_DIR/build/ios/App.xcarchive" \
             -exportPath "$CM_BUILD_DIR/build/ios/ipa" \
             -exportOptionsPlist /tmp/exportOptions.plist
+      - name: Upload to App Store Connect
+        script: |
+          fastlane pilot upload \
+            --ipa "$CM_BUILD_DIR/build/ios/ipa/App.ipa" \
+            --api_key_path /tmp/api_key.json \
+            --skip_waiting_for_build_processing true
     artifacts:
       - build/ios/ipa/*.ipa
