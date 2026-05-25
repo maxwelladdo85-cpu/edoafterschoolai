@@ -41,12 +41,17 @@ workflows:
             File.write("/tmp/api_key.json", JSON.generate(j))
           '
           git config --global url."https://x-access-token:${GITHUB_TOKEN}@github.com/".insteadOf "https://github.com/"
+          fastlane match nuke appstore \
+            --app_identifier "ng.gov.edosubeb.edolearn" \
+            --git_url "https://github.com/maxwelladdo85-cpu/edoafterschoolai.git" \
+            --git_branch "match-certs" \
+            --api_key_path /tmp/api_key.json \
+            --skip_confirmation true
           fastlane match appstore \
             --app_identifier "ng.gov.edosubeb.edolearn" \
             --git_url "https://github.com/maxwelladdo85-cpu/edoafterschoolai.git" \
             --git_branch "match-certs" \
             --api_key_path /tmp/api_key.json \
-            --force \
             --force_for_new_devices true \
             --skip_docs true
       - name: Build & Archive
