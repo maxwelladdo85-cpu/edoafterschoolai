@@ -22,8 +22,10 @@ workflows:
         script: npm install
       - name: Build web assets
         script: npm run build
-      - name: Sync Capacitor iOS
-        script: npx cap sync ios
+      - name: Add & Sync Capacitor iOS
+        script: |
+          npx cap add ios
+          npx cap sync ios
       - name: Build & Archive
         script: |
           xcodebuild archive \
