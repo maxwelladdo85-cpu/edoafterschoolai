@@ -60,17 +60,23 @@ workflows:
             PROVISIONING_PROFILE_SPECIFIER="match AppStore ng.gov.edosubeb.edolearn"
       - name: Export IPA
         script: |
+          cat > /tmp/exportOptions.plist << 'PLIST'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0"><dict>
+            <key>method</key><string>app-store</string>
+            <key>teamID</key><string>UPH4MRP52S</string>
+            <key>signingStyle</key><string>manual</string>
+            <key>stripSwiftSymbols</key><true/>
+            <key>uploadSymbols</key><true/>
+          </dict></plist>
+          PLIST
           xcodebuild -exportArchive \
             -archivePath "$CM_BUILD_DIR/build/ios/App.xcarchive" \
             -exportPath "$CM_BUILD_DIR/build/ios/ipa" \
-            -exportOptionsPlist <(echo '<?xml version="1.0" encoding="UTF-8"?>
-            <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-            <plist version="1.0"><dict>
-              <key>method</key><string>app-store</string>
-              <key>teamID</key><string>'"$TEAM_ID"'</string>
-              <key>signingStyle</key><string>automatic</string>
-              <key>stripSwiftSymbols</key><true/>
-              <key>uploadSymbols</key><true/>
-            </dict></plist>')
+            -exportOptionsPlist /tmp/exportOptions.plist
+    publishing:
+      email:
+        recipients: []
     artifacts:
       - build/ios/ipa/*.ipa
