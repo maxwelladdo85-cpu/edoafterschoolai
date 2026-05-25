@@ -70,6 +70,7 @@ jobs:
             -configuration Release \
             -destination 'generic/platform=iOS' \
             -archivePath "$RUNNER_TEMP/App.xcarchive" \
+            -parallelizeTargets \
             DEVELOPMENT_TEAM="${TEAM_ID}"
 
       - name: Export IPA
