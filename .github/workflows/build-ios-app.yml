@@ -9,8 +9,8 @@ concurrency: build-ios
 
 jobs:
   build:
-    runs-on: macos-14
-    timeout-minutes: 180
+    runs-on: macos-13
+    timeout-minutes: 240
     permissions:
       contents: write
 
