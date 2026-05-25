@@ -4,6 +4,8 @@ workflows:
     max_build_duration: 30
     instance_type: mac_mini_m2
     environment:
+      groups:
+        - ios
       vars:
         XCODE_PROJECT: ios/App/App.xcodeproj
         XCODE_SCHEME: App
@@ -30,10 +32,6 @@ workflows:
           npx cap sync ios
       - name: Install Fastlane & setup signing
         script: |
-          echo "=== DEBUG ENV ==="
-          env | grep -E "(MATCH|APPLE|GITHUB|CM_)" || echo "No matching vars found"
-          echo "=== ENV COUNT ==="
-          env | wc -l
           gem install fastlane -q --no-document
           echo "${APPLE_API_KEY_B64}" | base64 -d > /tmp/AuthKey_${APPLE_KEY_ID}.p8
           ruby -e '
