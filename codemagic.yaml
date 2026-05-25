@@ -10,6 +10,9 @@ workflows:
         APPLE_KEY_ID: YW29AY9768
         APPLE_ISSUER_ID: 81b05e99-eb94-4256-b404-186053348cba
         TEAM_ID: UPH4MRP52S
+        MATCH_PASSWORD: $MATCH_PASSWORD
+        APPLE_API_KEY_B64: $APPLE_API_KEY_B64
+        GITHUB_TOKEN: $GITHUB_TOKEN
       node: latest
       xcode: latest
     triggering:
@@ -30,6 +33,7 @@ workflows:
           npx cap sync ios
       - name: Install Fastlane & setup signing
         script: |
+          export MATCH_PASSWORD="$MATCH_PASSWORD"
           gem install fastlane -q --no-document
           echo "$APPLE_API_KEY_B64" | base64 -d > /tmp/AuthKey_$APPLE_KEY_ID.p8
           ruby -e '
