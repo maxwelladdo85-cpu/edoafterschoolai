@@ -4,6 +4,9 @@ workflows:
     max_build_duration: 30
     instance_type: mac_mini_m2
     environment:
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: ng.gov.edosubeb.edolearn
       vars:
         XCODE_PROJECT: ios/App/App.xcodeproj
         XCODE_SCHEME: App
@@ -26,6 +29,8 @@ workflows:
         script: |
           npx cap add ios
           npx cap sync ios
+      - name: Use provisioning profiles
+        script: xcode-project use-profiles
       - name: Build & Archive
         script: |
           xcodebuild archive \
@@ -35,8 +40,7 @@ workflows:
             -destination 'generic/platform=iOS' \
             -archivePath "$CM_BUILD_DIR/build/ios/App.xcarchive" \
             DEVELOPMENT_TEAM="$TEAM_ID" \
-            CODE_SIGN_STYLE=Manual \
-            -allowProvisioningUpdates
+            CODE_SIGN_STYLE=Manual
       - name: Export IPA
         script: |
           xcodebuild -exportArchive \
