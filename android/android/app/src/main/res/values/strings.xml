@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">EdoDLAH</string>
+    <string name="title_activity_main">EdoDLAH</string>
+    <string name="package_name">ng.gov.edosubeb.edolearn</string>
+    <string name="custom_url_scheme">ng.gov.edosubeb.edolearn</string>
+</resources>

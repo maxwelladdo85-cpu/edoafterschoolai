@@ -1,0 +1,1 @@
+import{c as t}from"./createLucideIcon-G1zkV7t9.js";import{t as c}from"./index-BYarFsxM.js";const o=[["path",{d:"M20 6 9 17l-5-5",key:"1gmf2c"}]],n=t("check",o);function i(r){const e=c.useRef({value:r,previous:r});return c.useMemo(()=>(e.current.value!==r&&(e.current.previous=e.current.value,e.current.value=r),e.current.previous),[r])}export{n as C,i as u};

@@ -1,0 +1,44 @@
+{
+	"appId": " com.edodlah.app",
+	"appName": "EdoDLAH",
+	"webDir": "dist",
+	"version": "1.0.0",
+	"server": {
+		"url": "https://edoafterschoolai.lovable.app",
+		"cleartext": false,
+		"androidScheme": "https",
+		"iosScheme": "https",
+		"allowNavigation": [
+			"edoafterschoolai.lovable.app",
+			"edodlah.com",
+			"*.edodlah.com",
+			"*.supabase.co"
+		]
+	},
+	"plugins": {
+		"SplashScreen": {
+			"launchShowDuration": 1500,
+			"backgroundColor": "#00843D",
+			"androidSplashResourceName": "splash",
+			"showSpinner": false,
+			"iosSpinnerStyle": "small",
+			"splashFullScreen": true,
+			"splashImmersive": true
+		},
+		"StatusBar": {
+			"style": "DARK",
+			"backgroundColor": "#00843D",
+			"overlaysWebView": false
+		}
+	},
+	"ios": {
+		"buildNumber": "1",
+		"contentInset": "always",
+		"backgroundColor": "#00843D",
+		"scrollEnabled": true,
+		"scheme": "App"
+	},
+	"android": {
+		"allowMixedContent": false
+	}
+}
