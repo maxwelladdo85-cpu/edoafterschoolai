@@ -184,12 +184,20 @@ export function AuthCard() {
                       <Label htmlFor="lphone">Parent phone number</Label>
                       <Input
                         id="lphone"
-                        inputMode="tel"
+                        inputMode="numeric"
                         required
-                        placeholder="e.g. +234 803 000 0000"
+                        maxLength={11}
+                        placeholder="e.g. 09074669411"
                         value={learnerPhone}
-                        onChange={(e) => setLearnerPhone(e.target.value)}
+                        onChange={(e) => setLearnerPhone(e.target.value.replace(/\D/g, "").slice(0, 11))}
+                        aria-invalid={learnerPhone.length > 0 && learnerPhone.length !== 11}
+                        className={learnerPhone.length > 0 && learnerPhone.length !== 11 ? "border-destructive focus-visible:ring-destructive" : ""}
                       />
+                      <p className={`text-xs ${learnerPhone.length === 11 ? "text-emerald-600" : learnerPhone.length > 0 ? "text-destructive" : "text-muted-foreground"}`}>
+                        {learnerPhone.length === 11
+                          ? "Looks good"
+                          : `Enter 11 digits in the format 09074669411 (${learnerPhone.length}/11)`}
+                      </p>
                     </div>
                     <div className="space-y-1">
                       <Label htmlFor="lemail">Email <span className="text-muted-foreground">(optional)</span></Label>
