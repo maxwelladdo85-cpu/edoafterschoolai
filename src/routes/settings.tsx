@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User, Mail, Shield, Calendar, BookOpen, GraduationCap, Users, Camera, Loader2, Trash2, FileText, Cookie } from "lucide-react";
+import { User, Mail, Shield, Calendar, BookOpen, GraduationCap, Users, Camera, Loader2, Trash2, FileText, Cookie, School as SchoolIcon, Phone, IdCard } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CLASS_GROUPS } from "@/lib/classes";
@@ -75,15 +75,23 @@ export const Route = createFileRoute("/settings")({
 function SettingsPage() {
   const { user, role, loading } = useAuth();
   const nav = useNavigate();
-  const [profile, setProfile] = useState<{ full_name: string | null; email: string | null; created_at: string; avatar_url: string | null; class_level: string | null; lga: string | null; date_of_birth: string | null } | null>(null);
+  const [profile, setProfile] = useState<{ full_name: string | null; email: string | null; created_at: string; avatar_url: string | null; class_level: string | null; lga: string | null; date_of_birth: string | null; school_type: string | null; school_id: string | null; parent_phone: string | null; nin: string | null } | null>(null);
   const [dob, setDob] = useState("");
   const [savingDob, setSavingDob] = useState(false);
   const [stats, setStats] = useState<{ label: string; value: number; icon: any }[]>([]);
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
-  const [fullName, setFullName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [savingProfile, setSavingProfile] = useState(false);
+  const [schoolType, setSchoolType] = useState("");
+  const [schoolId, setSchoolId] = useState("");
+  const [schoolOptions, setSchoolOptions] = useState<{ id: string; name: string; lga: string; school_type: string }[]>([]);
+  const [savingSchool, setSavingSchool] = useState(false);
+  const [parentPhone, setParentPhone] = useState("");
+  const [nin, setNin] = useState("");
+  const [savingContact, setSavingContact] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) nav({ to: "/login" });
@@ -92,11 +100,18 @@ function SettingsPage() {
   useEffect(() => {
     const load = async () => {
       if (!user || !role) return;
-      const { data: p } = await supabase.from("profiles").select("full_name,email,created_at,avatar_url,class_level,lga,date_of_birth" as any).eq("id", user.id).maybeSingle();
+      const { data: p } = await supabase.from("profiles").select("full_name,email,created_at,avatar_url,class_level,lga,date_of_birth,school_type,school_id,parent_phone,nin" as any).eq("id", user.id).maybeSingle();
       setProfile(p as any);
-      setFullName((p as any)?.full_name ?? "");
+      const nm = ((p as any)?.full_name ?? "").trim();
+      const sp = nm.indexOf(" ");
+      setFirstName(sp === -1 ? nm : nm.slice(0, sp));
+      setLastName(sp === -1 ? "" : nm.slice(sp + 1));
       setEmail((p as any)?.email ?? user.email ?? "");
       setDob((p as any)?.date_of_birth ?? "");
+      setSchoolType((p as any)?.school_type ?? "");
+      setSchoolId((p as any)?.school_id ?? "");
+      setParentPhone((p as any)?.parent_phone ?? "");
+      setNin((p as any)?.nin ?? "");
 
       if (role === "teacher") {
         const { data: cs } = await supabase.from("courses").select("id,is_active").eq("teacher_id", user.id);
@@ -132,6 +147,13 @@ function SettingsPage() {
     };
     load();
   }, [user, role]);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase.from("schools").select("id,name,lga,school_type").eq("is_active", true).order("name");
+      setSchoolOptions((data ?? []) as any);
+    })();
+  }, []);
 
   if (loading || !user) {
     return <div className="flex min-h-screen items-center justify-center text-muted-foreground">Loading…</div>;
@@ -226,10 +248,13 @@ function SettingsPage() {
                   onSubmit={async (e) => {
                     e.preventDefault();
                     if (!user) return;
-                    const trimmedName = fullName.trim();
+                    const trimmedFirst = firstName.trim();
+                    const trimmedLast = lastName.trim();
+                    const trimmedName = `${trimmedFirst} ${trimmedLast}`.trim();
                     const trimmedEmail = email.trim();
-                    if (!trimmedName) return toast.error("Full name is required");
-                    if (trimmedName.length > 100) return toast.error("Full name must be under 100 characters");
+                    if (!trimmedFirst) return toast.error("First name is required");
+                    if (!trimmedLast) return toast.error("Last name is required");
+                    if (trimmedName.length > 100) return toast.error("Name must be under 100 characters");
                     const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                     if (!emailRe.test(trimmedEmail)) return toast.error("Enter a valid email address");
                     setSavingProfile(true);
@@ -261,9 +286,15 @@ function SettingsPage() {
                 >
                   <div className="space-y-1.5 rounded-lg border bg-muted/30 p-3">
                     <label className="flex items-center gap-2 text-xs uppercase tracking-wide text-muted-foreground">
-                      <User className="h-3.5 w-3.5 text-primary" /> Full name
+                      <User className="h-3.5 w-3.5 text-primary" /> First name
                     </label>
-                    <Input value={fullName} onChange={(e) => setFullName(e.target.value)} maxLength={100} placeholder="Your full name" />
+                    <Input value={firstName} onChange={(e) => setFirstName(e.target.value)} maxLength={50} placeholder="First name" />
+                  </div>
+                  <div className="space-y-1.5 rounded-lg border bg-muted/30 p-3">
+                    <label className="flex items-center gap-2 text-xs uppercase tracking-wide text-muted-foreground">
+                      <User className="h-3.5 w-3.5 text-primary" /> Last name
+                    </label>
+                    <Input value={lastName} onChange={(e) => setLastName(e.target.value)} maxLength={50} placeholder="Last name" />
                   </div>
                   <div className="space-y-1.5 rounded-lg border bg-muted/30 p-3">
                     <label className="flex items-center gap-2 text-xs uppercase tracking-wide text-muted-foreground">
@@ -365,10 +396,111 @@ function SettingsPage() {
 
             <Card className="border-border/60" style={{ boxShadow: "var(--shadow-card)" }}>
               <CardHeader>
+                <CardTitle className="flex items-center gap-2"><SchoolIcon className="h-5 w-5 text-primary" /> School</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <p className="text-sm text-muted-foreground">Pick the school level and select your school. The list is filtered by your Local Government.</p>
+                <form
+                  className="grid gap-3 sm:grid-cols-2"
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    if (!user) return;
+                    setSavingSchool(true);
+                    const { error } = await supabase.from("profiles").update({
+                      school_type: schoolType || null,
+                      school_id: schoolId || null,
+                    } as any).eq("id", user.id);
+                    setSavingSchool(false);
+                    if (error) return toast.error(error.message);
+                    setProfile((prev) => prev ? { ...prev, school_type: schoolType || null, school_id: schoolId || null } : prev);
+                    toast.success("School saved");
+                  }}
+                >
+                  <div className="space-y-1.5">
+                    <label className="text-xs uppercase tracking-wide text-muted-foreground">School type</label>
+                    <Select value={schoolType} onValueChange={(v) => { setSchoolType(v); setSchoolId(""); }}>
+                      <SelectTrigger><SelectValue placeholder="Select school type" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="primary">Primary</SelectItem>
+                        <SelectItem value="jss">Junior Secondary (JSS)</SelectItem>
+                        <SelectItem value="sss">Senior Secondary (SSS)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs uppercase tracking-wide text-muted-foreground">School name</label>
+                    <Select value={schoolId} onValueChange={setSchoolId} disabled={!profile?.lga || !schoolType}>
+                      <SelectTrigger>
+                        <SelectValue placeholder={!profile?.lga ? "Set your LGA first" : !schoolType ? "Pick school type first" : "Select your school"} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {schoolOptions
+                          .filter((s) => s.lga === profile?.lga && s.school_type === schoolType)
+                          .map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+                        {schoolOptions.filter((s) => s.lga === profile?.lga && s.school_type === schoolType).length === 0 && (
+                          <div className="px-2 py-1.5 text-xs text-muted-foreground">No schools listed for this LGA and type yet.</div>
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="sm:col-span-2 flex justify-end">
+                    <Button type="submit" size="sm" disabled={savingSchool || (schoolType === (profile?.school_type ?? "") && schoolId === (profile?.school_id ?? ""))}>
+                      {savingSchool ? "Saving…" : "Save"}
+                    </Button>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+
+            <Card className="border-border/60" style={{ boxShadow: "var(--shadow-card)" }}>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2"><IdCard className="h-5 w-5 text-primary" /> Parent contact & NIN</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <p className="text-sm text-muted-foreground">Add a parent or guardian phone number and your National Identification Number (NIN).</p>
+                <form
+                  className="grid gap-3 sm:grid-cols-2"
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    if (!user) return;
+                    const phone = parentPhone.trim();
+                    const ninVal = nin.trim();
+                    if (phone && !/^\+?[0-9\s-]{7,20}$/.test(phone)) return toast.error("Enter a valid phone number");
+                    if (ninVal && !/^[0-9]{11}$/.test(ninVal)) return toast.error("NIN must be 11 digits");
+                    setSavingContact(true);
+                    const { error } = await supabase.from("profiles").update({
+                      parent_phone: phone || null,
+                      nin: ninVal || null,
+                    } as any).eq("id", user.id);
+                    setSavingContact(false);
+                    if (error) return toast.error(error.message);
+                    setProfile((prev) => prev ? { ...prev, parent_phone: phone || null, nin: ninVal || null } : prev);
+                    toast.success("Contact details saved");
+                  }}
+                >
+                  <div className="space-y-1.5">
+                    <label className="flex items-center gap-2 text-xs uppercase tracking-wide text-muted-foreground"><Phone className="h-3.5 w-3.5 text-primary" /> Parent phone</label>
+                    <Input value={parentPhone} onChange={(e) => setParentPhone(e.target.value)} maxLength={20} placeholder="e.g. +234 803 000 0000" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="flex items-center gap-2 text-xs uppercase tracking-wide text-muted-foreground"><IdCard className="h-3.5 w-3.5 text-primary" /> NIN</label>
+                    <Input value={nin} onChange={(e) => setNin(e.target.value.replace(/\D/g, ""))} maxLength={11} placeholder="11-digit NIN" />
+                  </div>
+                  <div className="sm:col-span-2 flex justify-end">
+                    <Button type="submit" size="sm" disabled={savingContact || (parentPhone.trim() === (profile?.parent_phone ?? "") && nin.trim() === (profile?.nin ?? ""))}>
+                      {savingContact ? "Saving…" : "Save"}
+                    </Button>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+
+            <Card className="border-border/60" style={{ boxShadow: "var(--shadow-card)" }}>
+              <CardHeader>
                 <CardTitle className="flex items-center gap-2"><FileText className="h-5 w-5 text-primary" /> Legal</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <p className="text-sm text-muted-foreground">Review the legal agreements that govern your use of the EdoLearn platform.</p>
+                <p className="text-sm text-muted-foreground">Review the legal agreements that govern your use of the EdoSUBEB platform.</p>
                 <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
                   <Link to="/privacy" className="inline-flex items-center gap-2 rounded-lg border bg-muted/30 px-4 py-2.5 text-sm font-medium text-foreground hover:bg-muted/50 transition-colors">
                     <Shield className="h-4 w-4 text-primary" /> Privacy Policy
