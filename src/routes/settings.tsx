@@ -560,57 +560,71 @@ function SettingsPage() {
                 <CardTitle className="flex items-center gap-2"><IdCard className="h-5 w-5 text-primary" /> Parent contact & NIN</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <p className="text-sm text-muted-foreground">Add a parent or guardian phone number and your National Identification Number (NIN).</p>
-                <form
-                  className="grid gap-3 sm:grid-cols-2"
-                  onSubmit={async (e) => {
-                    e.preventDefault();
-                    if (!user) return;
-                    const phone = parentPhone.trim();
-                    const ninVal = nin.trim();
-                    if (phone && !/^\+?[0-9\s-]{7,20}$/.test(phone)) return toast.error("Enter a valid phone number");
-                    if (!ninVal) return toast.error("Please enter your 11-digit NIN");
-                    if (!/^[0-9]{11}$/.test(ninVal)) return toast.error(`NIN must be 11 digits — you've entered ${ninVal.length}`);
-                    setSavingContact(true);
-                    const { error } = await supabase.from("profiles").update({
-                      parent_phone: phone || null,
-                      nin: ninVal || null,
-                    } as any).eq("id", user.id);
-                    setSavingContact(false);
-                    if (error) return toast.error(error.message);
-                    setProfile((prev) => prev ? { ...prev, parent_phone: phone || null, nin: ninVal || null } : prev);
-                    toast.success("Contact details saved");
-                  }}
-                >
-                  <div className="space-y-1.5">
-                    <label className="flex items-center gap-2 text-xs uppercase tracking-wide text-muted-foreground"><Phone className="h-3.5 w-3.5 text-primary" /> Parent phone</label>
-                    <Input value={parentPhone} onChange={(e) => setParentPhone(e.target.value)} maxLength={20} placeholder="e.g. +234 803 000 0000" />
+                {isEditing("contact") ? (
+                  <>
+                    <p className="text-sm text-muted-foreground">Add a parent or guardian phone number and your National Identification Number (NIN).</p>
+                    <form
+                      className="grid gap-3 sm:grid-cols-2"
+                      onSubmit={async (e) => {
+                        e.preventDefault();
+                        if (!user) return;
+                        const phone = parentPhone.trim();
+                        const ninVal = nin.trim();
+                        if (phone && !/^\+?[0-9\s-]{7,20}$/.test(phone)) return toast.error("Enter a valid phone number");
+                        if (!ninVal) return toast.error("Please enter your 11-digit NIN");
+                        if (!/^[0-9]{11}$/.test(ninVal)) return toast.error(`NIN must be 11 digits — you've entered ${ninVal.length}`);
+                        setSavingContact(true);
+                        const { error } = await supabase.from("profiles").update({
+                          parent_phone: phone || null,
+                          nin: ninVal || null,
+                        } as any).eq("id", user.id);
+                        setSavingContact(false);
+                        if (error) return toast.error(error.message);
+                        setProfile((prev) => prev ? { ...prev, parent_phone: phone || null, nin: ninVal || null } : prev);
+                        toast.success("Contact details saved");
+                        stopEdit("contact");
+                      }}
+                    >
+                      <div className="space-y-1.5">
+                        <label className="flex items-center gap-2 text-xs uppercase tracking-wide text-muted-foreground"><Phone className="h-3.5 w-3.5 text-primary" /> Parent phone</label>
+                        <Input value={parentPhone} onChange={(e) => setParentPhone(e.target.value)} maxLength={20} placeholder="e.g. +234 803 000 0000" />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="flex items-center gap-2 text-xs uppercase tracking-wide text-muted-foreground"><IdCard className="h-3.5 w-3.5 text-primary" /> NIN</label>
+                        <Input
+                          value={nin}
+                          onChange={(e) => setNin(e.target.value.replace(/\D/g, ""))}
+                          maxLength={11}
+                          inputMode="numeric"
+                          placeholder="11-digit NIN"
+                          aria-invalid={nin.length > 0 && nin.length < 11}
+                          className={nin.length > 0 && nin.length < 11 ? "border-destructive focus-visible:ring-destructive" : ""}
+                        />
+                        <p className={`text-xs ${nin.length === 11 ? "text-emerald-600" : nin.length > 0 ? "text-destructive" : "text-muted-foreground"}`}>
+                          {nin.length === 0
+                            ? "Enter all 11 digits of your NIN."
+                            : nin.length < 11
+                              ? `${11 - nin.length} more digit${11 - nin.length === 1 ? "" : "s"} needed (${nin.length}/11).`
+                              : "Looks good ✓"}
+                        </p>
+                      </div>
+                      <div className="sm:col-span-2 flex justify-end gap-2">
+                        <Button type="button" variant="ghost" size="sm" onClick={() => stopEdit("contact")} disabled={savingContact}>Cancel</Button>
+                        <Button type="submit" size="sm" disabled={savingContact}>
+                          {savingContact ? "Saving…" : "Save"}
+                        </Button>
+                      </div>
+                    </form>
+                  </>
+                ) : (
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <SummaryRow icon={Phone} label="Parent phone" value={profile?.parent_phone} />
+                    <SummaryRow icon={IdCard} label="NIN" value={profile?.nin} />
+                    <div className="sm:col-span-2 flex justify-end">
+                      <Button size="sm" variant="outline" onClick={() => startEdit("contact")}><Pencil className="mr-2 h-4 w-4" />Change</Button>
+                    </div>
                   </div>
-                  <div className="space-y-1.5">
-                    <label className="flex items-center gap-2 text-xs uppercase tracking-wide text-muted-foreground"><IdCard className="h-3.5 w-3.5 text-primary" /> NIN</label>
-                    <Input
-                      value={nin}
-                      onChange={(e) => setNin(e.target.value.replace(/\D/g, ""))}
-                      maxLength={11}
-                      inputMode="numeric"
-                      placeholder="11-digit NIN"
-                      aria-invalid={nin.length > 0 && nin.length < 11}
-                      className={nin.length > 0 && nin.length < 11 ? "border-destructive focus-visible:ring-destructive" : ""}
-                    />
-                    <p className={`text-xs ${nin.length === 11 ? "text-emerald-600" : nin.length > 0 ? "text-destructive" : "text-muted-foreground"}`}>
-                      {nin.length === 0
-                        ? "Enter all 11 digits of your NIN."
-                        : nin.length < 11
-                          ? `${11 - nin.length} more digit${11 - nin.length === 1 ? "" : "s"} needed (${nin.length}/11).`
-                          : "Looks good ✓"}
-                    </p>
-                  </div>
-                  <div className="sm:col-span-2 flex justify-end">
-                    <Button type="submit" size="sm" disabled={savingContact || (parentPhone.trim() === (profile?.parent_phone ?? "") && nin.trim() === (profile?.nin ?? ""))}>
-                      {savingContact ? "Saving…" : "Save"}
-                    </Button>
-                  </div>
-                </form>
+                )}
               </CardContent>
             </Card>
 
