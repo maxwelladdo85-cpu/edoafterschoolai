@@ -56,7 +56,6 @@ const NAV: Record<AppRole, NavSection[]> = {
       label: "Teaching",
       items: [
         { title: "My Courses", url: "/my-courses", icon: GraduationCap },
-        { title: "Course Builder", url: "/courses/builder", icon: Wand2 },
         { title: "Course Library", url: "/courses", icon: BookOpen },
         { title: "Virtual Classes", url: "/virtual-classes", icon: Video },
         { title: "Assessments", url: "/assessments", icon: ClipboardCheck },
@@ -89,7 +88,7 @@ const NAV: Record<AppRole, NavSection[]> = {
       label: "Content",
       items: [
         { title: "Course Library", url: "/courses", icon: BookOpen },
-        { title: "Course Builder", url: "/courses/builder", icon: Wand2 },
+        
         { title: "Assessments", url: "/assessments", icon: ClipboardCheck },
         { title: "Announcements", url: "/announcements", icon: Megaphone },
       ],
