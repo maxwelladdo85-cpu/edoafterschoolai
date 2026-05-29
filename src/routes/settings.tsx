@@ -478,7 +478,8 @@ function SettingsPage() {
                     const phone = parentPhone.trim();
                     const ninVal = nin.trim();
                     if (phone && !/^\+?[0-9\s-]{7,20}$/.test(phone)) return toast.error("Enter a valid phone number");
-                    if (ninVal && !/^[0-9]{11}$/.test(ninVal)) return toast.error("NIN must be 11 digits");
+                    if (!ninVal) return toast.error("Please enter your 11-digit NIN");
+                    if (!/^[0-9]{11}$/.test(ninVal)) return toast.error(`NIN must be 11 digits — you've entered ${ninVal.length}`);
                     setSavingContact(true);
                     const { error } = await supabase.from("profiles").update({
                       parent_phone: phone || null,
