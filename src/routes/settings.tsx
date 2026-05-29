@@ -68,6 +68,17 @@ function LgaEditor({ initial, onSave }: { initial: string; onSave: (val: string)
   );
 }
 
+function SummaryRow({ icon: Icon, label, value }: { icon: any; label: string; value: any }) {
+  return (
+    <div className="flex items-start gap-3 rounded-lg border bg-muted/30 p-3">
+      <Icon className="mt-1 h-4 w-4 text-primary" />
+      <div className="min-w-0">
+        <p className="text-xs uppercase tracking-wide text-muted-foreground">{label}</p>
+        <p className="font-medium capitalize truncate">{value || <span className="italic text-muted-foreground normal-case">Not set</span>}</p>
+      </div>
+    </div>
+  );
+
 export const Route = createFileRoute("/settings")({
   component: SettingsPage,
 });
