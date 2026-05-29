@@ -184,6 +184,8 @@ function AssessmentsPage() {
                     </Button>
                   </div>
                 </div>
+                  )}
+                </div>
               )}
             </CardContent>
           </Card>
