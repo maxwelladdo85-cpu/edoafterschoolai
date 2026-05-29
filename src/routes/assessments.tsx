@@ -33,6 +33,7 @@ function AssessmentsPage() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [form, setForm] = useState({ course_id: "", title: "", description: "", time_limit_minutes: 10 });
+  const [selectedClass, setSelectedClass] = useState<string>("");
 
   useEffect(() => { if (!authLoading && !user) nav({ to: "/login" }); }, [authLoading, user, nav]);
 
