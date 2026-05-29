@@ -148,6 +148,13 @@ function SettingsPage() {
     load();
   }, [user, role]);
 
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase.from("schools").select("id,name,lga,school_type").eq("is_active", true).order("name");
+      setSchoolOptions((data ?? []) as any);
+    })();
+  }, []);
+
   if (loading || !user) {
     return <div className="flex min-h-screen items-center justify-center text-muted-foreground">Loading…</div>;
   }
