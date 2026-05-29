@@ -88,12 +88,13 @@ function CoursesLibrary() {
     <DashboardShell title="Course Library">
       <div className="space-y-8">
         <PageHero
-          eyebrow="Browse & enroll"
+          eyebrow={isTeacher ? "Your courses" : "Browse & enroll"}
           EyebrowIcon={GraduationCap}
           title="Course Library"
-          description="Discover and enroll in courses created by Edo SUBEB teachers."
+          description={isTeacher ? "Courses you have created for your learners." : "Discover and enroll in courses created by Edo SUBEB teachers."}
           backgroundImage={heroLibrary}
         />
+
 
         {loading ? (
           <div className="flex items-center justify-center py-20 text-muted-foreground">
