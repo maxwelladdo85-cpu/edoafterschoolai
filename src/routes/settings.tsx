@@ -260,6 +260,7 @@ function SettingsPage() {
                     )}
                   </div>
                 </div>
+                {isEditing("profile") ? (
                 <form
                   className="grid gap-4 sm:grid-cols-2"
                   onSubmit={async (e) => {
@@ -294,6 +295,7 @@ function SettingsPage() {
                         toast.message("No changes to save");
                       }
                       setProfile((prev) => prev ? { ...prev, full_name: trimmedName, email: trimmedEmail } : prev);
+                      stopEdit("profile");
                     } catch (err: any) {
                       toast.error(err.message ?? "Could not save profile");
                     } finally {
@@ -330,12 +332,24 @@ function SettingsPage() {
                       <p className="font-medium">{profile?.created_at ? new Date(profile.created_at).toLocaleDateString() : "—"}</p>
                     </div>
                   </div>
-                  <div className="sm:col-span-2 flex justify-end">
+                  <div className="sm:col-span-2 flex justify-end gap-2">
+                    <Button type="button" variant="ghost" onClick={() => stopEdit("profile")} disabled={savingProfile}>Cancel</Button>
                     <Button type="submit" disabled={savingProfile}>
                       {savingProfile ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Saving…</> : "Save changes"}
                     </Button>
                   </div>
                 </form>
+                ) : (
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <SummaryRow icon={User} label="Full name" value={profile?.full_name} />
+                    <SummaryRow icon={Mail} label="Email" value={profile?.email ?? user.email} />
+                    <SummaryRow icon={Shield} label="Role" value={role ?? "—"} />
+                    <SummaryRow icon={Calendar} label="Member since" value={profile?.created_at ? new Date(profile.created_at).toLocaleDateString() : "—"} />
+                    <div className="sm:col-span-2 flex justify-end">
+                      <Button size="sm" variant="outline" onClick={() => startEdit("profile")}><Pencil className="mr-2 h-4 w-4" />Change</Button>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
