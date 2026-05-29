@@ -18,7 +18,7 @@ export const Route = createFileRoute("/assessments")({
   component: AssessmentsPage,
 });
 
-interface Course { id: string; title: string; }
+interface Course { id: string; title: string; class_level: string | null; }
 interface Quiz {
   id: string; title: string; description: string | null;
   time_limit_minutes: number; course_id: string;
