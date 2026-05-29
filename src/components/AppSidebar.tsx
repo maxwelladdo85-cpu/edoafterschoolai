@@ -19,7 +19,7 @@ const NAV: Record<AppRole, NavSection[]> = {
       label: "Overview",
       items: [
         { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-        { title: "Notifications", url: "/dashboard", icon: Bell },
+        { title: "Notifications", url: "/notifications", icon: Bell },
       ],
     },
     {
