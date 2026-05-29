@@ -28,27 +28,34 @@ interface CourseRow {
 }
 
 function CoursesLibrary() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, role, loading: authLoading } = useAuth();
   const nav = useNavigate();
   const [courses, setCourses] = useState<CourseRow[]>([]);
   const [enrolledIds, setEnrolledIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [enrollingId, setEnrollingId] = useState<string | null>(null);
+  const isTeacher = role === "teacher";
 
   useEffect(() => {
     if (!authLoading && !user) nav({ to: "/login" });
   }, [authLoading, user, nav]);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || !role) return;
     (async () => {
       setLoading(true);
+      let coursesQuery = supabase
+        .from("courses")
+        .select("id, title, subject, description, thumbnail_url, class_level, teacher_name, teacher_id")
+        .order("created_at", { ascending: false });
+      if (isTeacher) {
+        coursesQuery = coursesQuery.eq("teacher_id", user.id);
+      }
       const [{ data: cs }, { data: es }] = await Promise.all([
-        supabase
-          .from("courses")
-          .select("id, title, subject, description, thumbnail_url, class_level, teacher_name, teacher_id")
-          .order("created_at", { ascending: false }),
-        supabase.from("enrollments").select("course_id").eq("learner_id", user.id),
+        coursesQuery,
+        isTeacher
+          ? Promise.resolve({ data: [] as { course_id: string }[] })
+          : supabase.from("enrollments").select("course_id").eq("learner_id", user.id),
       ]);
       let rows: CourseRow[] = ((cs as any) ?? []).map((r: any) => ({ ...r, teacher: null }));
       if (rows.length) {
@@ -61,7 +68,7 @@ function CoursesLibrary() {
       setEnrolledIds(new Set((es ?? []).map((e: any) => e.course_id)));
       setLoading(false);
     })();
-  }, [user]);
+  }, [user, role, isTeacher]);
 
   const enroll = async (courseId: string) => {
     if (!user) return;
@@ -75,6 +82,7 @@ function CoursesLibrary() {
     toast.success("Enrolled — opening course");
     nav({ to: "/courses/$courseId", params: { courseId } });
   };
+
 
   return (
     <DashboardShell title="Course Library">
