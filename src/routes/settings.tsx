@@ -371,34 +371,45 @@ function SettingsPage() {
                 <CardTitle className="flex items-center gap-2"><Calendar className="h-5 w-5 text-primary" /> Date of Birth</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <p className="text-sm text-muted-foreground">
-                  {profile?.date_of_birth
-                    ? "Update your date of birth below — we'll send you a birthday message every year on this day."
-                    : "Please add your date of birth so we can send you a birthday message every year. 🎂"}
-                </p>
-                <form
-                  className="flex flex-wrap items-end gap-2"
-                  onSubmit={async (e) => {
-                    e.preventDefault();
-                    if (!user) return;
-                    if (!dob) return toast.error("Please pick a date");
-                    const d = new Date(dob);
-                    if (isNaN(d.getTime()) || d > new Date()) return toast.error("Enter a valid past date");
-                    setSavingDob(true);
-                    const { error } = await supabase.from("profiles").update({ date_of_birth: dob } as any).eq("id", user.id);
-                    setSavingDob(false);
-                    if (error) return toast.error(error.message);
-                    setProfile((prev) => prev ? { ...prev, date_of_birth: dob } : prev);
-                    toast.success("Date of birth saved");
-                  }}
-                >
-                  <div className="flex-1 min-w-[220px]">
-                    <Input type="date" value={dob} max={new Date().toISOString().slice(0, 10)} onChange={(e) => setDob(e.target.value)} />
+                {isEditing("dob") ? (
+                  <>
+                    <p className="text-sm text-muted-foreground">
+                      {profile?.date_of_birth
+                        ? "Update your date of birth — we'll send you a birthday message every year."
+                        : "Please add your date of birth so we can send you a birthday message every year. 🎂"}
+                    </p>
+                    <form
+                      className="flex flex-wrap items-end gap-2"
+                      onSubmit={async (e) => {
+                        e.preventDefault();
+                        if (!user) return;
+                        if (!dob) return toast.error("Please pick a date");
+                        const d = new Date(dob);
+                        if (isNaN(d.getTime()) || d > new Date()) return toast.error("Enter a valid past date");
+                        setSavingDob(true);
+                        const { error } = await supabase.from("profiles").update({ date_of_birth: dob } as any).eq("id", user.id);
+                        setSavingDob(false);
+                        if (error) return toast.error(error.message);
+                        setProfile((prev) => prev ? { ...prev, date_of_birth: dob } : prev);
+                        toast.success("Date of birth saved");
+                        stopEdit("dob");
+                      }}
+                    >
+                      <div className="flex-1 min-w-[220px]">
+                        <Input type="date" value={dob} max={new Date().toISOString().slice(0, 10)} onChange={(e) => setDob(e.target.value)} />
+                      </div>
+                      <Button type="button" variant="ghost" size="sm" onClick={() => stopEdit("dob")} disabled={savingDob}>Cancel</Button>
+                      <Button type="submit" size="sm" disabled={savingDob || !dob}>
+                        {savingDob ? "Saving…" : "Save"}
+                      </Button>
+                    </form>
+                  </>
+                ) : (
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <SummaryRow icon={Calendar} label="Date of birth" value={profile?.date_of_birth ? new Date(profile.date_of_birth).toLocaleDateString() : ""} />
+                    <Button size="sm" variant="outline" onClick={() => startEdit("dob")}><Pencil className="mr-2 h-4 w-4" />Change</Button>
                   </div>
-                  <Button type="submit" size="sm" disabled={savingDob || !dob || dob === (profile?.date_of_birth ?? "")}>
-                    {savingDob ? "Saving…" : "Save"}
-                  </Button>
-                </form>
+                )}
               </CardContent>
             </Card>
 
