@@ -13,12 +13,13 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, Plus, Pencil, Timer, ClipboardCheck, PlayCircle } from "lucide-react";
 import { toast } from "sonner";
+import { CLASS_GROUPS } from "@/lib/classes";
 
 export const Route = createFileRoute("/assessments")({
   component: AssessmentsPage,
 });
 
-interface Course { id: string; title: string; }
+interface Course { id: string; title: string; class_level: string | null; }
 interface Quiz {
   id: string; title: string; description: string | null;
   time_limit_minutes: number; course_id: string;
@@ -33,6 +34,7 @@ function AssessmentsPage() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [form, setForm] = useState({ course_id: "", title: "", description: "", time_limit_minutes: 10 });
+  const [selectedClass, setSelectedClass] = useState<string>("");
 
   useEffect(() => { if (!authLoading && !user) nav({ to: "/login" }); }, [authLoading, user, nav]);
 
@@ -41,7 +43,7 @@ function AssessmentsPage() {
   const load = async () => {
     if (!user) return;
     setLoading(true);
-    const courseQuery = supabase.from("courses").select("id, title").order("created_at", { ascending: false });
+    const courseQuery = supabase.from("courses").select("id, title, class_level").order("created_at", { ascending: false });
     const { data: cs } = role === "admin" ? await courseQuery : await courseQuery.eq("teacher_id", user.id);
     const courseList = (cs as Course[]) ?? [];
     setCourses(courseList);
@@ -124,13 +126,32 @@ function AssessmentsPage() {
                   You don't have any courses yet. <Link to="/my-courses" className="text-primary underline">Create a course</Link> first.
                 </p>
               ) : (
+                <div className="space-y-3">
+                  <div>
+                    <Label>Class</Label>
+                    <Select value={selectedClass} onValueChange={(v) => { setSelectedClass(v); setForm((f) => ({ ...f, course_id: "" })); }}>
+                      <SelectTrigger><SelectValue placeholder="Select a class to see its courses" /></SelectTrigger>
+                      <SelectContent>
+                        {CLASS_GROUPS.map((g) => (
+                          <div key={g.label}>
+                            <div className="px-2 py-1 text-xs font-semibold text-muted-foreground">{g.label}</div>
+                            {g.classes.map((cl) => <SelectItem key={cl} value={cl}>{cl}</SelectItem>)}
+                          </div>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {selectedClass && (
                 <div className="grid gap-3 md:grid-cols-[1fr_1fr_1fr_160px_auto]">
                   <div>
                     <Label>Course</Label>
                     <Select value={form.course_id} onValueChange={(v) => setForm({ ...form, course_id: v })}>
                       <SelectTrigger><SelectValue placeholder="Select course" /></SelectTrigger>
                       <SelectContent>
-                        {courses.map((c) => <SelectItem key={c.id} value={c.id}>{c.title}</SelectItem>)}
+                        {courses.filter((c) => c.class_level === selectedClass).length === 0 ? (
+                          <div className="px-2 py-1.5 text-sm text-muted-foreground">No courses for this class</div>
+                        ) : courses.filter((c) => c.class_level === selectedClass).map((c) => <SelectItem key={c.id} value={c.id}>{c.title}</SelectItem>)}
                       </SelectContent>
                     </Select>
                   </div>
@@ -163,20 +184,25 @@ function AssessmentsPage() {
                     </Button>
                   </div>
                 </div>
+                  )}
+                </div>
               )}
             </CardContent>
           </Card>
         )}
 
-        {quizzes.length === 0 ? (
+        {(() => {
+          const classCourseIds = new Set(courses.filter((c) => !selectedClass || c.class_level === selectedClass).map((c) => c.id));
+          const visibleQuizzes = quizzes.filter((q) => classCourseIds.has(q.course_id));
+          return visibleQuizzes.length === 0 ? (
           <Card className="border-border/60">
             <CardContent className="py-16 text-center text-muted-foreground">
-              No assessments yet{isTeacher ? " — create your first one above" : ""}.
+              {selectedClass ? `No assessments for ${selectedClass} yet` : "No assessments yet"}{isTeacher ? " — create one above" : ""}.
             </CardContent>
           </Card>
         ) : (
           <div className="grid gap-3 md:grid-cols-2">
-            {quizzes.map((q) => (
+            {visibleQuizzes.map((q) => (
               <Card key={q.id} className="border-border/60 transition hover:-translate-y-0.5" style={{ boxShadow: "var(--shadow-card)" }}>
                 <CardHeader>
                   <div className="flex items-start justify-between gap-2">
@@ -210,7 +236,8 @@ function AssessmentsPage() {
               </Card>
             ))}
           </div>
-        )}
+        );
+        })()}
       </div>
     </DashboardShell>
   );
