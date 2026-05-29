@@ -15,6 +15,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogT
 import { toast } from "sonner";
 import { Calendar, Plus, Video, ExternalLink, PlayCircle, Trash2, Pencil } from "lucide-react";
 import { formatWhen, getStatus, type VirtualClass } from "@/lib/virtual-classes";
+import { LearnerVirtualClasses } from "@/components/LearnerVirtualClasses";
 
 export const Route = createFileRoute("/virtual-classes")({
   component: VirtualClassesPage,
@@ -46,11 +47,16 @@ function VirtualClassesPage() {
 
   useEffect(() => {
     if (!authLoading && !user) nav({ to: "/login" });
-    if (!authLoading && user && role && role !== "teacher" && role !== "admin") {
-      toast.error("Only teachers can manage virtual classes");
-      nav({ to: "/dashboard" });
-    }
-  }, [authLoading, user, role, nav]);
+  }, [authLoading, user, nav]);
+
+  // Learners get an upcoming-only view; teachers/admins get the full scheduler below.
+  if (!authLoading && role === "learner") {
+    return (
+      <DashboardShell title="Virtual Classes">
+        <LearnerVirtualClasses />
+      </DashboardShell>
+    );
+  }
 
   const refresh = async () => {
     if (!user) return;
