@@ -87,6 +87,7 @@ function SettingsPage() {
   const [savingProfile, setSavingProfile] = useState(false);
   const [schoolType, setSchoolType] = useState("");
   const [schoolId, setSchoolId] = useState("");
+  const [schoolLga, setSchoolLga] = useState("");
   const [schoolOptions, setSchoolOptions] = useState<{ id: string; name: string; lga: string; school_type: string }[]>([]);
   const [savingSchool, setSavingSchool] = useState(false);
   const [parentPhone, setParentPhone] = useState("");
