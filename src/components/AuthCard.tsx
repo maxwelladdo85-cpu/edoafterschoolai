@@ -8,9 +8,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, Link } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Logo } from "@/components/Logo";
 import { Eye, EyeOff } from "lucide-react";
+import { lookupLearnerEmail } from "@/lib/learner-auth.functions";
 
 function PasswordInput({ id, value, onChange, minLength }: { id: string; value: string; onChange: (v: string) => void; minLength?: number }) {
   const [show, setShow] = useState(false);
@@ -40,6 +42,10 @@ export function AuthCard() {
   const [forgotOpen, setForgotOpen] = useState(false);
   const [forgotEmail, setForgotEmail] = useState("");
   const [forgotLoading, setForgotLoading] = useState(false);
+  const [learnerNin, setLearnerNin] = useState("");
+  const [learnerPhone, setLearnerPhone] = useState("");
+  const [learnerEmail, setLearnerEmail] = useState("");
+  const lookupEmail = useServerFn(lookupLearnerEmail);
 
   const handleForgot = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,25 +63,54 @@ export function AuthCard() {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { data: signInData, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) { setLoading(false); return toast.error(error.message); }
-    // Gate by profile status
-    if (signInData.user) {
-      const { data: prof } = await supabase.from("profiles").select("status").eq("id", signInData.user.id).maybeSingle();
-      if (prof?.status === "pending") {
-        await supabase.auth.signOut();
-        setLoading(false);
-        return toast.error("Your teacher account is still pending admin approval.");
+    try {
+      let signInEmail = email;
+      if (role === "learner") {
+        if (!/^[0-9]{11}$/.test(learnerNin.trim())) {
+          throw new Error("Enter your 11-digit NIN");
+        }
+        if (learnerPhone.replace(/\D/g, "").length < 7) {
+          throw new Error("Enter a valid phone number");
+        }
+        const res = await lookupEmail({
+          data: {
+            nin: learnerNin.trim(),
+            phone: learnerPhone.trim(),
+            email: learnerEmail.trim() || undefined,
+          },
+        });
+        signInEmail = res.email;
       }
-      if (prof?.status === "inactive") {
-        await supabase.auth.signOut();
-        setLoading(false);
-        return toast.error("Your account has been deactivated. Contact an admin.");
+
+      const { data: signInData, error } = await supabase.auth.signInWithPassword({
+        email: signInEmail,
+        password,
+      });
+      if (error) throw error;
+
+      // Gate by profile status
+      if (signInData.user) {
+        const { data: prof } = await supabase
+          .from("profiles")
+          .select("status")
+          .eq("id", signInData.user.id)
+          .maybeSingle();
+        if (prof?.status === "pending") {
+          await supabase.auth.signOut();
+          throw new Error("Your teacher account is still pending admin approval.");
+        }
+        if (prof?.status === "inactive") {
+          await supabase.auth.signOut();
+          throw new Error("Your account has been deactivated. Contact an admin.");
+        }
       }
+      toast.success("Welcome back");
+      nav({ to: "/dashboard" });
+    } catch (err: any) {
+      toast.error(err?.message ?? "Could not sign in");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
-    toast.success("Welcome back");
-    nav({ to: "/dashboard" });
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
@@ -119,14 +154,6 @@ export function AuthCard() {
             <TabsContent value="signin">
               <form onSubmit={handleSignIn} className="space-y-3 pt-3">
                 <div className="space-y-1">
-                  <Label htmlFor="e1">Email</Label>
-                  <Input id="e1" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor="p1">Password</Label>
-                  <PasswordInput id="p1" value={password} onChange={setPassword} />
-                </div>
-                <div className="space-y-1">
                   <Label>Sign in as</Label>
                   <Select value={role} onValueChange={(v) => setRole(v as any)}>
                     <SelectTrigger><SelectValue placeholder="Select your role" /></SelectTrigger>
@@ -137,11 +164,59 @@ export function AuthCard() {
                     </SelectContent>
                   </Select>
                 </div>
+
+                {role === "learner" ? (
+                  <>
+                    <div className="space-y-1">
+                      <Label htmlFor="lnin">NIN</Label>
+                      <Input
+                        id="lnin"
+                        inputMode="numeric"
+                        maxLength={11}
+                        required
+                        placeholder="11-digit NIN"
+                        value={learnerNin}
+                        onChange={(e) => setLearnerNin(e.target.value.replace(/\D/g, ""))}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor="lphone">Parent phone number</Label>
+                      <Input
+                        id="lphone"
+                        inputMode="tel"
+                        required
+                        placeholder="e.g. +234 803 000 0000"
+                        value={learnerPhone}
+                        onChange={(e) => setLearnerPhone(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor="lemail">Email <span className="text-muted-foreground">(optional)</span></Label>
+                      <Input
+                        id="lemail"
+                        type="email"
+                        placeholder="Only needed if more than one account matches"
+                        value={learnerEmail}
+                        onChange={(e) => setLearnerEmail(e.target.value)}
+                      />
+                    </div>
+                  </>
+                ) : (
+                  <div className="space-y-1">
+                    <Label htmlFor="e1">Email</Label>
+                    <Input id="e1" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+                  </div>
+                )}
+
+                <div className="space-y-1">
+                  <Label htmlFor="p1">Password</Label>
+                  <PasswordInput id="p1" value={password} onChange={setPassword} />
+                </div>
                 <Button type="submit" disabled={loading} className="w-full">Sign In</Button>
                 <div className="text-right">
                   <button
                     type="button"
-                    onClick={() => { setForgotEmail(email); setForgotOpen(true); }}
+                    onClick={() => { setForgotEmail(role === "learner" ? learnerEmail : email); setForgotOpen(true); }}
                     className="text-xs text-primary hover:underline"
                   >
                     Forgot password?
