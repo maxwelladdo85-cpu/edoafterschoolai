@@ -30,7 +30,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-export const Route = createFileRoute("/courses/builder")({
+export const Route = createFileRoute("/courses/builder/edit")({
   validateSearch: z.object({ id: z.string().optional() }),
   component: BuilderPage,
 });
