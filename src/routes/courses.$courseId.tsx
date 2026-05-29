@@ -184,7 +184,7 @@ function CoursePlayer() {
             <h2 className="text-lg font-bold">{course.title}</h2>
             {course.subject && <p className="text-xs text-muted-foreground">{course.subject}</p>}
           </div>
-          {totalLessons > 0 && (
+          {totalLessons > 0 && !isStaff && (
             <div className="space-y-1.5 rounded-lg border bg-muted/30 p-3">
               <div className="flex items-center justify-between text-xs">
                 <span className="font-medium">Course progress</span>
