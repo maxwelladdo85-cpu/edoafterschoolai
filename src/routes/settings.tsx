@@ -119,7 +119,16 @@ function SettingsPage() {
       setParentPhone((p as any)?.parent_phone ?? "");
       setNin((p as any)?.nin ?? "");
 
-      if (role === "teacher") {
+      // Auto-open sections that are missing data so users are prompted to fill them.
+      const pp = p as any;
+      const missing = new Set<string>();
+      if (!pp?.full_name || !pp?.email) missing.add("profile");
+      if (!pp?.date_of_birth) missing.add("dob");
+      if (role === "learner" && !pp?.class_level) missing.add("class");
+      if ((role === "learner" || role === "teacher") && !pp?.lga) missing.add("lga");
+      if (!pp?.school_id || !pp?.school_type) missing.add("school");
+      if (!pp?.parent_phone || !pp?.nin) missing.add("contact");
+      setEditing(missing);
         const { data: cs } = await supabase.from("courses").select("id,is_active").eq("teacher_id", user.id);
         const ids = (cs ?? []).map((c) => c.id);
         const active = (cs ?? []).filter((c) => c.is_active).length;
