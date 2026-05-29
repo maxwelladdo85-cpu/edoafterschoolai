@@ -140,7 +140,11 @@ function SettingsPage() {
       if (role === "learner" && !pp?.class_level) missing.add("class");
       if ((role === "learner" || role === "teacher") && !pp?.lga) missing.add("lga");
       if (!pp?.school_id || !pp?.school_type) missing.add("school");
-      if (!pp?.parent_phone || !pp?.nin) missing.add("contact");
+      if (role === "teacher") {
+        if (!pp?.parent_phone) missing.add("contact");
+      } else if (role === "learner") {
+        if (!pp?.parent_phone || !pp?.nin) missing.add("contact");
+      }
       setEditing(missing);
 
       if (role === "teacher") {
