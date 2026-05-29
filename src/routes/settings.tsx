@@ -417,16 +417,56 @@ function SettingsPage() {
               <Card className="border-border/60" style={{ boxShadow: "var(--shadow-card)" }}>
                 <CardHeader><CardTitle>My class</CardTitle></CardHeader>
                 <CardContent className="space-y-3">
-                  <p className="text-sm text-muted-foreground">Set your class so teachers can assign courses to you (e.g. "JSS 1", "Primary 4").</p>
-                  <ClassEditor
-                    initial={profile?.class_level ?? ""}
-                    onSave={async (val) => {
-                      const { error } = await supabase.from("profiles").update({ class_level: val || null } as any).eq("id", user.id);
-                      if (error) { toast.error(error.message); return; }
-                      setProfile((prev) => prev ? { ...prev, class_level: val || null } : prev);
-                      toast.success("Class saved");
-                    }}
-                  />
+                  {isEditing("class") ? (
+                    <>
+                      <p className="text-sm text-muted-foreground">Set your class so teachers can assign courses to you (e.g. "JSS 1", "Primary 4").</p>
+                      <ClassEditor
+                        initial={profile?.class_level ?? ""}
+                        onSave={async (val) => {
+                          const { error } = await supabase.from("profiles").update({ class_level: val || null } as any).eq("id", user.id);
+                          if (error) { toast.error(error.message); return; }
+                          setProfile((prev) => prev ? { ...prev, class_level: val || null } : prev);
+                          toast.success("Class saved");
+                          stopEdit("class");
+                        }}
+                      />
+                      <Button size="sm" variant="ghost" onClick={() => stopEdit("class")}>Cancel</Button>
+                    </>
+                  ) : (
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <SummaryRow icon={GraduationCap} label="Class" value={profile?.class_level} />
+                      <Button size="sm" variant="outline" onClick={() => startEdit("class")}><Pencil className="mr-2 h-4 w-4" />Change</Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {(role === "learner" || role === "teacher") && (
+              <Card className="border-border/60" style={{ boxShadow: "var(--shadow-card)" }}>
+                <CardHeader><CardTitle>Local Government</CardTitle></CardHeader>
+                <CardContent className="space-y-3">
+                  {isEditing("lga") ? (
+                    <>
+                      <p className="text-sm text-muted-foreground">Select your Local Government Area in Edo State.</p>
+                      <LgaEditor
+                        initial={profile?.lga ?? ""}
+                        onSave={async (val) => {
+                          const { error } = await supabase.from("profiles").update({ lga: val || null } as any).eq("id", user.id);
+                          if (error) { toast.error(error.message); return; }
+                          setProfile((prev) => prev ? { ...prev, lga: val || null } : prev);
+                          toast.success("Local Government saved");
+                          stopEdit("lga");
+                        }}
+                      />
+                      <Button size="sm" variant="ghost" onClick={() => stopEdit("lga")}>Cancel</Button>
+                    </>
+                  ) : (
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <SummaryRow icon={SchoolIcon} label="Local Government" value={profile?.lga} />
+                      <Button size="sm" variant="outline" onClick={() => startEdit("lga")}><Pencil className="mr-2 h-4 w-4" />Change</Button>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             )}
