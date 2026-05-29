@@ -100,11 +100,18 @@ function SettingsPage() {
   useEffect(() => {
     const load = async () => {
       if (!user || !role) return;
-      const { data: p } = await supabase.from("profiles").select("full_name,email,created_at,avatar_url,class_level,lga,date_of_birth" as any).eq("id", user.id).maybeSingle();
+      const { data: p } = await supabase.from("profiles").select("full_name,email,created_at,avatar_url,class_level,lga,date_of_birth,school_type,school_id,parent_phone,nin" as any).eq("id", user.id).maybeSingle();
       setProfile(p as any);
-      setFullName((p as any)?.full_name ?? "");
+      const nm = ((p as any)?.full_name ?? "").trim();
+      const sp = nm.indexOf(" ");
+      setFirstName(sp === -1 ? nm : nm.slice(0, sp));
+      setLastName(sp === -1 ? "" : nm.slice(sp + 1));
       setEmail((p as any)?.email ?? user.email ?? "");
       setDob((p as any)?.date_of_birth ?? "");
+      setSchoolType((p as any)?.school_type ?? "");
+      setSchoolId((p as any)?.school_id ?? "");
+      setParentPhone((p as any)?.parent_phone ?? "");
+      setNin((p as any)?.nin ?? "");
 
       if (role === "teacher") {
         const { data: cs } = await supabase.from("courses").select("id,is_active").eq("teacher_id", user.id);
