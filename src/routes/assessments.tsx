@@ -126,13 +126,32 @@ function AssessmentsPage() {
                   You don't have any courses yet. <Link to="/my-courses" className="text-primary underline">Create a course</Link> first.
                 </p>
               ) : (
+                <div className="space-y-3">
+                  <div>
+                    <Label>Class</Label>
+                    <Select value={selectedClass} onValueChange={(v) => { setSelectedClass(v); setForm((f) => ({ ...f, course_id: "" })); }}>
+                      <SelectTrigger><SelectValue placeholder="Select a class to see its courses" /></SelectTrigger>
+                      <SelectContent>
+                        {CLASS_GROUPS.map((g) => (
+                          <div key={g.label}>
+                            <div className="px-2 py-1 text-xs font-semibold text-muted-foreground">{g.label}</div>
+                            {g.classes.map((cl) => <SelectItem key={cl} value={cl}>{cl}</SelectItem>)}
+                          </div>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {selectedClass && (
                 <div className="grid gap-3 md:grid-cols-[1fr_1fr_1fr_160px_auto]">
                   <div>
                     <Label>Course</Label>
                     <Select value={form.course_id} onValueChange={(v) => setForm({ ...form, course_id: v })}>
                       <SelectTrigger><SelectValue placeholder="Select course" /></SelectTrigger>
                       <SelectContent>
-                        {courses.map((c) => <SelectItem key={c.id} value={c.id}>{c.title}</SelectItem>)}
+                        {courses.filter((c) => c.class_level === selectedClass).length === 0 ? (
+                          <div className="px-2 py-1.5 text-sm text-muted-foreground">No courses for this class</div>
+                        ) : courses.filter((c) => c.class_level === selectedClass).map((c) => <SelectItem key={c.id} value={c.id}>{c.title}</SelectItem>)}
                       </SelectContent>
                     </Select>
                   </div>
