@@ -12,6 +12,7 @@ import dashboardHero from "@/assets/dashboard-hero.jpg";
 import { STYLE_LABELS, STYLE_TIPS, type VarkStyle } from "@/lib/vark";
 import { VirtualClassesPanel } from "@/components/VirtualClassesPanel";
 import { ReportTeacherCard } from "@/components/dashboards/ReportTeacherCard";
+import { VarkStartDialog } from "@/components/VarkStartDialog";
 
 interface Enrollment {
   id: string;
@@ -88,7 +89,7 @@ export function LearnerDashboard() {
               <ul className="list-disc space-y-1 pl-5 text-sm">
                 {STYLE_TIPS[vark.dominant].slice(0, 3).map((tip, i) => <li key={i}>{tip}</li>)}
               </ul>
-              <Button asChild variant="outline" size="sm"><Link to="/vark-quiz">Retake quiz</Link></Button>
+              <VarkStartDialog retake><Button variant="outline" size="sm">Retake quiz</Button></VarkStartDialog>
             </CardContent>
           </Card>
         ) : (
@@ -99,7 +100,7 @@ export function LearnerDashboard() {
               <CardDescription>Take our quick 8-question VARK quiz to find your learning style and get tips made for you.</CardDescription>
             </CardHeader>
             <CardContent>
-              <Button asChild><Link to="/vark-quiz">Take the VARK quiz</Link></Button>
+              <VarkStartDialog><Button>Take the VARK quiz</Button></VarkStartDialog>
             </CardContent>
           </Card>
         )}
