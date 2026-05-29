@@ -87,6 +87,7 @@ function SettingsPage() {
   const [savingProfile, setSavingProfile] = useState(false);
   const [schoolType, setSchoolType] = useState("");
   const [schoolId, setSchoolId] = useState("");
+  const [schoolLga, setSchoolLga] = useState("");
   const [schoolOptions, setSchoolOptions] = useState<{ id: string; name: string; lga: string; school_type: string }[]>([]);
   const [savingSchool, setSavingSchool] = useState(false);
   const [parentPhone, setParentPhone] = useState("");
@@ -110,6 +111,7 @@ function SettingsPage() {
       setDob((p as any)?.date_of_birth ?? "");
       setSchoolType((p as any)?.school_type ?? "");
       setSchoolId((p as any)?.school_id ?? "");
+      setSchoolLga((p as any)?.lga ?? "");
       setParentPhone((p as any)?.parent_phone ?? "");
       setNin((p as any)?.nin ?? "");
 
@@ -399,7 +401,7 @@ function SettingsPage() {
                 <CardTitle className="flex items-center gap-2"><SchoolIcon className="h-5 w-5 text-primary" /> School</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <p className="text-sm text-muted-foreground">Pick the school level and select your school. The list is filtered by your Local Government.</p>
+                <p className="text-sm text-muted-foreground">Pick your Local Government and school level — the school list updates to show only schools in that LGA and school type.</p>
                 <form
                   className="grid gap-3 sm:grid-cols-2"
                   onSubmit={async (e) => {
@@ -407,15 +409,25 @@ function SettingsPage() {
                     if (!user) return;
                     setSavingSchool(true);
                     const { error } = await supabase.from("profiles").update({
+                      lga: schoolLga || null,
                       school_type: schoolType || null,
                       school_id: schoolId || null,
                     } as any).eq("id", user.id);
                     setSavingSchool(false);
                     if (error) return toast.error(error.message);
-                    setProfile((prev) => prev ? { ...prev, school_type: schoolType || null, school_id: schoolId || null } : prev);
+                    setProfile((prev) => prev ? { ...prev, lga: schoolLga || null, school_type: schoolType || null, school_id: schoolId || null } : prev);
                     toast.success("School saved");
                   }}
                 >
+                  <div className="space-y-1.5">
+                    <label className="text-xs uppercase tracking-wide text-muted-foreground">Local Government</label>
+                    <Select value={schoolLga} onValueChange={(v) => { setSchoolLga(v); setSchoolId(""); }}>
+                      <SelectTrigger><SelectValue placeholder="Select your LGA" /></SelectTrigger>
+                      <SelectContent>
+                        {EDO_LGAS.map((l) => <SelectItem key={l} value={l}>{l}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
                   <div className="space-y-1.5">
                     <label className="text-xs uppercase tracking-wide text-muted-foreground">School type</label>
                     <Select value={schoolType} onValueChange={(v) => { setSchoolType(v); setSchoolId(""); }}>
@@ -427,24 +439,24 @@ function SettingsPage() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="space-y-1.5">
+                  <div className="space-y-1.5 sm:col-span-2">
                     <label className="text-xs uppercase tracking-wide text-muted-foreground">School name</label>
-                    <Select value={schoolId} onValueChange={setSchoolId} disabled={!profile?.lga || !schoolType}>
+                    <Select value={schoolId} onValueChange={setSchoolId} disabled={!schoolLga || !schoolType}>
                       <SelectTrigger>
-                        <SelectValue placeholder={!profile?.lga ? "Set your LGA first" : !schoolType ? "Pick school type first" : "Select your school"} />
+                        <SelectValue placeholder={!schoolLga ? "Pick LGA first" : !schoolType ? "Pick school type first" : "Select your school"} />
                       </SelectTrigger>
                       <SelectContent>
                         {schoolOptions
-                          .filter((s) => s.lga === profile?.lga && s.school_type === schoolType)
+                          .filter((s) => s.lga === schoolLga && s.school_type === schoolType)
                           .map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
-                        {schoolOptions.filter((s) => s.lga === profile?.lga && s.school_type === schoolType).length === 0 && (
+                        {schoolLga && schoolType && schoolOptions.filter((s) => s.lga === schoolLga && s.school_type === schoolType).length === 0 && (
                           <div className="px-2 py-1.5 text-xs text-muted-foreground">No schools listed for this LGA and type yet.</div>
                         )}
                       </SelectContent>
                     </Select>
                   </div>
                   <div className="sm:col-span-2 flex justify-end">
-                    <Button type="submit" size="sm" disabled={savingSchool || (schoolType === (profile?.school_type ?? "") && schoolId === (profile?.school_id ?? ""))}>
+                    <Button type="submit" size="sm" disabled={savingSchool || (schoolLga === (profile?.lga ?? "") && schoolType === (profile?.school_type ?? "") && schoolId === (profile?.school_id ?? ""))}>
                       {savingSchool ? "Saving…" : "Save"}
                     </Button>
                   </div>
