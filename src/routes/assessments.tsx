@@ -96,6 +96,9 @@ function AssessmentsPage() {
 
   const courseTitle = (id: string) => courses.find((c) => c.id === id)?.title ?? "";
 
+  const classCourseIds = new Set(courses.filter((c) => !selectedClass || c.class_level === selectedClass).map((c) => c.id));
+  const visibleQuizzes = quizzes.filter((q) => classCourseIds.has(q.course_id));
+
   if (loading) {
     return (
       <DashboardShell title="Assessments">
