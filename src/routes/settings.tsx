@@ -129,6 +129,8 @@ function SettingsPage() {
       if (!pp?.school_id || !pp?.school_type) missing.add("school");
       if (!pp?.parent_phone || !pp?.nin) missing.add("contact");
       setEditing(missing);
+
+      if (role === "teacher") {
         const { data: cs } = await supabase.from("courses").select("id,is_active").eq("teacher_id", user.id);
         const ids = (cs ?? []).map((c) => c.id);
         const active = (cs ?? []).filter((c) => c.is_active).length;
