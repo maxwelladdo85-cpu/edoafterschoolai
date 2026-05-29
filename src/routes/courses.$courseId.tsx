@@ -31,8 +31,9 @@ interface Course { id: string; title: string; subject: string | null; descriptio
 
 function CoursePlayer() {
   const { courseId } = Route.useParams();
-  const { user, loading: authLoading } = useAuth();
+  const { user, role, loading: authLoading } = useAuth();
   const nav = useNavigate();
+  const isStaff = role === "teacher" || role === "admin";
 
   const [course, setCourse] = useState<Course | null>(null);
   const [modules, setModules] = useState<Module[]>([]);
@@ -44,6 +45,7 @@ function CoursePlayer() {
   useEffect(() => {
     if (!authLoading && !user) nav({ to: "/login" });
   }, [authLoading, user, nav]);
+
 
   useEffect(() => {
     if (!user) return;
