@@ -70,8 +70,8 @@ function Index() {
             { icon: Users, title: "For Admins", body: "Manage users and oversee active courses across the board.", img: adminsImg },
           ].map((f, i) => (
             <div key={i} className="overflow-hidden rounded-xl border bg-card shadow-sm transition hover:shadow-md">
-              <div className="aspect-[4/3] w-full overflow-hidden">
-                <img src={f.img} alt={f.title} width={1024} height={768} loading="lazy" className="h-full w-full object-cover" />
+              <div className="aspect-[4/3] w-full overflow-hidden bg-muted flex items-center justify-center">
+                <img src={f.img} alt={f.title} width={1024} height={768} loading="lazy" className="h-full w-full object-contain" />
               </div>
               <div className="p-6">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground"><f.icon className="h-5 w-5" /></div>
