@@ -93,6 +93,10 @@ function SettingsPage() {
   const [parentPhone, setParentPhone] = useState("");
   const [nin, setNin] = useState("");
   const [savingContact, setSavingContact] = useState(false);
+  const [editing, setEditing] = useState<Set<string>>(new Set());
+  const isEditing = (k: string) => editing.has(k);
+  const startEdit = (k: string) => setEditing((s) => new Set(s).add(k));
+  const stopEdit = (k: string) => setEditing((s) => { const n = new Set(s); n.delete(k); return n; });
 
   useEffect(() => {
     if (!loading && !user) nav({ to: "/login" });
