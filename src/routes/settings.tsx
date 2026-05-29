@@ -389,6 +389,107 @@ function SettingsPage() {
 
             <Card className="border-border/60" style={{ boxShadow: "var(--shadow-card)" }}>
               <CardHeader>
+                <CardTitle className="flex items-center gap-2"><SchoolIcon className="h-5 w-5 text-primary" /> School</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <p className="text-sm text-muted-foreground">Pick the school level and select your school. The list is filtered by your Local Government.</p>
+                <form
+                  className="grid gap-3 sm:grid-cols-2"
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    if (!user) return;
+                    setSavingSchool(true);
+                    const { error } = await supabase.from("profiles").update({
+                      school_type: schoolType || null,
+                      school_id: schoolId || null,
+                    } as any).eq("id", user.id);
+                    setSavingSchool(false);
+                    if (error) return toast.error(error.message);
+                    setProfile((prev) => prev ? { ...prev, school_type: schoolType || null, school_id: schoolId || null } : prev);
+                    toast.success("School saved");
+                  }}
+                >
+                  <div className="space-y-1.5">
+                    <label className="text-xs uppercase tracking-wide text-muted-foreground">School type</label>
+                    <Select value={schoolType} onValueChange={(v) => { setSchoolType(v); setSchoolId(""); }}>
+                      <SelectTrigger><SelectValue placeholder="Select school type" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="primary">Primary</SelectItem>
+                        <SelectItem value="jss">Junior Secondary (JSS)</SelectItem>
+                        <SelectItem value="sss">Senior Secondary (SSS)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs uppercase tracking-wide text-muted-foreground">School name</label>
+                    <Select value={schoolId} onValueChange={setSchoolId} disabled={!profile?.lga || !schoolType}>
+                      <SelectTrigger>
+                        <SelectValue placeholder={!profile?.lga ? "Set your LGA first" : !schoolType ? "Pick school type first" : "Select your school"} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {schoolOptions
+                          .filter((s) => s.lga === profile?.lga && s.school_type === schoolType)
+                          .map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+                        {schoolOptions.filter((s) => s.lga === profile?.lga && s.school_type === schoolType).length === 0 && (
+                          <div className="px-2 py-1.5 text-xs text-muted-foreground">No schools listed for this LGA and type yet.</div>
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="sm:col-span-2 flex justify-end">
+                    <Button type="submit" size="sm" disabled={savingSchool || (schoolType === (profile?.school_type ?? "") && schoolId === (profile?.school_id ?? ""))}>
+                      {savingSchool ? "Saving…" : "Save"}
+                    </Button>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+
+            <Card className="border-border/60" style={{ boxShadow: "var(--shadow-card)" }}>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2"><IdCard className="h-5 w-5 text-primary" /> Parent contact & NIN</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <p className="text-sm text-muted-foreground">Add a parent or guardian phone number and your National Identification Number (NIN).</p>
+                <form
+                  className="grid gap-3 sm:grid-cols-2"
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    if (!user) return;
+                    const phone = parentPhone.trim();
+                    const ninVal = nin.trim();
+                    if (phone && !/^\+?[0-9\s-]{7,20}$/.test(phone)) return toast.error("Enter a valid phone number");
+                    if (ninVal && !/^[0-9]{11}$/.test(ninVal)) return toast.error("NIN must be 11 digits");
+                    setSavingContact(true);
+                    const { error } = await supabase.from("profiles").update({
+                      parent_phone: phone || null,
+                      nin: ninVal || null,
+                    } as any).eq("id", user.id);
+                    setSavingContact(false);
+                    if (error) return toast.error(error.message);
+                    setProfile((prev) => prev ? { ...prev, parent_phone: phone || null, nin: ninVal || null } : prev);
+                    toast.success("Contact details saved");
+                  }}
+                >
+                  <div className="space-y-1.5">
+                    <label className="flex items-center gap-2 text-xs uppercase tracking-wide text-muted-foreground"><Phone className="h-3.5 w-3.5 text-primary" /> Parent phone</label>
+                    <Input value={parentPhone} onChange={(e) => setParentPhone(e.target.value)} maxLength={20} placeholder="e.g. +234 803 000 0000" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="flex items-center gap-2 text-xs uppercase tracking-wide text-muted-foreground"><IdCard className="h-3.5 w-3.5 text-primary" /> NIN</label>
+                    <Input value={nin} onChange={(e) => setNin(e.target.value.replace(/\D/g, ""))} maxLength={11} placeholder="11-digit NIN" />
+                  </div>
+                  <div className="sm:col-span-2 flex justify-end">
+                    <Button type="submit" size="sm" disabled={savingContact || (parentPhone.trim() === (profile?.parent_phone ?? "") && nin.trim() === (profile?.nin ?? ""))}>
+                      {savingContact ? "Saving…" : "Save"}
+                    </Button>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+
+            <Card className="border-border/60" style={{ boxShadow: "var(--shadow-card)" }}>
+              <CardHeader>
                 <CardTitle className="flex items-center gap-2"><FileText className="h-5 w-5 text-primary" /> Legal</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
