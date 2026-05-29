@@ -26,7 +26,7 @@ const NAV: Record<AppRole, NavSection[]> = {
       label: "Learning",
       items: [
         { title: "Course Library", url: "/courses", icon: BookOpen },
-        { title: "Virtual Classes", url: "/dashboard", icon: Video },
+        { title: "Virtual Classes", url: "/virtual-classes", icon: Video },
         { title: "Certificates", url: "/certificates", icon: Award },
         { title: "VARK Learning Quiz", url: "/vark-quiz", icon: Sparkles },
       ],
