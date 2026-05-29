@@ -438,7 +438,12 @@ export type Database = {
           full_name: string | null
           id: string
           lga: string | null
+          nin: string | null
+          parent_phone: string | null
+          school_id: string | null
+          school_type: string | null
           status: string
+          teacher_id: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -449,7 +454,12 @@ export type Database = {
           full_name?: string | null
           id: string
           lga?: string | null
+          nin?: string | null
+          parent_phone?: string | null
+          school_id?: string | null
+          school_type?: string | null
           status?: string
+          teacher_id?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -460,9 +470,22 @@ export type Database = {
           full_name?: string | null
           id?: string
           lga?: string | null
+          nin?: string | null
+          parent_phone?: string | null
+          school_id?: string | null
+          school_type?: string | null
           status?: string
+          teacher_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       question_choices: {
         Row: {
@@ -658,6 +681,39 @@ export type Database = {
           sent_at?: string | null
           status?: string
           title?: string
+        }
+        Relationships: []
+      }
+      schools: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          lga: string
+          name: string
+          school_code: string
+          school_type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          lga: string
+          name: string
+          school_code: string
+          school_type?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          lga?: string
+          name?: string
+          school_code?: string
+          school_type?: string
+          updated_at?: string
         }
         Relationships: []
       }
