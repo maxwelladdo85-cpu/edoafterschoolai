@@ -69,8 +69,9 @@ export function AuthCard() {
         if (!/^[0-9]{11}$/.test(learnerNin.trim())) {
           throw new Error("Enter your 11-digit NIN");
         }
-        if (learnerPhone.replace(/\D/g, "").length < 7) {
-          throw new Error("Enter a valid phone number");
+        const phoneDigits = learnerPhone.replace(/\D/g, "");
+        if (phoneDigits.length !== 11) {
+          throw new Error(`Phone number must be 11 digits — you've entered ${phoneDigits.length}`);
         }
         const res = await lookupEmail({
           data: {
