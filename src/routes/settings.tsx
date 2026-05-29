@@ -78,6 +78,8 @@ function SummaryRow({ icon: Icon, label, value }: { icon: any; label: string; va
       </div>
     </div>
   );
+}
+
 
 export const Route = createFileRoute("/settings")({
   component: SettingsPage,
