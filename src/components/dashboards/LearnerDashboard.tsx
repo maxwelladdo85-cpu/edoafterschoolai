@@ -12,6 +12,7 @@ import dashboardHero from "@/assets/dashboard-hero.jpg";
 import { STYLE_LABELS, STYLE_TIPS, type VarkStyle } from "@/lib/vark";
 import { VirtualClassesPanel } from "@/components/VirtualClassesPanel";
 import { ReportTeacherCard } from "@/components/dashboards/ReportTeacherCard";
+import { VarkStartDialog } from "@/components/VarkStartDialog";
 
 interface Enrollment {
   id: string;
