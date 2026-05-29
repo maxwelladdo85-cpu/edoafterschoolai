@@ -113,6 +113,23 @@ function SettingsPage() {
   const isEditing = (k: string) => editing.has(k);
   const startEdit = (k: string) => setEditing((s) => new Set(s).add(k));
   const stopEdit = (k: string) => setEditing((s) => { const n = new Set(s); n.delete(k); return n; });
+  const [deleteConfirm, setDeleteConfirm] = useState("");
+  const [deleting, setDeleting] = useState(false);
+  const deleteAccountFn = useServerFn(deleteMyAccount);
+  const canSelfDelete = role === "learner" || role === "teacher";
+  const handleDeleteAccount = async () => {
+    if (!user) return;
+    setDeleting(true);
+    try {
+      await deleteAccountFn({ data: { confirmEmail: deleteConfirm.trim() } });
+      toast.success("Your account has been deleted");
+      await supabase.auth.signOut();
+      nav({ to: "/" });
+    } catch (err: any) {
+      toast.error(err?.message ?? "Could not delete account");
+      setDeleting(false);
+    }
+  };
 
   useEffect(() => {
     if (!loading && !user) nav({ to: "/login" });
