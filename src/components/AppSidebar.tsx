@@ -88,7 +88,7 @@ const NAV: Record<AppRole, NavSection[]> = {
       label: "Content",
       items: [
         { title: "Course Library", url: "/courses", icon: BookOpen },
-        { title: "Course Builder", url: "/courses/builder", icon: Wand2 },
+        
         { title: "Assessments", url: "/assessments", icon: ClipboardCheck },
         { title: "Announcements", url: "/announcements", icon: Megaphone },
       ],
