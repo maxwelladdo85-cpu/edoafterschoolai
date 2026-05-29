@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
@@ -9,11 +10,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User, Mail, Shield, Calendar, BookOpen, GraduationCap, Users, Camera, Loader2, Trash2, FileText, Cookie, School as SchoolIcon, Phone, IdCard, Pencil, CheckCircle2 } from "lucide-react";
+import { User, Mail, Shield, Calendar, BookOpen, GraduationCap, Users, Camera, Loader2, Trash2, FileText, Cookie, School as SchoolIcon, Phone, IdCard, Pencil, CheckCircle2, AlertTriangle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { CLASS_GROUPS } from "@/lib/classes";
 import { EDO_LGAS } from "@/lib/lgas";
+import { deleteMyAccount } from "@/lib/account.functions";
 import { toast } from "sonner";
 import { PageHero } from "@/components/PageHero";
 import heroSettings from "@/assets/hero-settings.jpg";
@@ -110,6 +113,23 @@ function SettingsPage() {
   const isEditing = (k: string) => editing.has(k);
   const startEdit = (k: string) => setEditing((s) => new Set(s).add(k));
   const stopEdit = (k: string) => setEditing((s) => { const n = new Set(s); n.delete(k); return n; });
+  const [deleteConfirm, setDeleteConfirm] = useState("");
+  const [deleting, setDeleting] = useState(false);
+  const deleteAccountFn = useServerFn(deleteMyAccount);
+  const canSelfDelete = role === "learner" || role === "teacher";
+  const handleDeleteAccount = async () => {
+    if (!user) return;
+    setDeleting(true);
+    try {
+      await deleteAccountFn({ data: { confirmEmail: deleteConfirm.trim() } });
+      toast.success("Your account has been deleted");
+      await supabase.auth.signOut();
+      nav({ to: "/" });
+    } catch (err: any) {
+      toast.error(err?.message ?? "Could not delete account");
+      setDeleting(false);
+    }
+  };
 
   useEffect(() => {
     if (!loading && !user) nav({ to: "/login" });
@@ -641,6 +661,54 @@ function SettingsPage() {
                 )}
               </CardContent>
             </Card>
+
+            {canSelfDelete && (
+              <Card className="border-destructive/40" style={{ boxShadow: "var(--shadow-card)" }}>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-destructive">
+                    <AlertTriangle className="h-5 w-5" /> Danger zone
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    Permanently delete your account and all of your data. This action cannot be undone.
+                  </p>
+                  <AlertDialog onOpenChange={(open) => { if (!open) setDeleteConfirm(""); }}>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="destructive" size="sm">
+                        <Trash2 className="mr-2 h-4 w-4" /> Delete my account
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete your account?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This will permanently remove your profile, enrollments, progress, certificates,
+                          messages and all related data. This cannot be undone. To confirm, type your email
+                          address <span className="font-semibold text-foreground">{profile?.email ?? user?.email}</span> below.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <Input
+                        value={deleteConfirm}
+                        onChange={(e) => setDeleteConfirm(e.target.value)}
+                        placeholder="Type your email to confirm"
+                        autoComplete="off"
+                      />
+                      <AlertDialogFooter>
+                        <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          disabled={deleting || deleteConfirm.trim().toLowerCase() !== (profile?.email ?? user?.email ?? "").toLowerCase()}
+                          onClick={(e) => { e.preventDefault(); handleDeleteAccount(); }}
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                          {deleting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Deleting…</> : "Delete account"}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </CardContent>
+              </Card>
+            )}
 
             <Card className="border-border/60" style={{ boxShadow: "var(--shadow-card)" }}>
               <CardHeader>
