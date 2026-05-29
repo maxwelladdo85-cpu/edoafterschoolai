@@ -154,14 +154,6 @@ export function AuthCard() {
             <TabsContent value="signin">
               <form onSubmit={handleSignIn} className="space-y-3 pt-3">
                 <div className="space-y-1">
-                  <Label htmlFor="e1">Email</Label>
-                  <Input id="e1" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor="p1">Password</Label>
-                  <PasswordInput id="p1" value={password} onChange={setPassword} />
-                </div>
-                <div className="space-y-1">
                   <Label>Sign in as</Label>
                   <Select value={role} onValueChange={(v) => setRole(v as any)}>
                     <SelectTrigger><SelectValue placeholder="Select your role" /></SelectTrigger>
@@ -172,11 +164,59 @@ export function AuthCard() {
                     </SelectContent>
                   </Select>
                 </div>
+
+                {role === "learner" ? (
+                  <>
+                    <div className="space-y-1">
+                      <Label htmlFor="lnin">NIN</Label>
+                      <Input
+                        id="lnin"
+                        inputMode="numeric"
+                        maxLength={11}
+                        required
+                        placeholder="11-digit NIN"
+                        value={learnerNin}
+                        onChange={(e) => setLearnerNin(e.target.value.replace(/\D/g, ""))}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor="lphone">Parent phone number</Label>
+                      <Input
+                        id="lphone"
+                        inputMode="tel"
+                        required
+                        placeholder="e.g. +234 803 000 0000"
+                        value={learnerPhone}
+                        onChange={(e) => setLearnerPhone(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor="lemail">Email <span className="text-muted-foreground">(optional)</span></Label>
+                      <Input
+                        id="lemail"
+                        type="email"
+                        placeholder="Only needed if more than one account matches"
+                        value={learnerEmail}
+                        onChange={(e) => setLearnerEmail(e.target.value)}
+                      />
+                    </div>
+                  </>
+                ) : (
+                  <div className="space-y-1">
+                    <Label htmlFor="e1">Email</Label>
+                    <Input id="e1" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+                  </div>
+                )}
+
+                <div className="space-y-1">
+                  <Label htmlFor="p1">Password</Label>
+                  <PasswordInput id="p1" value={password} onChange={setPassword} />
+                </div>
                 <Button type="submit" disabled={loading} className="w-full">Sign In</Button>
                 <div className="text-right">
                   <button
                     type="button"
-                    onClick={() => { setForgotEmail(email); setForgotOpen(true); }}
+                    onClick={() => { setForgotEmail(role === "learner" ? learnerEmail : email); setForgotOpen(true); }}
                     className="text-xs text-primary hover:underline"
                   >
                     Forgot password?
