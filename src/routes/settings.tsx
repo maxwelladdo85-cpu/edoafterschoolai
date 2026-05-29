@@ -478,7 +478,8 @@ function SettingsPage() {
                     const phone = parentPhone.trim();
                     const ninVal = nin.trim();
                     if (phone && !/^\+?[0-9\s-]{7,20}$/.test(phone)) return toast.error("Enter a valid phone number");
-                    if (ninVal && !/^[0-9]{11}$/.test(ninVal)) return toast.error("NIN must be 11 digits");
+                    if (!ninVal) return toast.error("Please enter your 11-digit NIN");
+                    if (!/^[0-9]{11}$/.test(ninVal)) return toast.error(`NIN must be 11 digits — you've entered ${ninVal.length}`);
                     setSavingContact(true);
                     const { error } = await supabase.from("profiles").update({
                       parent_phone: phone || null,
@@ -496,7 +497,22 @@ function SettingsPage() {
                   </div>
                   <div className="space-y-1.5">
                     <label className="flex items-center gap-2 text-xs uppercase tracking-wide text-muted-foreground"><IdCard className="h-3.5 w-3.5 text-primary" /> NIN</label>
-                    <Input value={nin} onChange={(e) => setNin(e.target.value.replace(/\D/g, ""))} maxLength={11} placeholder="11-digit NIN" />
+                    <Input
+                      value={nin}
+                      onChange={(e) => setNin(e.target.value.replace(/\D/g, ""))}
+                      maxLength={11}
+                      inputMode="numeric"
+                      placeholder="11-digit NIN"
+                      aria-invalid={nin.length > 0 && nin.length < 11}
+                      className={nin.length > 0 && nin.length < 11 ? "border-destructive focus-visible:ring-destructive" : ""}
+                    />
+                    <p className={`text-xs ${nin.length === 11 ? "text-emerald-600" : nin.length > 0 ? "text-destructive" : "text-muted-foreground"}`}>
+                      {nin.length === 0
+                        ? "Enter all 11 digits of your NIN."
+                        : nin.length < 11
+                          ? `${11 - nin.length} more digit${11 - nin.length === 1 ? "" : "s"} needed (${nin.length}/11).`
+                          : "Looks good ✓"}
+                    </p>
                   </div>
                   <div className="sm:col-span-2 flex justify-end">
                     <Button type="submit" size="sm" disabled={savingContact || (parentPhone.trim() === (profile?.parent_phone ?? "") && nin.trim() === (profile?.nin ?? ""))}>
