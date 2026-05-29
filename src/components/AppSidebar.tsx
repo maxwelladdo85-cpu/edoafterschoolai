@@ -7,6 +7,7 @@ import {
 import { useAuth, type AppRole } from "@/hooks/use-auth";
 import { Logo } from "./Logo";
 import { Button } from "./ui/button";
+import { VarkStartDialog } from "./VarkStartDialog";
 
 const NAV: Record<AppRole, { title: string; url: string; icon: any }[]> = {
   learner: [
