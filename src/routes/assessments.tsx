@@ -236,7 +236,8 @@ function AssessmentsPage() {
               </Card>
             ))}
           </div>
-        )}
+        );
+        })()}
       </div>
     </DashboardShell>
   );
