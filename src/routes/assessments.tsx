@@ -96,6 +96,9 @@ function AssessmentsPage() {
 
   const courseTitle = (id: string) => courses.find((c) => c.id === id)?.title ?? "";
 
+  const classCourseIds = new Set(courses.filter((c) => !selectedClass || c.class_level === selectedClass).map((c) => c.id));
+  const visibleQuizzes = quizzes.filter((q) => classCourseIds.has(q.course_id));
+
   if (loading) {
     return (
       <DashboardShell title="Assessments">
@@ -191,10 +194,7 @@ function AssessmentsPage() {
           </Card>
         )}
 
-        {(() => {
-          const classCourseIds = new Set(courses.filter((c) => !selectedClass || c.class_level === selectedClass).map((c) => c.id));
-          const visibleQuizzes = quizzes.filter((q) => classCourseIds.has(q.course_id));
-          return visibleQuizzes.length === 0 ? (
+        {visibleQuizzes.length === 0 ? (
           <Card className="border-border/60">
             <CardContent className="py-16 text-center text-muted-foreground">
               {selectedClass ? `No assessments for ${selectedClass} yet` : "No assessments yet"}{isTeacher ? " — create one above" : ""}.
@@ -236,8 +236,7 @@ function AssessmentsPage() {
               </Card>
             ))}
           </div>
-        );
-        })()}
+        )}
       </div>
     </DashboardShell>
   );
