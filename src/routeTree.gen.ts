@@ -35,6 +35,7 @@ import { Route as ApiTutorRouteImport } from './routes/api/tutor'
 import { Route as ApiTeacherAiRouteImport } from './routes/api/teacher-ai'
 import { Route as QuizzesQuizIdTakeRouteImport } from './routes/quizzes.$quizId.take'
 import { Route as QuizzesQuizIdEditRouteImport } from './routes/quizzes.$quizId.edit'
+import { Route as CoursesBuilderEditRouteImport } from './routes/courses.builder.edit'
 
 const VirtualClassesRoute = VirtualClassesRouteImport.update({
   id: '/virtual-classes',
@@ -166,6 +167,11 @@ const QuizzesQuizIdEditRoute = QuizzesQuizIdEditRouteImport.update({
   path: '/quizzes/$quizId/edit',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CoursesBuilderEditRoute = CoursesBuilderEditRouteImport.update({
+  id: '/edit',
+  path: '/edit',
+  getParentRoute: () => CoursesBuilderRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -190,8 +196,9 @@ export interface FileRoutesByFullPath {
   '/api/teacher-ai': typeof ApiTeacherAiRoute
   '/api/tutor': typeof ApiTutorRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
-  '/courses/builder': typeof CoursesBuilderRoute
+  '/courses/builder': typeof CoursesBuilderRouteWithChildren
   '/quizzes/$courseId': typeof QuizzesCourseIdRoute
+  '/courses/builder/edit': typeof CoursesBuilderEditRoute
   '/quizzes/$quizId/edit': typeof QuizzesQuizIdEditRoute
   '/quizzes/$quizId/take': typeof QuizzesQuizIdTakeRoute
 }
@@ -218,8 +225,9 @@ export interface FileRoutesByTo {
   '/api/teacher-ai': typeof ApiTeacherAiRoute
   '/api/tutor': typeof ApiTutorRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
-  '/courses/builder': typeof CoursesBuilderRoute
+  '/courses/builder': typeof CoursesBuilderRouteWithChildren
   '/quizzes/$courseId': typeof QuizzesCourseIdRoute
+  '/courses/builder/edit': typeof CoursesBuilderEditRoute
   '/quizzes/$quizId/edit': typeof QuizzesQuizIdEditRoute
   '/quizzes/$quizId/take': typeof QuizzesQuizIdTakeRoute
 }
@@ -247,8 +255,9 @@ export interface FileRoutesById {
   '/api/teacher-ai': typeof ApiTeacherAiRoute
   '/api/tutor': typeof ApiTutorRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
-  '/courses/builder': typeof CoursesBuilderRoute
+  '/courses/builder': typeof CoursesBuilderRouteWithChildren
   '/quizzes/$courseId': typeof QuizzesCourseIdRoute
+  '/courses/builder/edit': typeof CoursesBuilderEditRoute
   '/quizzes/$quizId/edit': typeof QuizzesQuizIdEditRoute
   '/quizzes/$quizId/take': typeof QuizzesQuizIdTakeRoute
 }
@@ -279,6 +288,7 @@ export interface FileRouteTypes {
     | '/courses/$courseId'
     | '/courses/builder'
     | '/quizzes/$courseId'
+    | '/courses/builder/edit'
     | '/quizzes/$quizId/edit'
     | '/quizzes/$quizId/take'
   fileRoutesByTo: FileRoutesByTo
@@ -307,6 +317,7 @@ export interface FileRouteTypes {
     | '/courses/$courseId'
     | '/courses/builder'
     | '/quizzes/$courseId'
+    | '/courses/builder/edit'
     | '/quizzes/$quizId/edit'
     | '/quizzes/$quizId/take'
   id:
@@ -335,6 +346,7 @@ export interface FileRouteTypes {
     | '/courses/$courseId'
     | '/courses/builder'
     | '/quizzes/$courseId'
+    | '/courses/builder/edit'
     | '/quizzes/$quizId/edit'
     | '/quizzes/$quizId/take'
   fileRoutesById: FileRoutesById
@@ -550,17 +562,36 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof QuizzesQuizIdEditRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/courses/builder/edit': {
+      id: '/courses/builder/edit'
+      path: '/edit'
+      fullPath: '/courses/builder/edit'
+      preLoaderRoute: typeof CoursesBuilderEditRouteImport
+      parentRoute: typeof CoursesBuilderRoute
+    }
   }
 }
 
+interface CoursesBuilderRouteChildren {
+  CoursesBuilderEditRoute: typeof CoursesBuilderEditRoute
+}
+
+const CoursesBuilderRouteChildren: CoursesBuilderRouteChildren = {
+  CoursesBuilderEditRoute: CoursesBuilderEditRoute,
+}
+
+const CoursesBuilderRouteWithChildren = CoursesBuilderRoute._addFileChildren(
+  CoursesBuilderRouteChildren,
+)
+
 interface CoursesRouteChildren {
   CoursesCourseIdRoute: typeof CoursesCourseIdRoute
-  CoursesBuilderRoute: typeof CoursesBuilderRoute
+  CoursesBuilderRoute: typeof CoursesBuilderRouteWithChildren
 }
 
 const CoursesRouteChildren: CoursesRouteChildren = {
   CoursesCourseIdRoute: CoursesCourseIdRoute,
-  CoursesBuilderRoute: CoursesBuilderRoute,
+  CoursesBuilderRoute: CoursesBuilderRouteWithChildren,
 }
 
 const CoursesRouteWithChildren =
@@ -595,13 +626,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
