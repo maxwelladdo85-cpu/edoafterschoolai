@@ -477,66 +477,81 @@ function SettingsPage() {
                 <CardTitle className="flex items-center gap-2"><SchoolIcon className="h-5 w-5 text-primary" /> School</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <p className="text-sm text-muted-foreground">Pick your Local Government and school level — the school list updates to show only schools in that LGA and school type.</p>
-                <form
-                  className="grid gap-3 sm:grid-cols-2"
-                  onSubmit={async (e) => {
-                    e.preventDefault();
-                    if (!user) return;
-                    setSavingSchool(true);
-                    const { error } = await supabase.from("profiles").update({
-                      lga: schoolLga || null,
-                      school_type: schoolType || null,
-                      school_id: schoolId || null,
-                    } as any).eq("id", user.id);
-                    setSavingSchool(false);
-                    if (error) return toast.error(error.message);
-                    setProfile((prev) => prev ? { ...prev, lga: schoolLga || null, school_type: schoolType || null, school_id: schoolId || null } : prev);
-                    toast.success("School saved");
-                  }}
-                >
-                  <div className="space-y-1.5">
-                    <label className="text-xs uppercase tracking-wide text-muted-foreground">Local Government</label>
-                    <Select value={schoolLga} onValueChange={(v) => { setSchoolLga(v); setSchoolId(""); }}>
-                      <SelectTrigger><SelectValue placeholder="Select your LGA" /></SelectTrigger>
-                      <SelectContent>
-                        {EDO_LGAS.map((l) => <SelectItem key={l} value={l}>{l}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
+                {isEditing("school") ? (
+                  <>
+                    <p className="text-sm text-muted-foreground">Pick your Local Government and school level — the school list updates to show only schools in that LGA and school type.</p>
+                    <form
+                      className="grid gap-3 sm:grid-cols-2"
+                      onSubmit={async (e) => {
+                        e.preventDefault();
+                        if (!user) return;
+                        setSavingSchool(true);
+                        const { error } = await supabase.from("profiles").update({
+                          lga: schoolLga || null,
+                          school_type: schoolType || null,
+                          school_id: schoolId || null,
+                        } as any).eq("id", user.id);
+                        setSavingSchool(false);
+                        if (error) return toast.error(error.message);
+                        setProfile((prev) => prev ? { ...prev, lga: schoolLga || null, school_type: schoolType || null, school_id: schoolId || null } : prev);
+                        toast.success("School saved");
+                        stopEdit("school");
+                      }}
+                    >
+                      <div className="space-y-1.5">
+                        <label className="text-xs uppercase tracking-wide text-muted-foreground">Local Government</label>
+                        <Select value={schoolLga} onValueChange={(v) => { setSchoolLga(v); setSchoolId(""); }}>
+                          <SelectTrigger><SelectValue placeholder="Select your LGA" /></SelectTrigger>
+                          <SelectContent>
+                            {EDO_LGAS.map((l) => <SelectItem key={l} value={l}>{l}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-xs uppercase tracking-wide text-muted-foreground">School type</label>
+                        <Select value={schoolType} onValueChange={(v) => { setSchoolType(v); setSchoolId(""); }}>
+                          <SelectTrigger><SelectValue placeholder="Select school type" /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="primary">Primary</SelectItem>
+                            <SelectItem value="jss">Junior Secondary (JSS)</SelectItem>
+                            <SelectItem value="sss">Senior Secondary (SSS)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-1.5 sm:col-span-2">
+                        <label className="text-xs uppercase tracking-wide text-muted-foreground">School name</label>
+                        <Select value={schoolId} onValueChange={setSchoolId} disabled={!schoolLga || !schoolType}>
+                          <SelectTrigger>
+                            <SelectValue placeholder={!schoolLga ? "Pick LGA first" : !schoolType ? "Pick school type first" : "Select your school"} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {schoolOptions
+                              .filter((s) => s.lga === schoolLga && s.school_type === schoolType)
+                              .map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+                            {schoolLga && schoolType && schoolOptions.filter((s) => s.lga === schoolLga && s.school_type === schoolType).length === 0 && (
+                              <div className="px-2 py-1.5 text-xs text-muted-foreground">No schools listed for this LGA and type yet.</div>
+                            )}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="sm:col-span-2 flex justify-end gap-2">
+                        <Button type="button" variant="ghost" size="sm" onClick={() => stopEdit("school")} disabled={savingSchool}>Cancel</Button>
+                        <Button type="submit" size="sm" disabled={savingSchool}>
+                          {savingSchool ? "Saving…" : "Save"}
+                        </Button>
+                      </div>
+                    </form>
+                  </>
+                ) : (
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <SummaryRow icon={SchoolIcon} label="School" value={schoolOptions.find((s) => s.id === profile?.school_id)?.name} />
+                    <SummaryRow icon={GraduationCap} label="School type" value={profile?.school_type} />
+                    <SummaryRow icon={SchoolIcon} label="LGA" value={profile?.lga} />
+                    <div className="flex items-end justify-end">
+                      <Button size="sm" variant="outline" onClick={() => startEdit("school")}><Pencil className="mr-2 h-4 w-4" />Change</Button>
+                    </div>
                   </div>
-                  <div className="space-y-1.5">
-                    <label className="text-xs uppercase tracking-wide text-muted-foreground">School type</label>
-                    <Select value={schoolType} onValueChange={(v) => { setSchoolType(v); setSchoolId(""); }}>
-                      <SelectTrigger><SelectValue placeholder="Select school type" /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="primary">Primary</SelectItem>
-                        <SelectItem value="jss">Junior Secondary (JSS)</SelectItem>
-                        <SelectItem value="sss">Senior Secondary (SSS)</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-1.5 sm:col-span-2">
-                    <label className="text-xs uppercase tracking-wide text-muted-foreground">School name</label>
-                    <Select value={schoolId} onValueChange={setSchoolId} disabled={!schoolLga || !schoolType}>
-                      <SelectTrigger>
-                        <SelectValue placeholder={!schoolLga ? "Pick LGA first" : !schoolType ? "Pick school type first" : "Select your school"} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {schoolOptions
-                          .filter((s) => s.lga === schoolLga && s.school_type === schoolType)
-                          .map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
-                        {schoolLga && schoolType && schoolOptions.filter((s) => s.lga === schoolLga && s.school_type === schoolType).length === 0 && (
-                          <div className="px-2 py-1.5 text-xs text-muted-foreground">No schools listed for this LGA and type yet.</div>
-                        )}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="sm:col-span-2 flex justify-end">
-                    <Button type="submit" size="sm" disabled={savingSchool || (schoolLga === (profile?.lga ?? "") && schoolType === (profile?.school_type ?? "") && schoolId === (profile?.school_id ?? ""))}>
-                      {savingSchool ? "Saving…" : "Save"}
-                    </Button>
-                  </div>
-                </form>
+                )}
               </CardContent>
             </Card>
 
