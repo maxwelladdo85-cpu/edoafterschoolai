@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, Plus, Pencil, Timer, ClipboardCheck, PlayCircle } from "lucide-react";
 import { toast } from "sonner";
+import { CLASS_GROUPS } from "@/lib/classes";
 
 export const Route = createFileRoute("/assessments")({
   component: AssessmentsPage,
