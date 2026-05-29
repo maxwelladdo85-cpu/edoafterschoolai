@@ -111,6 +111,7 @@ function SettingsPage() {
       setDob((p as any)?.date_of_birth ?? "");
       setSchoolType((p as any)?.school_type ?? "");
       setSchoolId((p as any)?.school_id ?? "");
+      setSchoolLga((p as any)?.lga ?? "");
       setParentPhone((p as any)?.parent_phone ?? "");
       setNin((p as any)?.nin ?? "");
 
