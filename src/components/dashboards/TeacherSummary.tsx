@@ -101,9 +101,6 @@ export function TeacherSummary() {
             <Button asChild variant="secondary" className="bg-white/10 text-white hover:bg-white/20 border-white/20 border">
               <Link to="/my-courses"><GraduationCap className="mr-2 h-4 w-4" />Manage</Link>
             </Button>
-            <Button asChild className="bg-gold text-gold-foreground hover:opacity-90">
-              <Link to="/courses/builder"><Wand2 className="mr-2 h-4 w-4" />Course Builder</Link>
-            </Button>
           </div>
         </div>
       </section>
