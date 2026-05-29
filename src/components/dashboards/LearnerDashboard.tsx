@@ -89,7 +89,7 @@ export function LearnerDashboard() {
               <ul className="list-disc space-y-1 pl-5 text-sm">
                 {STYLE_TIPS[vark.dominant].slice(0, 3).map((tip, i) => <li key={i}>{tip}</li>)}
               </ul>
-              <Button asChild variant="outline" size="sm"><Link to="/vark-quiz">Retake quiz</Link></Button>
+              <VarkStartDialog retake><Button variant="outline" size="sm">Retake quiz</Button></VarkStartDialog>
             </CardContent>
           </Card>
         ) : (
