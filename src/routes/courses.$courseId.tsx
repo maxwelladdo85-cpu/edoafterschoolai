@@ -275,17 +275,19 @@ function CoursePlayer() {
                     Lesson {activeIdx + 1} of {totalLessons}
                   </p>
                   <div className="flex gap-2">
-                    <Button
-                      variant={isActiveCompleted ? "outline" : "default"}
-                      onClick={toggleComplete}
-                      disabled={savingComplete}
-                    >
-                      {isActiveCompleted ? (
-                        <><CheckCircle2 className="mr-2 h-4 w-4 text-emerald-600" /> Completed — undo</>
-                      ) : (
-                        <><Circle className="mr-2 h-4 w-4" /> Mark as complete</>
-                      )}
-                    </Button>
+                    {!isStaff && (
+                      <Button
+                        variant={isActiveCompleted ? "outline" : "default"}
+                        onClick={toggleComplete}
+                        disabled={savingComplete}
+                      >
+                        {isActiveCompleted ? (
+                          <><CheckCircle2 className="mr-2 h-4 w-4 text-emerald-600" /> Completed — undo</>
+                        ) : (
+                          <><Circle className="mr-2 h-4 w-4" /> Mark as complete</>
+                        )}
+                      </Button>
+                    )}
                     {activeIdx < flatLessons.length - 1 && (
                       <Button variant="secondary" onClick={() => goTo(activeIdx + 1)}>
                         Next lesson <ChevronRight className="ml-1 h-4 w-4" />
