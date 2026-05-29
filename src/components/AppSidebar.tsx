@@ -65,12 +65,21 @@ export function AppSidebar() {
             <SidebarMenu>
               {items.map((item, i) => (
                 <SidebarMenuItem key={i}>
-                  <SidebarMenuButton asChild isActive={path === item.url} className="text-base h-auto py-3 [&>svg]:!size-5">
-                    <Link to={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
+                  {item.url === "/vark-quiz" ? (
+                    <VarkStartDialog retake={path === "/vark-quiz"}>
+                      <SidebarMenuButton isActive={path === item.url} className="text-base h-auto py-3 [&>svg]:!size-5">
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </SidebarMenuButton>
+                    </VarkStartDialog>
+                  ) : (
+                    <SidebarMenuButton asChild isActive={path === item.url} className="text-base h-auto py-3 [&>svg]:!size-5">
+                      <Link to={item.url}>
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  )}
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
