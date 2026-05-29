@@ -63,25 +63,54 @@ export function AuthCard() {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { data: signInData, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) { setLoading(false); return toast.error(error.message); }
-    // Gate by profile status
-    if (signInData.user) {
-      const { data: prof } = await supabase.from("profiles").select("status").eq("id", signInData.user.id).maybeSingle();
-      if (prof?.status === "pending") {
-        await supabase.auth.signOut();
-        setLoading(false);
-        return toast.error("Your teacher account is still pending admin approval.");
+    try {
+      let signInEmail = email;
+      if (role === "learner") {
+        if (!/^[0-9]{11}$/.test(learnerNin.trim())) {
+          throw new Error("Enter your 11-digit NIN");
+        }
+        if (learnerPhone.replace(/\D/g, "").length < 7) {
+          throw new Error("Enter a valid phone number");
+        }
+        const res = await lookupEmail({
+          data: {
+            nin: learnerNin.trim(),
+            phone: learnerPhone.trim(),
+            email: learnerEmail.trim() || undefined,
+          },
+        });
+        signInEmail = res.email;
       }
-      if (prof?.status === "inactive") {
-        await supabase.auth.signOut();
-        setLoading(false);
-        return toast.error("Your account has been deactivated. Contact an admin.");
+
+      const { data: signInData, error } = await supabase.auth.signInWithPassword({
+        email: signInEmail,
+        password,
+      });
+      if (error) throw error;
+
+      // Gate by profile status
+      if (signInData.user) {
+        const { data: prof } = await supabase
+          .from("profiles")
+          .select("status")
+          .eq("id", signInData.user.id)
+          .maybeSingle();
+        if (prof?.status === "pending") {
+          await supabase.auth.signOut();
+          throw new Error("Your teacher account is still pending admin approval.");
+        }
+        if (prof?.status === "inactive") {
+          await supabase.auth.signOut();
+          throw new Error("Your account has been deactivated. Contact an admin.");
+        }
       }
+      toast.success("Welcome back");
+      nav({ to: "/dashboard" });
+    } catch (err: any) {
+      toast.error(err?.message ?? "Could not sign in");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
-    toast.success("Welcome back");
-    nav({ to: "/dashboard" });
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
