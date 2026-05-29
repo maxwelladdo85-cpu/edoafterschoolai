@@ -31,8 +31,9 @@ interface Course { id: string; title: string; subject: string | null; descriptio
 
 function CoursePlayer() {
   const { courseId } = Route.useParams();
-  const { user, loading: authLoading } = useAuth();
+  const { user, role, loading: authLoading } = useAuth();
   const nav = useNavigate();
+  const isStaff = role === "teacher" || role === "admin";
 
   const [course, setCourse] = useState<Course | null>(null);
   const [modules, setModules] = useState<Module[]>([]);
@@ -44,6 +45,7 @@ function CoursePlayer() {
   useEffect(() => {
     if (!authLoading && !user) nav({ to: "/login" });
   }, [authLoading, user, nav]);
+
 
   useEffect(() => {
     if (!user) return;
@@ -74,9 +76,9 @@ function CoursePlayer() {
       setModules(mods);
       setActiveId(mods.flatMap((m) => m.lessons)[0]?.id ?? null);
 
-      // Load this learner's completions for these lessons
+      // Load this learner's completions for these lessons (skip for staff viewing)
       const lessonIds = lessons.map((l) => l.id);
-      if (lessonIds.length) {
+      if (!isStaff && lessonIds.length) {
         const { data: comps } = await supabase
           .from("lesson_completions")
           .select("lesson_id")
@@ -88,13 +90,14 @@ function CoursePlayer() {
       }
       setLoading(false);
     })();
-  }, [courseId, user]);
+  }, [courseId, user, isStaff]);
 
-  // Attendance: log when a learner opens a lesson
+  // Attendance: log when a learner opens a lesson (skip for staff preview)
   useEffect(() => {
-    if (!user || !activeId) return;
+    if (!user || !activeId || isStaff) return;
     supabase.from("lesson_views").insert({ learner_id: user.id, lesson_id: activeId }).then(() => {});
-  }, [user, activeId]);
+  }, [user, activeId, isStaff]);
+
 
   const flatLessons = useMemo(() => modules.flatMap((m) => m.lessons), [modules]);
   const activeLesson = flatLessons.find((l) => l.id === activeId) ?? null;
@@ -181,7 +184,7 @@ function CoursePlayer() {
             <h2 className="text-lg font-bold">{course.title}</h2>
             {course.subject && <p className="text-xs text-muted-foreground">{course.subject}</p>}
           </div>
-          {totalLessons > 0 && (
+          {totalLessons > 0 && !isStaff && (
             <div className="space-y-1.5 rounded-lg border bg-muted/30 p-3">
               <div className="flex items-center justify-between text-xs">
                 <span className="font-medium">Course progress</span>
@@ -272,17 +275,19 @@ function CoursePlayer() {
                     Lesson {activeIdx + 1} of {totalLessons}
                   </p>
                   <div className="flex gap-2">
-                    <Button
-                      variant={isActiveCompleted ? "outline" : "default"}
-                      onClick={toggleComplete}
-                      disabled={savingComplete}
-                    >
-                      {isActiveCompleted ? (
-                        <><CheckCircle2 className="mr-2 h-4 w-4 text-emerald-600" /> Completed — undo</>
-                      ) : (
-                        <><Circle className="mr-2 h-4 w-4" /> Mark as complete</>
-                      )}
-                    </Button>
+                    {!isStaff && (
+                      <Button
+                        variant={isActiveCompleted ? "outline" : "default"}
+                        onClick={toggleComplete}
+                        disabled={savingComplete}
+                      >
+                        {isActiveCompleted ? (
+                          <><CheckCircle2 className="mr-2 h-4 w-4 text-emerald-600" /> Completed — undo</>
+                        ) : (
+                          <><Circle className="mr-2 h-4 w-4" /> Mark as complete</>
+                        )}
+                      </Button>
+                    )}
                     {activeIdx < flatLessons.length - 1 && (
                       <Button variant="secondary" onClick={() => goTo(activeIdx + 1)}>
                         Next lesson <ChevronRight className="ml-1 h-4 w-4" />
@@ -303,7 +308,7 @@ function CoursePlayer() {
       <div className="mt-6">
         <CourseForum courseId={courseId} />
       </div>
-      <AiTutorWidget courseId={courseId} courseTitle={course.title} />
+      {!isStaff && <AiTutorWidget courseId={courseId} courseTitle={course.title} />}
     </DashboardShell>
   );
 }
