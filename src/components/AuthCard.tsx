@@ -42,6 +42,10 @@ export function AuthCard() {
   const [forgotOpen, setForgotOpen] = useState(false);
   const [forgotEmail, setForgotEmail] = useState("");
   const [forgotLoading, setForgotLoading] = useState(false);
+  const [learnerNin, setLearnerNin] = useState("");
+  const [learnerPhone, setLearnerPhone] = useState("");
+  const [learnerEmail, setLearnerEmail] = useState("");
+  const lookupEmail = useServerFn(lookupLearnerEmail);
 
   const handleForgot = async (e: React.FormEvent) => {
     e.preventDefault();
