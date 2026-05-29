@@ -76,9 +76,9 @@ function CoursePlayer() {
       setModules(mods);
       setActiveId(mods.flatMap((m) => m.lessons)[0]?.id ?? null);
 
-      // Load this learner's completions for these lessons
+      // Load this learner's completions for these lessons (skip for staff viewing)
       const lessonIds = lessons.map((l) => l.id);
-      if (lessonIds.length) {
+      if (!isStaff && lessonIds.length) {
         const { data: comps } = await supabase
           .from("lesson_completions")
           .select("lesson_id")
@@ -90,13 +90,14 @@ function CoursePlayer() {
       }
       setLoading(false);
     })();
-  }, [courseId, user]);
+  }, [courseId, user, isStaff]);
 
-  // Attendance: log when a learner opens a lesson
+  // Attendance: log when a learner opens a lesson (skip for staff preview)
   useEffect(() => {
-    if (!user || !activeId) return;
+    if (!user || !activeId || isStaff) return;
     supabase.from("lesson_views").insert({ learner_id: user.id, lesson_id: activeId }).then(() => {});
-  }, [user, activeId]);
+  }, [user, activeId, isStaff]);
+
 
   const flatLessons = useMemo(() => modules.flatMap((m) => m.lessons), [modules]);
   const activeLesson = flatLessons.find((l) => l.id === activeId) ?? null;
