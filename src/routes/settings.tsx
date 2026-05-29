@@ -241,10 +241,13 @@ function SettingsPage() {
                   onSubmit={async (e) => {
                     e.preventDefault();
                     if (!user) return;
-                    const trimmedName = fullName.trim();
+                    const trimmedFirst = firstName.trim();
+                    const trimmedLast = lastName.trim();
+                    const trimmedName = `${trimmedFirst} ${trimmedLast}`.trim();
                     const trimmedEmail = email.trim();
-                    if (!trimmedName) return toast.error("Full name is required");
-                    if (trimmedName.length > 100) return toast.error("Full name must be under 100 characters");
+                    if (!trimmedFirst) return toast.error("First name is required");
+                    if (!trimmedLast) return toast.error("Last name is required");
+                    if (trimmedName.length > 100) return toast.error("Name must be under 100 characters");
                     const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                     if (!emailRe.test(trimmedEmail)) return toast.error("Enter a valid email address");
                     setSavingProfile(true);
@@ -276,9 +279,15 @@ function SettingsPage() {
                 >
                   <div className="space-y-1.5 rounded-lg border bg-muted/30 p-3">
                     <label className="flex items-center gap-2 text-xs uppercase tracking-wide text-muted-foreground">
-                      <User className="h-3.5 w-3.5 text-primary" /> Full name
+                      <User className="h-3.5 w-3.5 text-primary" /> First name
                     </label>
-                    <Input value={fullName} onChange={(e) => setFullName(e.target.value)} maxLength={100} placeholder="Your full name" />
+                    <Input value={firstName} onChange={(e) => setFirstName(e.target.value)} maxLength={50} placeholder="First name" />
+                  </div>
+                  <div className="space-y-1.5 rounded-lg border bg-muted/30 p-3">
+                    <label className="flex items-center gap-2 text-xs uppercase tracking-wide text-muted-foreground">
+                      <User className="h-3.5 w-3.5 text-primary" /> Last name
+                    </label>
+                    <Input value={lastName} onChange={(e) => setLastName(e.target.value)} maxLength={50} placeholder="Last name" />
                   </div>
                   <div className="space-y-1.5 rounded-lg border bg-muted/30 p-3">
                     <label className="flex items-center gap-2 text-xs uppercase tracking-wide text-muted-foreground">
