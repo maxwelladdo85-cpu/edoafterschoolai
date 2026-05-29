@@ -191,15 +191,18 @@ function AssessmentsPage() {
           </Card>
         )}
 
-        {quizzes.length === 0 ? (
+        {(() => {
+          const classCourseIds = new Set(courses.filter((c) => !selectedClass || c.class_level === selectedClass).map((c) => c.id));
+          const visibleQuizzes = quizzes.filter((q) => classCourseIds.has(q.course_id));
+          return visibleQuizzes.length === 0 ? (
           <Card className="border-border/60">
             <CardContent className="py-16 text-center text-muted-foreground">
-              No assessments yet{isTeacher ? " — create your first one above" : ""}.
+              {selectedClass ? `No assessments for ${selectedClass} yet` : "No assessments yet"}{isTeacher ? " — create one above" : ""}.
             </CardContent>
           </Card>
         ) : (
           <div className="grid gap-3 md:grid-cols-2">
-            {quizzes.map((q) => (
+            {visibleQuizzes.map((q) => (
               <Card key={q.id} className="border-border/60 transition hover:-translate-y-0.5" style={{ boxShadow: "var(--shadow-card)" }}>
                 <CardHeader>
                   <div className="flex items-start justify-between gap-2">
