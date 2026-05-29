@@ -56,6 +56,25 @@ interface DraftModule {
 
 const tmpId = () => `tmp-${Math.random().toString(36).slice(2, 10)}`;
 
+const PRIMARY_SUBJECTS: string[] = [
+  "English Studies",
+  "Mathematics",
+  "Basic Science and Technology",
+  "Social Studies",
+  "Civic Education",
+  "Cultural and Creative Arts",
+  "Christian Religious Studies",
+  "Islamic Religious Studies",
+  "Physical and Health Education",
+  "Computer Studies / ICT",
+  "Agricultural Science",
+  "Home Economics",
+  "Nigerian Languages (Edo)",
+  "French",
+  "History",
+  "Security Education",
+];
+
 function BuilderPage() {
   const { id: editId } = Route.useSearch();
   const { user, role, loading: authLoading } = useAuth();
@@ -301,7 +320,17 @@ function BuilderPage() {
             <CardHeader><CardTitle>Course details</CardTitle></CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-1"><Label>Title *</Label><Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Introduction to Algebra" /></div>
-              <div className="space-y-1"><Label>Subject</Label><Input value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="Mathematics" /></div>
+              <div className="space-y-1">
+                <Label>Subject</Label>
+                <Select value={subject} onValueChange={setSubject}>
+                  <SelectTrigger><SelectValue placeholder="Select a primary school subject" /></SelectTrigger>
+                  <SelectContent>
+                    {PRIMARY_SUBJECTS.map((s) => (
+                      <SelectItem key={s} value={s}>{s}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
               <div className="space-y-1"><Label>Description</Label><Textarea rows={4} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="What learners will gain from this course." /></div>
               <div className="space-y-1">
                 <Label>Thumbnail</Label>
