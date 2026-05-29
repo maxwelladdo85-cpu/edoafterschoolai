@@ -288,7 +288,7 @@ export function TeacherDashboard() {
                   <div className="flex flex-wrap justify-end gap-2">
                     <MaterialUploader courseId={c.id} />
                     <AssignClassButton courseId={c.id} defaultClass={c.class_level} />
-                    <Button size="sm" variant="outline" asChild><Link to="/courses/builder" search={{ id: c.id }}><Wand2 className="mr-1 h-3.5 w-3.5" />Builder</Link></Button>
+                    <Button size="sm" variant="outline" asChild><Link to="/courses/builder/edit" search={{ id: c.id }}><Wand2 className="mr-1 h-3.5 w-3.5" />Builder</Link></Button>
                     <Button size="sm" variant="outline" onClick={() => openEdit(c)}><Pencil className="mr-1 h-3.5 w-3.5" />Edit</Button>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
