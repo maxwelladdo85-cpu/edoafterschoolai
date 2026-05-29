@@ -56,6 +56,25 @@ interface DraftModule {
 
 const tmpId = () => `tmp-${Math.random().toString(36).slice(2, 10)}`;
 
+const PRIMARY_SUBJECTS: string[] = [
+  "English Studies",
+  "Mathematics",
+  "Basic Science and Technology",
+  "Social Studies",
+  "Civic Education",
+  "Cultural and Creative Arts",
+  "Christian Religious Studies",
+  "Islamic Religious Studies",
+  "Physical and Health Education",
+  "Computer Studies / ICT",
+  "Agricultural Science",
+  "Home Economics",
+  "Nigerian Languages (Edo)",
+  "French",
+  "History",
+  "Security Education",
+];
+
 function BuilderPage() {
   const { id: editId } = Route.useSearch();
   const { user, role, loading: authLoading } = useAuth();
