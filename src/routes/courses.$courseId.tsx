@@ -308,7 +308,7 @@ function CoursePlayer() {
       <div className="mt-6">
         <CourseForum courseId={courseId} />
       </div>
-      <AiTutorWidget courseId={courseId} courseTitle={course.title} />
+      {!isStaff && <AiTutorWidget courseId={courseId} courseTitle={course.title} />}
     </DashboardShell>
   );
 }
