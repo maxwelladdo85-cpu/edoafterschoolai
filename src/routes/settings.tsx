@@ -662,6 +662,54 @@ function SettingsPage() {
               </CardContent>
             </Card>
 
+            {canSelfDelete && (
+              <Card className="border-destructive/40" style={{ boxShadow: "var(--shadow-card)" }}>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-destructive">
+                    <AlertTriangle className="h-5 w-5" /> Danger zone
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    Permanently delete your account and all of your data. This action cannot be undone.
+                  </p>
+                  <AlertDialog onOpenChange={(open) => { if (!open) setDeleteConfirm(""); }}>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="destructive" size="sm">
+                        <Trash2 className="mr-2 h-4 w-4" /> Delete my account
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete your account?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This will permanently remove your profile, enrollments, progress, certificates,
+                          messages and all related data. This cannot be undone. To confirm, type your email
+                          address <span className="font-semibold text-foreground">{profile?.email ?? user?.email}</span> below.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <Input
+                        value={deleteConfirm}
+                        onChange={(e) => setDeleteConfirm(e.target.value)}
+                        placeholder="Type your email to confirm"
+                        autoComplete="off"
+                      />
+                      <AlertDialogFooter>
+                        <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          disabled={deleting || deleteConfirm.trim().toLowerCase() !== (profile?.email ?? user?.email ?? "").toLowerCase()}
+                          onClick={(e) => { e.preventDefault(); handleDeleteAccount(); }}
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                          {deleting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Deleting…</> : "Delete account"}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </CardContent>
+              </Card>
+            )}
+
             <Card className="border-border/60" style={{ boxShadow: "var(--shadow-card)" }}>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2"><FileText className="h-5 w-5 text-primary" /> Legal</CardTitle>
