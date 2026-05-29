@@ -100,7 +100,7 @@ export function LearnerDashboard() {
               <CardDescription>Take our quick 8-question VARK quiz to find your learning style and get tips made for you.</CardDescription>
             </CardHeader>
             <CardContent>
-              <Button asChild><Link to="/vark-quiz">Take the VARK quiz</Link></Button>
+              <VarkStartDialog><Button>Take the VARK quiz</Button></VarkStartDialog>
             </CardContent>
           </Card>
         )}
