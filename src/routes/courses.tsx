@@ -139,7 +139,11 @@ function CoursesLibrary() {
                     <p className="text-xs text-muted-foreground">
                       Teacher: <span className="font-medium text-foreground">{c.teacher_name ?? c.teacher?.full_name ?? "—"}</span>
                     </p>
-                    {enrolled ? (
+                    {isTeacher ? (
+                      <Button asChild className="w-full" variant="secondary">
+                        <Link to="/courses/$courseId" params={{ courseId: c.id }}>Open course</Link>
+                      </Button>
+                    ) : enrolled ? (
                       <Button asChild className="w-full" variant="secondary">
                         <Link to="/courses/$courseId" params={{ courseId: c.id }}>Continue learning</Link>
                       </Button>
