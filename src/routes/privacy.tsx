@@ -55,6 +55,7 @@ function PrivacyPage() {
             <li><strong>Profile Information:</strong> Avatar, learning preferences, VARK assessment results, and course progress.</li>
             <li><strong>Usage Data:</strong> Courses accessed, quiz results, time spent on content, assignments submitted, and forum interactions.</li>
             <li><strong>Device Information:</strong> Device type, operating system, IP address, and app version for diagnostics and security.</li>
+            <li><strong>Camera and Photos:</strong> With your permission, we access your camera and photo library to allow you to take or upload a profile picture. These images are stored securely and used solely for your profile.</li>
             <li><strong>Communications:</strong> Messages sent through the platform, announcements, and support requests.</li>
           </ul>
 
