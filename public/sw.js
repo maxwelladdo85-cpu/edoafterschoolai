@@ -1,5 +1,5 @@
 // EdoLearn service worker — app-shell cache + offline fallback.
-const VERSION = "edolearn-v1";
+const VERSION = "edolearn-v2";
 const SHELL_CACHE = `shell-${VERSION}`;
 const RUNTIME_CACHE = `runtime-${VERSION}`;
 const SHELL_ASSETS = [
