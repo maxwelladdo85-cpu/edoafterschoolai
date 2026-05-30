@@ -49,6 +49,8 @@
 	<string>EdoDLAH uses your camera to take profile photos and share pictures with teachers.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>EdoDLAH needs access to your photo library to upload profile pictures and share images.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>EdoDLAH saves photos to your library when you take a profile picture.</string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
 </dict>
