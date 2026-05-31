@@ -250,7 +250,7 @@ function BulkUploadCard({
                       <TableCell className="text-muted-foreground">{i + 1}</TableCell>
                       <TableCell className="font-mono text-xs">{r.email}</TableCell>
                       <TableCell>{r.full_name}</TableCell>
-                      {role === "learner" && <TableCell>{r.class_level ?? "—"}</TableCell>}
+                      <TableCell>{r.class_level ?? "—"}</TableCell>
                       {role === "teacher" && <TableCell>{r.parent_phone ?? "—"}</TableCell>}
                       {role === "teacher" && <TableCell>{r.school_id ? r.school_id.slice(0, 8) + "…" : "—"}</TableCell>}
                       <TableCell>{r.lga ?? "—"}</TableCell>
@@ -328,7 +328,7 @@ export function BulkUploadUsers({ onDone }: { onDone?: () => void }) {
         templateCSV={TEACHER_TEMPLATE_CSV}
         templateFilename="bulk-teachers-template.csv"
         description="Upload a CSV to onboard multiple teachers at once."
-        headersLabel="email, full_name, parent_phone, lga, school_id, school_type, date_of_birth, password"
+        headersLabel="full_name, phone_number, email, lga, school_type, class_level, school_id, date_of_birth, password"
         onDone={onDone}
       />
       <BulkUploadCard
