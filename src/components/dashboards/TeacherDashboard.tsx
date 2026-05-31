@@ -65,7 +65,7 @@ export function TeacherDashboard() {
     for (const file of files) {
       const type = detectMaterialType(file);
       if (!type) { toast.error(`Skipped ${file.name}: unsupported type`); continue; }
-      if (file.size > 100 * 1024 * 1024) { toast.error(`Skipped ${file.name}: over 100 MB`); continue; }
+      if (file.size > 250 * 1024 * 1024) { toast.error(`Skipped ${file.name}: over 250 MB`); continue; }
       const safeName = file.name.replace(/[^\w.\-]+/g, "_");
       const path = `${courseId}/${Date.now()}-${safeName}`;
       const { error: upErr } = await supabase.storage.from("course-materials").upload(path, file, { contentType: file.type, upsert: false });
@@ -209,7 +209,7 @@ export function TeacherDashboard() {
                     accept="video/*,audio/*,application/pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                     onChange={(e) => setMaterialFiles(Array.from(e.target.files ?? []))}
                   />
-                  <p className="text-xs text-muted-foreground">Optional. Upload videos, audio, PDFs, or Word docs (max 100 MB each). You can add more later.</p>
+                  <p className="text-xs text-muted-foreground">Optional. Upload videos, audio, PDFs, or Word docs (max 250 MB each). You can add more later.</p>
                   {materialFiles.length > 0 && (
                     <ul className="mt-1 list-disc pl-5 text-xs text-muted-foreground">
                       {materialFiles.map((f) => <li key={f.name}>{f.name}</li>)}
