@@ -223,16 +223,18 @@ function BulkUploadCard({
             </div>
             <div className="rounded-md border max-h-72 overflow-auto">
               <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>#</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Name</TableHead>
-                    {role === "learner" && <TableHead>Class</TableHead>}
-                    <TableHead>LGA</TableHead>
-                    <TableHead>Status</TableHead>
-                  </TableRow>
-                </TableHeader>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>#</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Name</TableHead>
+                  {role === "learner" && <TableHead>Class</TableHead>}
+                  {role === "teacher" && <TableHead>Phone</TableHead>}
+                  {role === "teacher" && <TableHead>School</TableHead>}
+                  <TableHead>LGA</TableHead>
+                  <TableHead>Status</TableHead>
+                </TableRow>
+              </TableHeader>
                 <TableBody>
                   {rows.map((r, i) => (
                     <TableRow key={i}>
