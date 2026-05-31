@@ -206,6 +206,15 @@ function BulkUploadCard({
               <Button size="sm" onClick={submit} disabled={busy || validCount === 0}>
                 {busy ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Creating…</> : <>Create {validCount} {role}(s)</>}
               </Button>
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={submit}
+                disabled={busy || validCount === 0}
+                title="Push these rows to the database — new accounts will be created and the data will appear in the teachers/admin views across the app."
+              >
+                {busy ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Updating…</> : <><Upload className="h-4 w-4 mr-2" />Update database with this data</>}
+              </Button>
               <Button variant="ghost" size="sm" onClick={reset} disabled={busy}>Clear</Button>
             </>
           )}
