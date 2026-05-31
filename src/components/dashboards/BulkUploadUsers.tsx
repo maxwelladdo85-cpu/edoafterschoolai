@@ -188,7 +188,7 @@ function BulkUploadCard({
           <span className="font-mono">{headersLabel}</span>. Optional:{" "}
           <span className="font-mono">
             {role === "teacher"
-              ? "parent_phone, lga, school_id, school_type, date_of_birth, password"
+              ? "phone_number, lga, school_type, class_level, school_id, date_of_birth, password"
               : "lga, password"}
           </span>.
           If password is blank a secure one is generated and returned in the results CSV.
@@ -237,7 +237,7 @@ function BulkUploadCard({
                   <TableHead>#</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Name</TableHead>
-                  {role === "learner" && <TableHead>Class</TableHead>}
+                  <TableHead>Class</TableHead>
                   {role === "teacher" && <TableHead>Phone</TableHead>}
                   {role === "teacher" && <TableHead>School</TableHead>}
                   <TableHead>LGA</TableHead>
