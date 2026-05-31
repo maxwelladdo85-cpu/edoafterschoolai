@@ -936,6 +936,11 @@ export type Database = {
           user_id: string
         }[]
       }
+      admin_analytics_filter_options: { Args: never; Returns: Json }
+      admin_analytics_filtered: {
+        Args: { p_days?: number; p_lga?: string; p_school_type?: string }
+        Returns: Json
+      }
       admin_approve_teacher: { Args: { p_user_id: string }; Returns: undefined }
       admin_completion_rates: {
         Args: never
