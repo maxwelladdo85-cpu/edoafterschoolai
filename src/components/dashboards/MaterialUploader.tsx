@@ -36,7 +36,7 @@ export function MaterialUploader({ courseId, onUploaded }: { courseId: string; o
     if (!file) return toast.error("Pick a file to upload");
     const type = detectType(file);
     if (!type) return toast.error("Unsupported file. Use video, audio, PDF, or Word doc.");
-    if (file.size > 250 * 1024 * 1024) return toast.error("Max file size is 250 MB");
+    if (file.size > 100 * 1024 * 1024) return toast.error("Max file size is 100 MB");
 
     setBusy(true);
     try {
@@ -116,7 +116,7 @@ export function MaterialUploader({ courseId, onUploaded }: { courseId: string; o
               onChange={(e) => setFile(e.target.files?.[0] ?? null)}
               required
             />
-            <p className="text-xs text-muted-foreground">Supported: MP4, WebM, MP3, WAV, PDF, DOC/DOCX. Max 250 MB.</p>
+            <p className="text-xs text-muted-foreground">Supported: MP4, WebM, MP3, WAV, PDF, DOC/DOCX. Max 100 MB.</p>
           </div>
           <DialogFooter>
             <Button type="submit" disabled={busy}>
