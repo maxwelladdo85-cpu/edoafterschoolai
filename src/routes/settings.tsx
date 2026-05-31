@@ -159,7 +159,7 @@ function SettingsPage() {
       if (!pp?.date_of_birth) missing.add("dob");
       if (role === "learner" && !pp?.class_level) missing.add("class");
       if ((role === "learner" || role === "teacher") && !pp?.lga) missing.add("lga");
-      if (!pp?.school_id || !pp?.school_type) missing.add("school");
+      if (role !== "admin" && (!pp?.school_id || !pp?.school_type)) missing.add("school");
       if (role === "teacher") {
         if (!pp?.parent_phone) missing.add("contact");
       } else if (role === "learner") {
