@@ -186,7 +186,11 @@ function BulkUploadCard({
         <p className="text-sm text-muted-foreground">
           {description} Required columns:{" "}
           <span className="font-mono">{headersLabel}</span>. Optional:{" "}
-          <span className="font-mono">lga, password</span>.
+          <span className="font-mono">
+            {role === "teacher"
+              ? "parent_phone, lga, school_id, school_type, date_of_birth, password"
+              : "lga, password"}
+          </span>.
           If password is blank a secure one is generated and returned in the results CSV.
         </p>
 
