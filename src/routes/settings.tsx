@@ -496,6 +496,7 @@ function SettingsPage() {
             )}
 
 
+            {role !== "admin" && (
             <Card className="border-border/60" style={{ boxShadow: "var(--shadow-card)" }}>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2"><SchoolIcon className="h-5 w-5 text-primary" /> School</CardTitle>
