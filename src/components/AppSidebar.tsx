@@ -82,6 +82,7 @@ const NAV: Record<AppRole, NavSection[]> = {
       items: [
         { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
         { title: "Performance", url: "/admin-performance", icon: Activity },
+        { title: "Analytics", url: "/admin-analytics", icon: BarChart3 },
       ],
     },
     {
