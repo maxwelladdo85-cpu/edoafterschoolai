@@ -664,6 +664,7 @@ function SettingsPage() {
                 )}
               </CardContent>
             </Card>
+            )}
 
             {canSelfDelete && (
               <Card className="border-destructive/40" style={{ boxShadow: "var(--shadow-card)" }}>
