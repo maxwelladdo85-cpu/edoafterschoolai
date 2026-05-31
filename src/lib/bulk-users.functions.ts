@@ -10,6 +10,10 @@ const RowSchema = z.object({
   class_level: z.string().trim().max(50).optional().or(z.literal("")).transform((v) => (v ? v : undefined)),
   lga: z.string().trim().max(100).optional().or(z.literal("")).transform((v) => (v ? v : undefined)),
   password: z.string().min(6).max(72).optional().or(z.literal("")).transform((v) => (v ? v : undefined)),
+  parent_phone: z.string().trim().max(20).optional().or(z.literal("")).transform((v) => (v ? v : undefined)),
+  school_id: z.string().trim().uuid().optional().or(z.literal("")).transform((v) => (v ? v : undefined)),
+  school_type: z.string().trim().max(50).optional().or(z.literal("")).transform((v) => (v ? v : undefined)),
+  date_of_birth: z.string().trim().max(50).optional().or(z.literal("")).transform((v) => (v ? v : undefined)),
 });
 
 const InputSchema = z.object({
@@ -58,6 +62,10 @@ export const bulkCreateUsers = createServerFn({ method: "POST" })
         const profilePatch: Record<string, any> = { full_name: r.full_name };
         if (r.class_level) profilePatch.class_level = r.class_level;
         if (r.lga) profilePatch.lga = r.lga;
+        if (r.parent_phone) profilePatch.parent_phone = r.parent_phone;
+        if (r.school_id) profilePatch.school_id = r.school_id;
+        if (r.school_type) profilePatch.school_type = r.school_type;
+        if (r.date_of_birth) profilePatch.date_of_birth = r.date_of_birth;
         profilePatch.status = "active";
         await (supabaseAdmin.from("profiles") as any).update(profilePatch).eq("id", uid);
 

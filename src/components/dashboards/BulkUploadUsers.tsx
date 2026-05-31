@@ -11,6 +11,7 @@ import { toast } from "sonner";
 type ParsedRow = {
   email: string; full_name: string; role: string;
   class_level?: string; lga?: string; password?: string;
+  parent_phone?: string; school_id?: string; school_type?: string; date_of_birth?: string;
   _error?: string;
 };
 
@@ -20,7 +21,7 @@ type ResultRow = {
 };
 
 const LEARNER_HEADERS = ["email", "full_name", "class_level", "lga", "password"];
-const TEACHER_HEADERS = ["email", "full_name", "lga", "password"];
+const TEACHER_HEADERS = ["email", "full_name", "parent_phone", "lga", "school_id", "school_type", "date_of_birth", "password"];
 
 function makeTemplateCSV(headers: string[], rows: string[]) {
   return headers.join(",") + "\n" + rows.join("\n") + "\n";
@@ -32,8 +33,8 @@ const LEARNER_TEMPLATE_CSV = makeTemplateCSV(LEARNER_HEADERS, [
 ]);
 
 const TEACHER_TEMPLATE_CSV = makeTemplateCSV(TEACHER_HEADERS, [
-  "john@example.com,John Smith,Ikpoba-Okha,",
-  "mary@example.com,Mary Okafor,Oredo,",
+  "john@example.com,John Smith,08012345678,Ikpoba-Okha,f6749aa3-7475-43fd-9840-b1a8cc18f903,Public,1985-04-12,",
+  "mary@example.com,Mary Okafor,08087654321,Oredo,04322772-a498-4dbd-9c22-c7f4b90f4c9f,Public,1990-08-22,",
 ]);
 
 function parseRoleCSV(text: string, role: "learner" | "teacher"): { rows: ParsedRow[]; errors: string[] } {
@@ -68,6 +69,7 @@ function parseRoleCSV(text: string, role: "learner" | "teacher"): { rows: Parsed
     return { rows: [], errors };
   }
   const iClass = idx("class_level"), iLga = idx("lga"), iPwd = idx("password");
+  const iParentPhone = idx("parent_phone"), iSchoolId = idx("school_id"), iSchoolType = idx("school_type"), iDob = idx("date_of_birth");
 
   const rows: ParsedRow[] = [];
   for (let i = 1; i < lines.length; i++) {
@@ -79,6 +81,10 @@ function parseRoleCSV(text: string, role: "learner" | "teacher"): { rows: Parsed
       class_level: role === "learner" && iClass >= 0 ? cells[iClass] : undefined,
       lga: iLga >= 0 ? cells[iLga] : undefined,
       password: iPwd >= 0 ? cells[iPwd] : undefined,
+      parent_phone: iParentPhone >= 0 ? cells[iParentPhone] : undefined,
+      school_id: iSchoolId >= 0 ? cells[iSchoolId] : undefined,
+      school_type: iSchoolType >= 0 ? cells[iSchoolType] : undefined,
+      date_of_birth: iDob >= 0 ? cells[iDob] : undefined,
     };
     if (!row.email || /^\S+@\S+\.\S+$/.test(row.email) === false) row._error = "Invalid email";
     else if (!row.full_name) row._error = "Missing name";
@@ -140,6 +146,7 @@ function BulkUploadCard({
       const res = await bulkFn({ data: { rows: valid.map((r) => ({
         email: r.email, full_name: r.full_name, role: r.role as "learner" | "teacher",
         class_level: r.class_level, lga: r.lga, password: r.password,
+        parent_phone: r.parent_phone, school_id: r.school_id, school_type: r.school_type, date_of_birth: r.date_of_birth,
       })) } });
       setResults(res.results as ResultRow[]);
       toast.success(`Created ${res.created} ${role}(s)${res.failed ? `, ${res.failed} failed` : ""}`);
@@ -179,7 +186,11 @@ function BulkUploadCard({
         <p className="text-sm text-muted-foreground">
           {description} Required columns:{" "}
           <span className="font-mono">{headersLabel}</span>. Optional:{" "}
-          <span className="font-mono">lga, password</span>.
+          <span className="font-mono">
+            {role === "teacher"
+              ? "parent_phone, lga, school_id, school_type, date_of_birth, password"
+              : "lga, password"}
+          </span>.
           If password is blank a secure one is generated and returned in the results CSV.
         </p>
 
@@ -212,16 +223,18 @@ function BulkUploadCard({
             </div>
             <div className="rounded-md border max-h-72 overflow-auto">
               <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>#</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Name</TableHead>
-                    {role === "learner" && <TableHead>Class</TableHead>}
-                    <TableHead>LGA</TableHead>
-                    <TableHead>Status</TableHead>
-                  </TableRow>
-                </TableHeader>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>#</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Name</TableHead>
+                  {role === "learner" && <TableHead>Class</TableHead>}
+                  {role === "teacher" && <TableHead>Phone</TableHead>}
+                  {role === "teacher" && <TableHead>School</TableHead>}
+                  <TableHead>LGA</TableHead>
+                  <TableHead>Status</TableHead>
+                </TableRow>
+              </TableHeader>
                 <TableBody>
                   {rows.map((r, i) => (
                     <TableRow key={i}>
@@ -229,6 +242,8 @@ function BulkUploadCard({
                       <TableCell className="font-mono text-xs">{r.email}</TableCell>
                       <TableCell>{r.full_name}</TableCell>
                       {role === "learner" && <TableCell>{r.class_level ?? "—"}</TableCell>}
+                      {role === "teacher" && <TableCell>{r.parent_phone ?? "—"}</TableCell>}
+                      {role === "teacher" && <TableCell>{r.school_id ? r.school_id.slice(0, 8) + "…" : "—"}</TableCell>}
                       <TableCell>{r.lga ?? "—"}</TableCell>
                       <TableCell>
                         {r._error
@@ -304,7 +319,7 @@ export function BulkUploadUsers({ onDone }: { onDone?: () => void }) {
         templateCSV={TEACHER_TEMPLATE_CSV}
         templateFilename="bulk-teachers-template.csv"
         description="Upload a CSV to onboard multiple teachers at once."
-        headersLabel="email, full_name"
+        headersLabel="email, full_name, parent_phone, lga, school_id, school_type, date_of_birth, password"
         onDone={onDone}
       />
       <BulkUploadCard
