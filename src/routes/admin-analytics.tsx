@@ -72,8 +72,8 @@ function AdminAnalyticsPage() {
   const load = async () => {
     setBusy(true);
     const { data, error } = await supabase.rpc("admin_analytics_filtered", {
-      p_lga: lga === ANY ? null : lga,
-      p_school_type: schoolType === ANY ? null : schoolType,
+      p_lga: lga === ANY ? undefined : lga,
+      p_school_type: schoolType === ANY ? undefined : schoolType,
       p_days: days,
     });
     setBusy(false);
