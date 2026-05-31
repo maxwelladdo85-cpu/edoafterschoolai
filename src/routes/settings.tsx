@@ -496,6 +496,7 @@ function SettingsPage() {
             )}
 
 
+            {role !== "admin" && (
             <Card className="border-border/60" style={{ boxShadow: "var(--shadow-card)" }}>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2"><SchoolIcon className="h-5 w-5 text-primary" /> School</CardTitle>
@@ -578,7 +579,9 @@ function SettingsPage() {
                 )}
               </CardContent>
             </Card>
+            )}
 
+            {role !== "admin" && (
             <Card className="border-border/60" style={{ boxShadow: "var(--shadow-card)" }}>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2"><IdCard className="h-5 w-5 text-primary" /> {role === "teacher" ? "Phone number" : "Parent contact & NIN"}</CardTitle>
@@ -661,6 +664,7 @@ function SettingsPage() {
                 )}
               </CardContent>
             </Card>
+            )}
 
             {canSelfDelete && (
               <Card className="border-destructive/40" style={{ boxShadow: "var(--shadow-card)" }}>
