@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Upload, Download, FileSpreadsheet, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
+import { Upload, Download, FileSpreadsheet, Loader2, CheckCircle2, AlertCircle, Users, GraduationCap } from "lucide-react";
 import { toast } from "sonner";
 
 type ParsedRow = {
@@ -36,7 +36,7 @@ const TEACHER_TEMPLATE_CSV = makeTemplateCSV(TEACHER_HEADERS, [
   "mary@example.com,Mary Okafor,Oredo,",
 ]);
 
-function parseCSV(text: string): { rows: ParsedRow[]; errors: string[] } {
+function parseRoleCSV(text: string, role: "learner" | "teacher"): { rows: ParsedRow[]; errors: string[] } {
   const errors: string[] = [];
   const lines = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n").split("\n").filter((l) => l.trim().length > 0);
   if (lines.length === 0) return { rows: [], errors: ["File is empty"] };
@@ -62,9 +62,9 @@ function parseCSV(text: string): { rows: ParsedRow[]; errors: string[] } {
 
   const headers = splitLine(lines[0]).map((h) => h.toLowerCase());
   const idx = (name: string) => headers.indexOf(name);
-  const iEmail = idx("email"), iName = idx("full_name"), iRole = idx("role");
-  if (iEmail < 0 || iName < 0 || iRole < 0) {
-    errors.push("CSV must have headers: email, full_name, role (optional: class_level, lga, password)");
+  const iEmail = idx("email"), iName = idx("full_name");
+  if (iEmail < 0 || iName < 0) {
+    errors.push(`CSV must have headers: email, full_name${role === "learner" ? ", class_level" : ""} (optional: lga, password)`);
     return { rows: [], errors };
   }
   const iClass = idx("class_level"), iLga = idx("lga"), iPwd = idx("password");
@@ -75,14 +75,14 @@ function parseCSV(text: string): { rows: ParsedRow[]; errors: string[] } {
     const row: ParsedRow = {
       email: cells[iEmail] ?? "",
       full_name: cells[iName] ?? "",
-      role: (cells[iRole] ?? "").toLowerCase(),
-      class_level: iClass >= 0 ? cells[iClass] : undefined,
+      role,
+      class_level: role === "learner" && iClass >= 0 ? cells[iClass] : undefined,
       lga: iLga >= 0 ? cells[iLga] : undefined,
       password: iPwd >= 0 ? cells[iPwd] : undefined,
     };
-    if (!row.email || !/^\S+@\S+\.\S+$/.test(row.email)) row._error = "Invalid email";
+    if (!row.email || /^\S+@\S+\.\S+$/.test(row.email) === false) row._error = "Invalid email";
     else if (!row.full_name) row._error = "Missing name";
-    else if (row.role !== "learner" && row.role !== "teacher") row._error = "Role must be learner or teacher";
+    else if (role === "learner" && iClass >= 0 && !row.class_level) row._error = "Missing class_level";
     rows.push(row);
   }
   return { rows, errors };
@@ -96,7 +96,25 @@ function downloadCsv(filename: string, text: string) {
   URL.revokeObjectURL(url);
 }
 
-export function BulkUploadUsers({ onDone }: { onDone?: () => void }) {
+function BulkUploadCard({
+  role,
+  title,
+  icon,
+  templateCSV,
+  templateFilename,
+  description,
+  headersLabel,
+  onDone,
+}: {
+  role: "learner" | "teacher";
+  title: string;
+  icon: React.ReactNode;
+  templateCSV: string;
+  templateFilename: string;
+  description: string;
+  headersLabel: string;
+  onDone?: () => void;
+}) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [rows, setRows] = useState<ParsedRow[]>([]);
   const [results, setResults] = useState<ResultRow[] | null>(null);
@@ -106,7 +124,7 @@ export function BulkUploadUsers({ onDone }: { onDone?: () => void }) {
   const handleFile = async (file: File) => {
     setResults(null);
     const text = await file.text();
-    const { rows: parsed, errors } = parseCSV(text);
+    const { rows: parsed, errors } = parseRoleCSV(text, role);
     if (errors.length) { toast.error(errors[0]); return; }
     if (parsed.length === 0) { toast.error("No data rows found"); return; }
     if (parsed.length > 500) { toast.error("Maximum 500 rows per upload"); return; }
@@ -124,7 +142,7 @@ export function BulkUploadUsers({ onDone }: { onDone?: () => void }) {
         class_level: r.class_level, lga: r.lga, password: r.password,
       })) } });
       setResults(res.results as ResultRow[]);
-      toast.success(`Created ${res.created} user(s)${res.failed ? `, ${res.failed} failed` : ""}`);
+      toast.success(`Created ${res.created} ${role}(s)${res.failed ? `, ${res.failed} failed` : ""}`);
       onDone?.();
     } catch (e: any) {
       toast.error(e?.message ?? "Bulk upload failed");
@@ -142,7 +160,7 @@ export function BulkUploadUsers({ onDone }: { onDone?: () => void }) {
       return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
     };
     const csv = [headers.join(","), ...results.map((r) => headers.map((h) => escape((r as any)[h])).join(","))].join("\n");
-    downloadCsv(`bulk-upload-results-${new Date().toISOString().slice(0,10)}.csv`, csv);
+    downloadCsv(`${role}-upload-results-${new Date().toISOString().slice(0, 10)}.csv`, csv);
   };
 
   const reset = () => { setRows([]); setResults(null); if (fileRef.current) fileRef.current.value = ""; };
@@ -151,23 +169,22 @@ export function BulkUploadUsers({ onDone }: { onDone?: () => void }) {
   const errorCount = rows.length - validCount;
 
   return (
-    <Card>
+    <Card className="flex flex-col">
       <CardHeader>
         <CardTitle className="text-base flex items-center gap-2">
-          <FileSpreadsheet className="h-4 w-4" /> Bulk upload learners &amp; teachers
+          {icon} {title}
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 flex-1 flex flex-col">
         <p className="text-sm text-muted-foreground">
-          Upload a CSV to onboard multiple users at once. Required columns:{" "}
-          <span className="font-mono">email, full_name, role</span>. Optional:{" "}
-          <span className="font-mono">class_level, lga, password</span>. Role must be{" "}
-          <span className="font-mono">learner</span> or <span className="font-mono">teacher</span>.
-          If password is blank a secure one is generated for you and returned in the results CSV.
+          {description} Required columns:{" "}
+          <span className="font-mono">{headersLabel}</span>. Optional:{" "}
+          <span className="font-mono">lga, password</span>.
+          If password is blank a secure one is generated and returned in the results CSV.
         </p>
 
         <div className="flex flex-wrap gap-2">
-          <Button variant="outline" size="sm" onClick={() => downloadCsv("bulk-users-template.csv", TEMPLATE_CSV)}>
+          <Button variant="outline" size="sm" onClick={() => downloadCsv(templateFilename, templateCSV)}>
             <Download className="h-4 w-4 mr-2" /> Download template
           </Button>
           <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()} disabled={busy}>
@@ -176,7 +193,7 @@ export function BulkUploadUsers({ onDone }: { onDone?: () => void }) {
           {rows.length > 0 && (
             <>
               <Button size="sm" onClick={submit} disabled={busy || validCount === 0}>
-                {busy ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Creating…</> : <>Create {validCount} user(s)</>}
+                {busy ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Creating…</> : <>Create {validCount} {role}(s)</>}
               </Button>
               <Button variant="ghost" size="sm" onClick={reset} disabled={busy}>Clear</Button>
             </>
@@ -188,7 +205,7 @@ export function BulkUploadUsers({ onDone }: { onDone?: () => void }) {
         </div>
 
         {rows.length > 0 && !results && (
-          <div className="space-y-2">
+          <div className="space-y-2 flex-1">
             <div className="flex gap-2 text-sm">
               <Badge variant="default">{validCount} valid</Badge>
               {errorCount > 0 && <Badge variant="destructive">{errorCount} invalid</Badge>}
@@ -200,8 +217,7 @@ export function BulkUploadUsers({ onDone }: { onDone?: () => void }) {
                     <TableHead>#</TableHead>
                     <TableHead>Email</TableHead>
                     <TableHead>Name</TableHead>
-                    <TableHead>Role</TableHead>
-                    <TableHead>Class</TableHead>
+                    {role === "learner" && <TableHead>Class</TableHead>}
                     <TableHead>LGA</TableHead>
                     <TableHead>Status</TableHead>
                   </TableRow>
@@ -212,8 +228,7 @@ export function BulkUploadUsers({ onDone }: { onDone?: () => void }) {
                       <TableCell className="text-muted-foreground">{i + 1}</TableCell>
                       <TableCell className="font-mono text-xs">{r.email}</TableCell>
                       <TableCell>{r.full_name}</TableCell>
-                      <TableCell><Badge variant={r.role === "teacher" ? "default" : "secondary"}>{r.role}</Badge></TableCell>
-                      <TableCell>{r.class_level ?? "—"}</TableCell>
+                      {role === "learner" && <TableCell>{r.class_level ?? "—"}</TableCell>}
                       <TableCell>{r.lga ?? "—"}</TableCell>
                       <TableCell>
                         {r._error
@@ -229,7 +244,7 @@ export function BulkUploadUsers({ onDone }: { onDone?: () => void }) {
         )}
 
         {results && (
-          <div className="space-y-2">
+          <div className="space-y-2 flex-1">
             <div className="flex items-center justify-between gap-2 flex-wrap">
               <div className="flex gap-2 text-sm">
                 <Badge variant="default">{results.filter((r) => r.ok).length} created</Badge>
@@ -247,7 +262,7 @@ export function BulkUploadUsers({ onDone }: { onDone?: () => void }) {
                   <TableRow>
                     <TableHead>#</TableHead>
                     <TableHead>Email</TableHead>
-                    <TableHead>Role</TableHead>
+                    <TableHead>Name</TableHead>
                     <TableHead>Result</TableHead>
                     <TableHead>Temp password / Error</TableHead>
                   </TableRow>
@@ -257,7 +272,7 @@ export function BulkUploadUsers({ onDone }: { onDone?: () => void }) {
                     <TableRow key={r.row}>
                       <TableCell className="text-muted-foreground">{r.row}</TableCell>
                       <TableCell className="font-mono text-xs">{r.email}</TableCell>
-                      <TableCell>{r.role}</TableCell>
+                      <TableCell>{r.full_name}</TableCell>
                       <TableCell>
                         {r.ok
                           ? <span className="inline-flex items-center gap-1 text-emerald-600 text-xs"><CheckCircle2 className="h-3 w-3" />Created</span>
@@ -276,5 +291,32 @@ export function BulkUploadUsers({ onDone }: { onDone?: () => void }) {
         )}
       </CardContent>
     </Card>
+  );
+}
+
+export function BulkUploadUsers({ onDone }: { onDone?: () => void }) {
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <BulkUploadCard
+        role="teacher"
+        title="Bulk upload teachers"
+        icon={<Users className="h-4 w-4" />}
+        templateCSV={TEACHER_TEMPLATE_CSV}
+        templateFilename="bulk-teachers-template.csv"
+        description="Upload a CSV to onboard multiple teachers at once."
+        headersLabel="email, full_name"
+        onDone={onDone}
+      />
+      <BulkUploadCard
+        role="learner"
+        title="Bulk upload learners"
+        icon={<GraduationCap className="h-4 w-4" />}
+        templateCSV={LEARNER_TEMPLATE_CSV}
+        templateFilename="bulk-learners-template.csv"
+        description="Upload a CSV to onboard multiple learners at once."
+        headersLabel="email, full_name, class_level"
+        onDone={onDone}
+      />
+    </div>
   );
 }
