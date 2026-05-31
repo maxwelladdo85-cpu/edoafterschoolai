@@ -19,11 +19,22 @@ type ResultRow = {
   ok: boolean; password?: string; error?: string;
 };
 
-const TEMPLATE_HEADERS = ["email", "full_name", "role", "class_level", "lga", "password"];
-const TEMPLATE_CSV =
-  TEMPLATE_HEADERS.join(",") + "\n" +
-  "jane@example.com,Jane Doe,learner,Primary 4,Oredo,\n" +
-  "john@example.com,John Smith,teacher,,Ikpoba-Okha,\n";
+const LEARNER_HEADERS = ["email", "full_name", "class_level", "lga", "password"];
+const TEACHER_HEADERS = ["email", "full_name", "lga", "password"];
+
+function makeTemplateCSV(headers: string[], rows: string[]) {
+  return headers.join(",") + "\n" + rows.join("\n") + "\n";
+}
+
+const LEARNER_TEMPLATE_CSV = makeTemplateCSV(LEARNER_HEADERS, [
+  "jane@example.com,Jane Doe,Primary 4,Oredo,",
+  "chidi@example.com,Chidi Nwosu,Primary 2,Egor,",
+]);
+
+const TEACHER_TEMPLATE_CSV = makeTemplateCSV(TEACHER_HEADERS, [
+  "john@example.com,John Smith,Ikpoba-Okha,",
+  "mary@example.com,Mary Okafor,Oredo,",
+]);
 
 function parseCSV(text: string): { rows: ParsedRow[]; errors: string[] } {
   const errors: string[] = [];
