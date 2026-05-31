@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, BookOpen, Users, Bell, LogOut, GraduationCap, UserCircle, Settings, ClipboardCheck, Megaphone, Sparkles, Wand2, Video, MessageCircle, Award, Activity, ChevronDown } from "lucide-react";
+import { LayoutDashboard, BookOpen, Users, Bell, LogOut, GraduationCap, UserCircle, Settings, ClipboardCheck, Megaphone, Sparkles, Wand2, Video, MessageCircle, Award, Activity, BarChart3, ChevronDown } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
   SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem,
