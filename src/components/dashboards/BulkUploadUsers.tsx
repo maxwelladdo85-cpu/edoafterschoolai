@@ -11,6 +11,7 @@ import { toast } from "sonner";
 type ParsedRow = {
   email: string; full_name: string; role: string;
   class_level?: string; lga?: string; password?: string;
+  parent_phone?: string; school_id?: string; school_type?: string; date_of_birth?: string;
   _error?: string;
 };
 
