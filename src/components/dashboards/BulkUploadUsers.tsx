@@ -242,6 +242,8 @@ function BulkUploadCard({
                       <TableCell className="font-mono text-xs">{r.email}</TableCell>
                       <TableCell>{r.full_name}</TableCell>
                       {role === "learner" && <TableCell>{r.class_level ?? "—"}</TableCell>}
+                      {role === "teacher" && <TableCell>{r.parent_phone ?? "—"}</TableCell>}
+                      {role === "teacher" && <TableCell>{r.school_id ? r.school_id.slice(0, 8) + "…" : "—"}</TableCell>}
                       <TableCell>{r.lga ?? "—"}</TableCell>
                       <TableCell>
                         {r._error
