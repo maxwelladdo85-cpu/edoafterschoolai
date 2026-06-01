@@ -5,10 +5,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Sparkles, Loader2, ListChecks, CalendarRange, FileText, GraduationCap, Copy, Upload } from "lucide-react";
+import { Sparkles, Loader2, ListChecks, CalendarRange, FileText, GraduationCap, Copy, Upload, BookPlus, ClipboardList } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ACCEPTED_DOC_TYPES, extractDocumentText } from "@/lib/extract-document-text";
+import { SendToCourseDialog } from "@/components/SendToCourseDialog";
 
 type QuizQuestion = {
   question: string;
