@@ -40,7 +40,7 @@ export async function extractDocumentText(file: File): Promise<string> {
     name.endsWith(".docx") ||
     type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
   ) {
-    const mammoth: any = await import("mammoth/mammoth.browser");
+    const mammoth: any = await import(/* @vite-ignore */ "mammoth/mammoth.browser" as any);
     const buf = await file.arrayBuffer();
     const result = await mammoth.extractRawText({ arrayBuffer: buf });
     return String(result?.value ?? "").trim();
