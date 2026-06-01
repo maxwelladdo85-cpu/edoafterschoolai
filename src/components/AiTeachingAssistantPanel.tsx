@@ -287,7 +287,7 @@ function ContentSummariser() {
         {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileText className="mr-2 h-4 w-4" />}
         Summarise for Students
       </Button>
-      {content && <MarkdownResult content={content} />}
+      {content && <MarkdownResult content={content} saveTitle="AI student summary" />}
     </div>
   );
 }
