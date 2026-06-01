@@ -251,7 +251,7 @@ function LessonPlanner() {
         {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CalendarRange className="mr-2 h-4 w-4" />}
         Generate Lesson Plan
       </Button>
-      {content && <MarkdownResult content={content} />}
+      {content && <MarkdownResult content={content} saveTitle={topic ? `Lesson plan: ${topic}` : "AI lesson plan"} />}
     </div>
   );
 }
