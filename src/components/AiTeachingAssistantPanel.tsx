@@ -144,9 +144,14 @@ function QuizGenerator() {
 
       {questions && (
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <p className="text-sm text-muted-foreground">{questions.length} questions generated</p>
-            <CopyButton text={JSON.stringify(questions, null, 2)} />
+            <div className="flex flex-wrap gap-2">
+              <CopyButton text={JSON.stringify(questions, null, 2)} />
+              <Button size="sm" onClick={() => setSendOpen(true)}>
+                <ClipboardList className="mr-2 h-3.5 w-3.5" /> Create Assessment
+              </Button>
+            </div>
           </div>
           <div className="space-y-3">
             {questions.map((q, i) => (
