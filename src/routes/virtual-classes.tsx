@@ -224,7 +224,7 @@ function VirtualClassesPage() {
                   <Label>Description (optional)</Label>
                   <Textarea name="description" rows={2} defaultValue={initial.description} maxLength={1000} />
                 </div>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                   <div className="space-y-1 col-span-1">
                     <Label>Date</Label>
                     <Input type="date" name="date" defaultValue={initial.date} required />
