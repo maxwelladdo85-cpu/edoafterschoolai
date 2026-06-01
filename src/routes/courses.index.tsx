@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import { PageHero } from "@/components/PageHero";
 import heroLibrary from "@/assets/hero-library.jpg";
 
-export const Route = createFileRoute("/courses")({
+export const Route = createFileRoute("/courses/")({
   component: CoursesLibrary,
 });
 
