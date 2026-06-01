@@ -306,6 +306,13 @@ function BuilderPage() {
     });
   };
 
+  // Scroll to top whenever the step changes so the active section header
+  // (including the Publish toggle on step 3) is visible on small screens / iOS.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [step]);
+
   if (loading) {
     return <DashboardShell title="Course builder"><div className="flex items-center justify-center py-20 text-muted-foreground"><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Loading…</div></DashboardShell>;
   }
