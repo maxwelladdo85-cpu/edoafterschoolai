@@ -17,6 +17,7 @@ import { VarkStartDialog } from "@/components/VarkStartDialog";
 interface Enrollment {
   id: string;
   progress: number;
+  course_id: string;
   course: { title: string; subject: string | null; description: string | null } | null;
 }
 interface Notification { id: string; title: string; message: string | null; is_read: boolean; created_at: string; }
@@ -35,7 +36,7 @@ export function LearnerDashboard() {
       const [eRes, nRes, vRes] = await Promise.all([
         supabase
           .from("enrollments")
-          .select("id, progress, course:courses(title, subject, description)")
+          .select("id, progress, course_id, course:courses(title, subject, description)")
           .eq("learner_id", user.id),
         supabase
           .from("notifications")
@@ -127,9 +128,14 @@ export function LearnerDashboard() {
                     <Badge variant="secondary">{e.progress}%</Badge>
                   </div>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="space-y-3">
                   <Progress value={e.progress} />
-                  <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{e.course?.description}</p>
+                  <p className="text-sm text-muted-foreground line-clamp-2">{e.course?.description}</p>
+                  <Button asChild size="sm" className="w-full">
+                    <Link to="/courses/$courseId" params={{ courseId: e.course_id }}>
+                      <BookOpen className="mr-2 h-4 w-4" /> Open course & materials
+                    </Link>
+                  </Button>
                 </CardContent>
               </Card>
             ))}
