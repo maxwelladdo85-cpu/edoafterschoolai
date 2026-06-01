@@ -17,6 +17,7 @@ import { VarkStartDialog } from "@/components/VarkStartDialog";
 interface Enrollment {
   id: string;
   progress: number;
+  course_id: string;
   course: { title: string; subject: string | null; description: string | null } | null;
 }
 interface Notification { id: string; title: string; message: string | null; is_read: boolean; created_at: string; }
