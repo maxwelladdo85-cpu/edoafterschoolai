@@ -1,13 +1,14 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Sparkles, Loader2, ListChecks, CalendarRange, FileText, GraduationCap, Copy } from "lucide-react";
+import { Sparkles, Loader2, ListChecks, CalendarRange, FileText, GraduationCap, Copy, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { ACCEPTED_DOC_TYPES, extractDocumentText } from "@/lib/extract-document-text";
 
 type QuizQuestion = {
   question: string;
@@ -47,6 +48,54 @@ function CopyButton({ text }: { text: string }) {
   );
 }
 
+function UploadDocButton({ onText, disabled }: { onText: (text: string) => void; disabled?: boolean }) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [busy, setBusy] = useState(false);
+
+  const handleFile = async (file: File) => {
+    setBusy(true);
+    try {
+      const text = await extractDocumentText(file);
+      if (!text.trim()) {
+        toast.error("Couldn't extract any text from that file.");
+        return;
+      }
+      onText(text);
+      toast.success(`Loaded ${file.name}`);
+    } catch (e: any) {
+      toast.error(e?.message || "Failed to read file");
+    } finally {
+      setBusy(false);
+      if (inputRef.current) inputRef.current.value = "";
+    }
+  };
+
+  return (
+    <>
+      <input
+        ref={inputRef}
+        type="file"
+        accept={ACCEPTED_DOC_TYPES}
+        className="hidden"
+        onChange={(e) => {
+          const f = e.target.files?.[0];
+          if (f) void handleFile(f);
+        }}
+      />
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        disabled={disabled || busy}
+        onClick={() => inputRef.current?.click()}
+      >
+        {busy ? <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> : <Upload className="mr-2 h-3.5 w-3.5" />}
+        Upload document
+      </Button>
+    </>
+  );
+}
+
 function QuizGenerator() {
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
@@ -74,13 +123,17 @@ function QuizGenerator() {
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <Label>Lesson text</Label>
+        <div className="flex items-center justify-between gap-2">
+          <Label>Lesson text</Label>
+          <UploadDocButton disabled={loading} onText={(t) => setText((prev) => (prev ? prev + "\n\n" + t : t))} />
+        </div>
         <Textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
           rows={6}
-          placeholder="Paste the lesson content here…"
+          placeholder="Paste the lesson content here, or upload a PDF, DOCX or TXT file…"
         />
+        <p className="text-xs text-muted-foreground">Supported uploads: PDF, DOCX, TXT (max 15 MB).</p>
       </div>
       <Button onClick={generate} disabled={loading}>
         {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ListChecks className="mr-2 h-4 w-4" />}
@@ -194,8 +247,12 @@ function ContentSummariser() {
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <Label>Document</Label>
-        <Textarea rows={8} value={text} onChange={(e) => setText(e.target.value)} placeholder="Paste the document text…" />
+        <div className="flex items-center justify-between gap-2">
+          <Label>Document</Label>
+          <UploadDocButton disabled={loading} onText={(t) => setText((prev) => (prev ? prev + "\n\n" + t : t))} />
+        </div>
+        <Textarea rows={8} value={text} onChange={(e) => setText(e.target.value)} placeholder="Paste the document text, or upload a PDF, DOCX or TXT file…" />
+        <p className="text-xs text-muted-foreground">Supported uploads: PDF, DOCX, TXT (max 15 MB).</p>
       </div>
       <Button onClick={generate} disabled={loading}>
         {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileText className="mr-2 h-4 w-4" />}
