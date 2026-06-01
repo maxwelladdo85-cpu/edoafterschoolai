@@ -101,6 +101,7 @@ function QuizGenerator() {
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
   const [questions, setQuestions] = useState<QuizQuestion[] | null>(null);
+  const [sendOpen, setSendOpen] = useState(false);
 
   const generate = async () => {
     if (text.trim().length < 50) {
