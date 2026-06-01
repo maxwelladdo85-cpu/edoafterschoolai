@@ -178,19 +178,41 @@ function QuizGenerator() {
           </div>
         </div>
       )}
+      <SendToCourseDialog
+        open={sendOpen}
+        onOpenChange={setSendOpen}
+        payload={
+          questions
+            ? { mode: "quiz", defaultTitle: "AI-generated quiz", questions }
+            : null
+        }
+      />
     </div>
   );
 }
 
-function MarkdownResult({ content }: { content: string }) {
+function MarkdownResult({ content, saveTitle }: { content: string; saveTitle?: string }) {
+  const [sendOpen, setSendOpen] = useState(false);
   return (
     <div className="space-y-2">
-      <div className="flex justify-end">
+      <div className="flex flex-wrap justify-end gap-2">
         <CopyButton text={content} />
+        {saveTitle && (
+          <Button size="sm" onClick={() => setSendOpen(true)}>
+            <BookPlus className="mr-2 h-3.5 w-3.5" /> Add to Course Builder
+          </Button>
+        )}
       </div>
       <div className="rounded-lg border bg-muted/30 p-4 text-sm whitespace-pre-wrap leading-relaxed">
         {content}
       </div>
+      {saveTitle && (
+        <SendToCourseDialog
+          open={sendOpen}
+          onOpenChange={setSendOpen}
+          payload={{ mode: "lesson", defaultTitle: saveTitle, content }}
+        />
+      )}
     </div>
   );
 }
