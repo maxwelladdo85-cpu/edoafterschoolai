@@ -21,7 +21,6 @@ import { Route as MyCoursesRouteImport } from './routes/my-courses'
 import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as DashboardRouteImport } from './routes/dashboard'
-import { Route as CoursesRouteImport } from './routes/courses'
 import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as CertificatesRouteImport } from './routes/certificates'
 import { Route as AssessmentsRouteImport } from './routes/assessments'
@@ -29,6 +28,7 @@ import { Route as AnnouncementsRouteImport } from './routes/announcements'
 import { Route as AdminPerformanceRouteImport } from './routes/admin-performance'
 import { Route as AdminAnalyticsRouteImport } from './routes/admin-analytics'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CoursesIndexRouteImport } from './routes/courses.index'
 import { Route as QuizzesCourseIdRouteImport } from './routes/quizzes.$courseId'
 import { Route as CoursesBuilderRouteImport } from './routes/courses.builder'
 import { Route as CoursesCourseIdRouteImport } from './routes/courses.$courseId'
@@ -98,11 +98,6 @@ const DashboardRoute = DashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CoursesRoute = CoursesRouteImport.update({
-  id: '/courses',
-  path: '/courses',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const CookiesRoute = CookiesRouteImport.update({
   id: '/cookies',
   path: '/cookies',
@@ -138,6 +133,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CoursesIndexRoute = CoursesIndexRouteImport.update({
+  id: '/courses/',
+  path: '/courses/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const QuizzesCourseIdRoute = QuizzesCourseIdRouteImport.update({
   id: '/quizzes/$courseId',
   path: '/quizzes/$courseId',
@@ -149,9 +149,9 @@ const CoursesBuilderRoute = CoursesBuilderRouteImport.update({
   getParentRoute: () => CoursesRoute,
 } as any)
 const CoursesCourseIdRoute = CoursesCourseIdRouteImport.update({
-  id: '/$courseId',
-  path: '/$courseId',
-  getParentRoute: () => CoursesRoute,
+  id: '/courses/$courseId',
+  path: '/courses/$courseId',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ApiTutorRoute = ApiTutorRouteImport.update({
   id: '/api/tutor',
@@ -187,7 +187,6 @@ export interface FileRoutesByFullPath {
   '/assessments': typeof AssessmentsRoute
   '/certificates': typeof CertificatesRoute
   '/cookies': typeof CookiesRoute
-  '/courses': typeof CoursesRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
   '/messages': typeof MessagesRoute
@@ -205,6 +204,7 @@ export interface FileRoutesByFullPath {
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/courses/builder': typeof CoursesBuilderRouteWithChildren
   '/quizzes/$courseId': typeof QuizzesCourseIdRoute
+  '/courses/': typeof CoursesIndexRoute
   '/courses/builder/edit': typeof CoursesBuilderEditRoute
   '/quizzes/$quizId/edit': typeof QuizzesQuizIdEditRoute
   '/quizzes/$quizId/take': typeof QuizzesQuizIdTakeRoute
@@ -217,7 +217,6 @@ export interface FileRoutesByTo {
   '/assessments': typeof AssessmentsRoute
   '/certificates': typeof CertificatesRoute
   '/cookies': typeof CookiesRoute
-  '/courses': typeof CoursesRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
   '/messages': typeof MessagesRoute
@@ -235,6 +234,7 @@ export interface FileRoutesByTo {
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/courses/builder': typeof CoursesBuilderRouteWithChildren
   '/quizzes/$courseId': typeof QuizzesCourseIdRoute
+  '/courses': typeof CoursesIndexRoute
   '/courses/builder/edit': typeof CoursesBuilderEditRoute
   '/quizzes/$quizId/edit': typeof QuizzesQuizIdEditRoute
   '/quizzes/$quizId/take': typeof QuizzesQuizIdTakeRoute
@@ -248,7 +248,6 @@ export interface FileRoutesById {
   '/assessments': typeof AssessmentsRoute
   '/certificates': typeof CertificatesRoute
   '/cookies': typeof CookiesRoute
-  '/courses': typeof CoursesRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
   '/messages': typeof MessagesRoute
@@ -266,6 +265,7 @@ export interface FileRoutesById {
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/courses/builder': typeof CoursesBuilderRouteWithChildren
   '/quizzes/$courseId': typeof QuizzesCourseIdRoute
+  '/courses/': typeof CoursesIndexRoute
   '/courses/builder/edit': typeof CoursesBuilderEditRoute
   '/quizzes/$quizId/edit': typeof QuizzesQuizIdEditRoute
   '/quizzes/$quizId/take': typeof QuizzesQuizIdTakeRoute
@@ -280,7 +280,6 @@ export interface FileRouteTypes {
     | '/assessments'
     | '/certificates'
     | '/cookies'
-    | '/courses'
     | '/dashboard'
     | '/login'
     | '/messages'
@@ -298,6 +297,7 @@ export interface FileRouteTypes {
     | '/courses/$courseId'
     | '/courses/builder'
     | '/quizzes/$courseId'
+    | '/courses/'
     | '/courses/builder/edit'
     | '/quizzes/$quizId/edit'
     | '/quizzes/$quizId/take'
@@ -310,7 +310,6 @@ export interface FileRouteTypes {
     | '/assessments'
     | '/certificates'
     | '/cookies'
-    | '/courses'
     | '/dashboard'
     | '/login'
     | '/messages'
@@ -328,6 +327,7 @@ export interface FileRouteTypes {
     | '/courses/$courseId'
     | '/courses/builder'
     | '/quizzes/$courseId'
+    | '/courses'
     | '/courses/builder/edit'
     | '/quizzes/$quizId/edit'
     | '/quizzes/$quizId/take'
@@ -340,7 +340,6 @@ export interface FileRouteTypes {
     | '/assessments'
     | '/certificates'
     | '/cookies'
-    | '/courses'
     | '/dashboard'
     | '/login'
     | '/messages'
@@ -358,6 +357,7 @@ export interface FileRouteTypes {
     | '/courses/$courseId'
     | '/courses/builder'
     | '/quizzes/$courseId'
+    | '/courses/'
     | '/courses/builder/edit'
     | '/quizzes/$quizId/edit'
     | '/quizzes/$quizId/take'
@@ -371,7 +371,6 @@ export interface RootRouteChildren {
   AssessmentsRoute: typeof AssessmentsRoute
   CertificatesRoute: typeof CertificatesRoute
   CookiesRoute: typeof CookiesRoute
-  CoursesRoute: typeof CoursesRouteWithChildren
   DashboardRoute: typeof DashboardRoute
   LoginRoute: typeof LoginRoute
   MessagesRoute: typeof MessagesRoute
@@ -386,7 +385,9 @@ export interface RootRouteChildren {
   VirtualClassesRoute: typeof VirtualClassesRoute
   ApiTeacherAiRoute: typeof ApiTeacherAiRoute
   ApiTutorRoute: typeof ApiTutorRoute
+  CoursesCourseIdRoute: typeof CoursesCourseIdRoute
   QuizzesCourseIdRoute: typeof QuizzesCourseIdRoute
+  CoursesIndexRoute: typeof CoursesIndexRoute
   QuizzesQuizIdEditRoute: typeof QuizzesQuizIdEditRoute
   QuizzesQuizIdTakeRoute: typeof QuizzesQuizIdTakeRoute
 }
@@ -477,13 +478,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/courses': {
-      id: '/courses'
-      path: '/courses'
-      fullPath: '/courses'
-      preLoaderRoute: typeof CoursesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/cookies': {
       id: '/cookies'
       path: '/cookies'
@@ -533,6 +527,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/courses/': {
+      id: '/courses/'
+      path: '/courses'
+      fullPath: '/courses/'
+      preLoaderRoute: typeof CoursesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/quizzes/$courseId': {
       id: '/quizzes/$courseId'
       path: '/quizzes/$courseId'
@@ -549,10 +550,10 @@ declare module '@tanstack/react-router' {
     }
     '/courses/$courseId': {
       id: '/courses/$courseId'
-      path: '/$courseId'
+      path: '/courses/$courseId'
       fullPath: '/courses/$courseId'
       preLoaderRoute: typeof CoursesCourseIdRouteImport
-      parentRoute: typeof CoursesRoute
+      parentRoute: typeof rootRouteImport
     }
     '/api/tutor': {
       id: '/api/tutor'
@@ -592,31 +593,6 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface CoursesBuilderRouteChildren {
-  CoursesBuilderEditRoute: typeof CoursesBuilderEditRoute
-}
-
-const CoursesBuilderRouteChildren: CoursesBuilderRouteChildren = {
-  CoursesBuilderEditRoute: CoursesBuilderEditRoute,
-}
-
-const CoursesBuilderRouteWithChildren = CoursesBuilderRoute._addFileChildren(
-  CoursesBuilderRouteChildren,
-)
-
-interface CoursesRouteChildren {
-  CoursesCourseIdRoute: typeof CoursesCourseIdRoute
-  CoursesBuilderRoute: typeof CoursesBuilderRouteWithChildren
-}
-
-const CoursesRouteChildren: CoursesRouteChildren = {
-  CoursesCourseIdRoute: CoursesCourseIdRoute,
-  CoursesBuilderRoute: CoursesBuilderRouteWithChildren,
-}
-
-const CoursesRouteWithChildren =
-  CoursesRoute._addFileChildren(CoursesRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminAnalyticsRoute: AdminAnalyticsRoute,
@@ -625,7 +601,6 @@ const rootRouteChildren: RootRouteChildren = {
   AssessmentsRoute: AssessmentsRoute,
   CertificatesRoute: CertificatesRoute,
   CookiesRoute: CookiesRoute,
-  CoursesRoute: CoursesRouteWithChildren,
   DashboardRoute: DashboardRoute,
   LoginRoute: LoginRoute,
   MessagesRoute: MessagesRoute,
@@ -640,10 +615,22 @@ const rootRouteChildren: RootRouteChildren = {
   VirtualClassesRoute: VirtualClassesRoute,
   ApiTeacherAiRoute: ApiTeacherAiRoute,
   ApiTutorRoute: ApiTutorRoute,
+  CoursesCourseIdRoute: CoursesCourseIdRoute,
   QuizzesCourseIdRoute: QuizzesCourseIdRoute,
+  CoursesIndexRoute: CoursesIndexRoute,
   QuizzesQuizIdEditRoute: QuizzesQuizIdEditRoute,
   QuizzesQuizIdTakeRoute: QuizzesQuizIdTakeRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
