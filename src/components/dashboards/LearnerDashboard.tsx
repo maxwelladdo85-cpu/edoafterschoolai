@@ -36,7 +36,7 @@ export function LearnerDashboard() {
       const [eRes, nRes, vRes] = await Promise.all([
         supabase
           .from("enrollments")
-          .select("id, progress, course:courses(title, subject, description)")
+          .select("id, progress, course_id, course:courses(title, subject, description)")
           .eq("learner_id", user.id),
         supabase
           .from("notifications")
