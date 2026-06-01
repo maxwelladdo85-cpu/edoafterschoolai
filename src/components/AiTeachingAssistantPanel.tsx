@@ -123,13 +123,17 @@ function QuizGenerator() {
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <Label>Lesson text</Label>
+        <div className="flex items-center justify-between gap-2">
+          <Label>Lesson text</Label>
+          <UploadDocButton disabled={loading} onText={(t) => setText((prev) => (prev ? prev + "\n\n" + t : t))} />
+        </div>
         <Textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
           rows={6}
-          placeholder="Paste the lesson content here…"
+          placeholder="Paste the lesson content here, or upload a PDF, DOCX or TXT file…"
         />
+        <p className="text-xs text-muted-foreground">Supported uploads: PDF, DOCX, TXT (max 15 MB).</p>
       </div>
       <Button onClick={generate} disabled={loading}>
         {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ListChecks className="mr-2 h-4 w-4" />}
