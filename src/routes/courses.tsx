@@ -6,7 +6,7 @@ import { DashboardShell } from "@/components/DashboardShell";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, GraduationCap, Loader2 } from "lucide-react";
+import { BookOpen, GraduationCap, Loader2, PlayCircle } from "lucide-react";
 import { toast } from "sonner";
 import { PageHero } from "@/components/PageHero";
 import heroLibrary from "@/assets/hero-library.jpg";
@@ -144,8 +144,10 @@ function CoursesLibrary() {
                         <Link to="/courses/$courseId" params={{ courseId: c.id }}>Open course</Link>
                       </Button>
                     ) : enrolled ? (
-                      <Button asChild className="w-full" variant="secondary">
-                        <Link to="/courses/$courseId" params={{ courseId: c.id }}>Continue learning</Link>
+                      <Button asChild className="w-full font-semibold shadow-md hover:shadow-lg transition-shadow">
+                        <Link to="/courses/$courseId" params={{ courseId: c.id }}>
+                          <PlayCircle className="mr-2 h-4 w-4" /> Continue learning
+                        </Link>
                       </Button>
                     ) : (
                       <Button className="w-full" disabled={enrollingId === c.id} onClick={() => enroll(c.id)}>

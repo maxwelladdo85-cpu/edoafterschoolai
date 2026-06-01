@@ -196,6 +196,37 @@ function CoursePlayer() {
           <Button variant="outline" size="sm" asChild className="w-full">
             <Link to="/quizzes/$courseId" params={{ courseId }}>Quizzes & assessments</Link>
           </Button>
+          {(() => {
+            const downloadable = flatLessons.filter((l) => l.content_url && (l.content_type === "pdf" || l.content_type === "audio" || l.content_type === "doc" || l.content_type === "video"));
+            if (downloadable.length === 0) return null;
+            return (
+              <Card>
+                <CardHeader className="pb-2"><CardTitle className="text-sm">Course materials</CardTitle></CardHeader>
+                <CardContent className="p-2 pt-0">
+                  <ul className="space-y-1">
+                    {downloadable.map((l) => {
+                      const Icon = l.content_type === "video" ? Film : l.content_type === "pdf" ? FileText : l.content_type === "audio" ? Headphones : NotebookPen;
+                      return (
+                        <li key={l.id}>
+                          <a
+                            href={l.content_url!}
+                            target="_blank"
+                            rel="noreferrer"
+                            download
+                            className="flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-xs hover:bg-muted"
+                          >
+                            <Icon className="h-4 w-4 shrink-0 text-primary" />
+                            <span className="line-clamp-1 flex-1">{l.title}</span>
+                            <span className="text-muted-foreground">⬇</span>
+                          </a>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </CardContent>
+              </Card>
+            );
+          })()}
           {modules.length === 0 ? (
             <Card><CardContent className="py-6 text-sm text-muted-foreground text-center">
               No modules yet. Check back soon.
