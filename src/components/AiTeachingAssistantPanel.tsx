@@ -48,6 +48,54 @@ function CopyButton({ text }: { text: string }) {
   );
 }
 
+function UploadDocButton({ onText, disabled }: { onText: (text: string) => void; disabled?: boolean }) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [busy, setBusy] = useState(false);
+
+  const handleFile = async (file: File) => {
+    setBusy(true);
+    try {
+      const text = await extractDocumentText(file);
+      if (!text.trim()) {
+        toast.error("Couldn't extract any text from that file.");
+        return;
+      }
+      onText(text);
+      toast.success(`Loaded ${file.name}`);
+    } catch (e: any) {
+      toast.error(e?.message || "Failed to read file");
+    } finally {
+      setBusy(false);
+      if (inputRef.current) inputRef.current.value = "";
+    }
+  };
+
+  return (
+    <>
+      <input
+        ref={inputRef}
+        type="file"
+        accept={ACCEPTED_DOC_TYPES}
+        className="hidden"
+        onChange={(e) => {
+          const f = e.target.files?.[0];
+          if (f) void handleFile(f);
+        }}
+      />
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        disabled={disabled || busy}
+        onClick={() => inputRef.current?.click()}
+      >
+        {busy ? <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> : <Upload className="mr-2 h-3.5 w-3.5" />}
+        Upload document
+      </Button>
+    </>
+  );
+}
+
 function QuizGenerator() {
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
