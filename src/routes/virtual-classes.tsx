@@ -208,16 +208,16 @@ function VirtualClassesPage() {
                 className="space-y-3"
               >
                 <div className="space-y-1">
-                  <Label>Course</Label>
+                  <Label>Subject</Label>
                   <Select name="course_id" defaultValue={initial.course_id}>
-                    <SelectTrigger><SelectValue placeholder="Select course" /></SelectTrigger>
+                    <SelectTrigger><SelectValue placeholder="Select subject" /></SelectTrigger>
                     <SelectContent>
                       {courses.map((c) => <SelectItem key={c.id} value={c.id}>{c.title}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-1">
-                  <Label>Title</Label>
+                  <Label>Topic</Label>
                   <Input name="title" defaultValue={initial.title} placeholder="Algebra Q&A session" maxLength={150} required />
                 </div>
                 <div className="space-y-1">
