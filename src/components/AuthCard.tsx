@@ -134,7 +134,7 @@ export function AuthCard() {
       return;
     }
     setLoading(false);
-    toast.success("Welcome to Digital Learning at Home");
+    toast.success("Welcome to Digital Learning @ Home");
     nav({ to: "/dashboard" });
   };
 
