@@ -5,10 +5,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Sparkles, Loader2, ListChecks, CalendarRange, FileText, GraduationCap, Copy, Upload } from "lucide-react";
+import { Sparkles, Loader2, ListChecks, CalendarRange, FileText, GraduationCap, Copy, Upload, BookPlus, ClipboardList } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ACCEPTED_DOC_TYPES, extractDocumentText } from "@/lib/extract-document-text";
+import { SendToCourseDialog } from "@/components/SendToCourseDialog";
 
 type QuizQuestion = {
   question: string;
@@ -100,6 +101,7 @@ function QuizGenerator() {
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
   const [questions, setQuestions] = useState<QuizQuestion[] | null>(null);
+  const [sendOpen, setSendOpen] = useState(false);
 
   const generate = async () => {
     if (text.trim().length < 50) {
@@ -142,9 +144,14 @@ function QuizGenerator() {
 
       {questions && (
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <p className="text-sm text-muted-foreground">{questions.length} questions generated</p>
-            <CopyButton text={JSON.stringify(questions, null, 2)} />
+            <div className="flex flex-wrap gap-2">
+              <CopyButton text={JSON.stringify(questions, null, 2)} />
+              <Button size="sm" onClick={() => setSendOpen(true)}>
+                <ClipboardList className="mr-2 h-3.5 w-3.5" /> Create Assessment
+              </Button>
+            </div>
           </div>
           <div className="space-y-3">
             {questions.map((q, i) => (
@@ -171,19 +178,41 @@ function QuizGenerator() {
           </div>
         </div>
       )}
+      <SendToCourseDialog
+        open={sendOpen}
+        onOpenChange={setSendOpen}
+        payload={
+          questions
+            ? { mode: "quiz", defaultTitle: "AI-generated quiz", questions }
+            : null
+        }
+      />
     </div>
   );
 }
 
-function MarkdownResult({ content }: { content: string }) {
+function MarkdownResult({ content, saveTitle }: { content: string; saveTitle?: string }) {
+  const [sendOpen, setSendOpen] = useState(false);
   return (
     <div className="space-y-2">
-      <div className="flex justify-end">
+      <div className="flex flex-wrap justify-end gap-2">
         <CopyButton text={content} />
+        {saveTitle && (
+          <Button size="sm" onClick={() => setSendOpen(true)}>
+            <BookPlus className="mr-2 h-3.5 w-3.5" /> Add to Course Builder
+          </Button>
+        )}
       </div>
       <div className="rounded-lg border bg-muted/30 p-4 text-sm whitespace-pre-wrap leading-relaxed">
         {content}
       </div>
+      {saveTitle && (
+        <SendToCourseDialog
+          open={sendOpen}
+          onOpenChange={setSendOpen}
+          payload={{ mode: "lesson", defaultTitle: saveTitle, content }}
+        />
+      )}
     </div>
   );
 }
@@ -222,7 +251,7 @@ function LessonPlanner() {
         {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CalendarRange className="mr-2 h-4 w-4" />}
         Generate Lesson Plan
       </Button>
-      {content && <MarkdownResult content={content} />}
+      {content && <MarkdownResult content={content} saveTitle={topic ? `Lesson plan: ${topic}` : "AI lesson plan"} />}
     </div>
   );
 }
@@ -258,7 +287,7 @@ function ContentSummariser() {
         {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileText className="mr-2 h-4 w-4" />}
         Summarise for Students
       </Button>
-      {content && <MarkdownResult content={content} />}
+      {content && <MarkdownResult content={content} saveTitle="AI student summary" />}
     </div>
   );
 }
