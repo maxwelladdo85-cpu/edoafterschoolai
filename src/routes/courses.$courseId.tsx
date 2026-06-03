@@ -7,7 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, ChevronLeft, ChevronRight, FileText, Film, Headphones, Loader2, NotebookPen, PlayCircle, CheckCircle2, Circle } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ArrowLeft, ChevronLeft, ChevronRight, Eye, FileText, Film, Headphones, Loader2, NotebookPen, PlayCircle, CheckCircle2, Circle } from "lucide-react";
 import { toast } from "sonner";
 import { AiTutorWidget } from "@/components/AiTutorWidget";
 import { CourseForum } from "@/components/CourseForum";
@@ -409,20 +410,7 @@ function LessonContent({ lesson }: { lesson: Lesson }) {
   }
   if (lesson.content_type === "pdf") {
     if (!lesson.content_url) return <EmptyMedia label="No PDF URL" />;
-    // In-app viewer only — download is disabled for PDF materials.
-    const viewerSrc = `${lesson.content_url}#toolbar=0&navpanes=0`;
-    return (
-      <div className="space-y-2">
-        <iframe
-          src={viewerSrc}
-          title={lesson.title}
-          className="h-[75vh] w-full rounded-lg border bg-muted"
-        />
-        <p className="text-xs text-muted-foreground">
-          📖 Viewing within the app. Downloads are disabled for this material.
-        </p>
-      </div>
-    );
+    return <PdfMaterial url={lesson.content_url} title={lesson.title} />;
   }
   if (lesson.content_type === "audio") {
     if (!lesson.content_url) return <EmptyMedia label="No audio URL" />;
@@ -453,6 +441,60 @@ function LessonContent({ lesson }: { lesson: Lesson }) {
 
 function EmptyMedia({ label }: { label: string }) {
   return <div className="rounded-lg border border-dashed p-10 text-center text-sm text-muted-foreground">{label}</div>;
+}
+
+function PdfMaterial({ url, title }: { url: string; title: string }) {
+  const [open, setOpen] = useState(false);
+  const [useFallback, setUseFallback] = useState(false);
+  const directSrc = `${url}#toolbar=0&navpanes=0&view=FitH`;
+  const gviewSrc = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(url)}`;
+  return (
+    <div className="space-y-3">
+      <div className="rounded-lg border bg-muted/40 p-6 text-center">
+        <FileText className="mx-auto mb-3 h-10 w-10 text-muted-foreground" />
+        <p className="mb-1 font-medium">{title}</p>
+        <p className="mb-4 text-xs text-muted-foreground">PDF material · view inside the app (download disabled)</p>
+        <Button onClick={() => { setUseFallback(false); setOpen(true); }}>
+          <Eye className="mr-2 h-4 w-4" />View Material
+        </Button>
+      </div>
+      <div className="overflow-hidden rounded-lg border bg-muted">
+        <iframe
+          src={useFallback ? gviewSrc : directSrc}
+          title={title}
+          className="h-[70vh] w-full"
+          onError={() => setUseFallback(true)}
+        />
+      </div>
+      <p className="text-xs text-muted-foreground">
+        Can't see the PDF?{" "}
+        <button type="button" className="underline" onClick={() => setUseFallback((v) => !v)}>
+          Try {useFallback ? "direct" : "compatible"} viewer
+        </button>
+      </p>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-6xl p-0 sm:p-0">
+          <DialogHeader className="border-b p-4">
+            <DialogTitle className="truncate pr-8">{title}</DialogTitle>
+          </DialogHeader>
+          <div className="h-[80vh] w-full bg-muted">
+            <iframe
+              src={useFallback ? gviewSrc : directSrc}
+              title={title}
+              className="h-full w-full"
+            />
+          </div>
+          <div className="flex items-center justify-between border-t p-3 text-xs text-muted-foreground">
+            <span>Viewing within the app · downloads disabled</span>
+            <button type="button" className="underline" onClick={() => setUseFallback((v) => !v)}>
+              Switch to {useFallback ? "direct" : "compatible"} viewer
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
 }
 
 function toYouTubeEmbed(url: string): string | null {
