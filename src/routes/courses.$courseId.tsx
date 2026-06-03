@@ -409,10 +409,18 @@ function LessonContent({ lesson }: { lesson: Lesson }) {
   }
   if (lesson.content_type === "pdf") {
     if (!lesson.content_url) return <EmptyMedia label="No PDF URL" />;
+    // In-app viewer only — download is disabled for PDF materials.
+    const viewerSrc = `${lesson.content_url}#toolbar=0&navpanes=0`;
     return (
       <div className="space-y-2">
-        <iframe src={lesson.content_url} title={lesson.title} className="h-[70vh] w-full rounded-lg border" />
-        {downloadBtn}
+        <iframe
+          src={viewerSrc}
+          title={lesson.title}
+          className="h-[75vh] w-full rounded-lg border bg-muted"
+        />
+        <p className="text-xs text-muted-foreground">
+          📖 Viewing within the app. Downloads are disabled for this material.
+        </p>
       </div>
     );
   }
