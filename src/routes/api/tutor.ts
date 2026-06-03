@@ -38,7 +38,7 @@ export const Route = createFileRoute("/api/tutor")({
             return new Response("Message too long", { status: 400 });
           }
 
-          // Per-user rate limit: 10 messages/minute, 100/hour, 400/day
+          // Per-user rate limit: 10/minute, 100/hour, 7/day for learners
           const nowIso = new Date().toISOString();
           const minuteAgo = new Date(Date.now() - 60_000).toISOString();
           const hourAgo = new Date(Date.now() - 60 * 60_000).toISOString();
@@ -66,11 +66,13 @@ export const Route = createFileRoute("/api/tutor")({
               .gte("created_at", dayAgo)
               .lte("created_at", nowIso),
           ]);
-          if (
-            (perMinuteRes.count ?? 0) >= 10 ||
-            (perHourRes.count ?? 0) >= 100 ||
-            (perDayRes.count ?? 0) >= 400
-          ) {
+          if ((perDayRes.count ?? 0) >= 7) {
+            return new Response(
+              JSON.stringify({ error: "You've reached your daily limit of 7 tutor requests. Please come back tomorrow." }),
+              { status: 429, headers: { "content-type": "application/json", "Retry-After": "86400" } },
+            );
+          }
+          if ((perMinuteRes.count ?? 0) >= 10 || (perHourRes.count ?? 0) >= 100) {
             return new Response(
               JSON.stringify({ error: "You're sending messages too quickly. Please wait a moment." }),
               { status: 429, headers: { "content-type": "application/json", "Retry-After": "60" } },
@@ -84,6 +86,15 @@ export const Route = createFileRoute("/api/tutor")({
             .eq("id", courseId)
             .maybeSingle();
           if (!course) return new Response("Course not found", { status: 404 });
+
+          // Load learner's VARK result so tutor can adapt to their learning style
+          const { data: vark } = await supabase
+            .from("vark_results")
+            .select("dominant, visual, aural, read_write, kinesthetic")
+            .eq("learner_id", userId)
+            .order("created_at", { ascending: false })
+            .limit(1)
+            .maybeSingle();
 
           // Load prior history (last 20 messages)
           const { data: history } = await supabase
@@ -102,13 +113,23 @@ export const Route = createFileRoute("/api/tutor")({
             content: userMessage,
           });
 
+          const varkBlock = vark
+            ? `\n\nThe learner's VARK learning style is **${vark.dominant}** (Visual ${vark.visual}, Aural ${vark.aural}, Read/Write ${vark.read_write}, Kinesthetic ${vark.kinesthetic}).
+Adapt every answer to that style:
+- visual → use diagrams, charts, emoji, mind-map structures, colour cues
+- aural → use conversational phrasing, read-aloud cues, mnemonics, songs
+- read_write → use clear written lists, definitions, summaries, full sentences
+- kinesthetic → use real-life examples, step-by-step activities, hands-on practice tasks
+Always briefly note ONE study tip that matches their style at the end of each answer.`
+            : `\n\nThe learner has not yet taken the VARK quiz — gently encourage them to take it from their dashboard so you can personalise feedback.`;
+
           const systemPrompt = `You are a helpful AI tutor for Edo After School.
 
 Only answer questions related to the current course: ${course.title}${course.description ? ` — ${course.description}` : ""}.
 
 Help learners understand concepts, summarise lessons, generate practice questions, create study plans, and simplify difficult topics.
 
-Keep answers short and student-friendly.`;
+Keep answers short and student-friendly.${varkBlock}`;
 
           const messages = [
             { role: "system", content: systemPrompt },
