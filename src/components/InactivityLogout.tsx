@@ -22,7 +22,7 @@ export function InactivityLogout() {
       }, IDLE_MS);
     };
 
-    const events: (keyof WindowEventMap)[] = [
+    const events = [
       "mousemove",
       "mousedown",
       "keydown",
@@ -30,8 +30,8 @@ export function InactivityLogout() {
       "scroll",
       "click",
       "visibilitychange",
-    ];
-    events.forEach((e) => window.addEventListener(e, reset, { passive: true }));
+    ] as const;
+    events.forEach((e) => window.addEventListener(e, reset, { passive: true } as any));
     reset();
 
     return () => {
