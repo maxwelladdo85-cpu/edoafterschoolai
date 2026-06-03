@@ -125,7 +125,14 @@ export function LearnerDashboard() {
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       <CardTitle className="text-base">{e.course?.title ?? "Course"}</CardTitle>
-                      <CardDescription>{e.course?.subject}</CardDescription>
+                      <CardDescription>
+                        {e.course?.subject}
+                        {e.course?.created_at && (
+                          <span className="ml-1 text-xs text-muted-foreground">
+                            · Created {new Date(e.course.created_at).toLocaleDateString()} at {new Date(e.course.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                          </span>
+                        )}
+                      </CardDescription>
                     </div>
                     <Badge variant="secondary">{e.progress}%</Badge>
                   </div>
@@ -135,7 +142,7 @@ export function LearnerDashboard() {
                   <p className="text-sm text-muted-foreground line-clamp-2">{e.course?.description}</p>
                   <Button asChild size="sm" className="w-full">
                     <Link to="/courses/$courseId" params={{ courseId: e.course_id }}>
-                      <BookOpen className="mr-2 h-4 w-4" /> Open course & materials
+                      <BookOpen className="mr-2 h-4 w-4" /> {e.progress > 0 ? "Resume where you left off" : "Open course & materials"}
                     </Link>
                   </Button>
                 </CardContent>
