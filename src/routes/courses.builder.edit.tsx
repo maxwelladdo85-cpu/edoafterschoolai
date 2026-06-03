@@ -56,24 +56,8 @@ interface DraftModule {
 
 const tmpId = () => `tmp-${Math.random().toString(36).slice(2, 10)}`;
 
-const PRIMARY_SUBJECTS: string[] = [
-  "English Studies",
-  "Mathematics",
-  "Basic Science and Technology",
-  "Social Studies",
-  "Civic Education",
-  "Cultural and Creative Arts",
-  "Christian Religious Studies",
-  "Islamic Religious Studies",
-  "Physical and Health Education",
-  "Computer Studies / ICT",
-  "Agricultural Science",
-  "Home Economics",
-  "Nigerian Languages (Edo)",
-  "French",
-  "History",
-  "Security Education",
-];
+// Subjects are loaded from the public.subjects table (see useEffect below).
+
 
 function BuilderPage() {
   const { id: editId } = Route.useSearch();
@@ -88,6 +72,18 @@ function BuilderPage() {
   // Step 1
   const [title, setTitle] = useState("");
   const [subject, setSubject] = useState("");
+  const [subjects, setSubjects] = useState<string[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await (supabase as any)
+        .from("subjects")
+        .select("name")
+        .eq("is_active", true)
+        .order("name", { ascending: true });
+      setSubjects(((data as any[]) ?? []).map((r) => r.name));
+    })();
+  }, []);
   const [description, setDescription] = useState("");
   const [thumbFile, setThumbFile] = useState<File | null>(null);
   const [thumbUrl, setThumbUrl] = useState<string | null>(null);
@@ -332,7 +328,7 @@ function BuilderPage() {
                 <Select value={subject} onValueChange={setSubject}>
                   <SelectTrigger><SelectValue placeholder="Select a primary school subject" /></SelectTrigger>
                   <SelectContent>
-                    {PRIMARY_SUBJECTS.map((s) => (
+                    {subjects.map((s) => (
                       <SelectItem key={s} value={s}>{s}</SelectItem>
                     ))}
                   </SelectContent>
