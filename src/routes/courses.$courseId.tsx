@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { ChevronLeft, ChevronRight, FileText, Film, Headphones, Loader2, NotebookPen, PlayCircle, CheckCircle2, Circle } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, FileText, Film, Headphones, Loader2, NotebookPen, PlayCircle, CheckCircle2, Circle } from "lucide-react";
 import { toast } from "sonner";
 import { AiTutorWidget } from "@/components/AiTutorWidget";
 import { CourseForum } from "@/components/CourseForum";
@@ -177,6 +177,19 @@ function CoursePlayer() {
 
   return (
     <DashboardShell title={course.title}>
+      <div className="mb-4">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => {
+            if (typeof window !== "undefined" && window.history.length > 1) window.history.back();
+            else nav({ to: "/dashboard" });
+          }}
+          className="gap-1"
+        >
+          <ArrowLeft className="h-4 w-4" /> Back
+        </Button>
+      </div>
       <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
         {/* Lesson sidebar */}
         <aside className="space-y-4">
@@ -208,17 +221,18 @@ function CoursePlayer() {
                       const Icon = l.content_type === "video" ? Film : l.content_type === "pdf" ? FileText : l.content_type === "audio" ? Headphones : NotebookPen;
                       return (
                         <li key={l.id}>
-                          <a
-                            href={l.content_url!}
-                            target="_blank"
-                            rel="noreferrer"
-                            download
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setActiveId(l.id);
+                              if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
+                            }}
                             className="flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-xs hover:bg-muted"
                           >
                             <Icon className="h-4 w-4 shrink-0 text-primary" />
                             <span className="line-clamp-1 flex-1">{l.title}</span>
-                            <span className="text-muted-foreground">⬇</span>
-                          </a>
+                            <span className="text-muted-foreground">▶</span>
+                          </button>
                         </li>
                       );
                     })}
