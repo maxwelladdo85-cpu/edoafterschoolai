@@ -72,6 +72,18 @@ function BuilderPage() {
   // Step 1
   const [title, setTitle] = useState("");
   const [subject, setSubject] = useState("");
+  const [subjects, setSubjects] = useState<string[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await (supabase as any)
+        .from("subjects")
+        .select("name")
+        .eq("is_active", true)
+        .order("name", { ascending: true });
+      setSubjects(((data as any[]) ?? []).map((r) => r.name));
+    })();
+  }, []);
   const [description, setDescription] = useState("");
   const [thumbFile, setThumbFile] = useState<File | null>(null);
   const [thumbUrl, setThumbUrl] = useState<string | null>(null);
