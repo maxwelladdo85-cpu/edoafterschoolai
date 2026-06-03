@@ -399,12 +399,7 @@ function LessonContent({ lesson }: { lesson: Lesson }) {
     return (
       <div className="space-y-2">
         <iframe src={lesson.content_url} title={lesson.title} className="h-[70vh] w-full rounded-lg border" />
-        <div className="flex flex-wrap gap-3 items-center">
-          <a href={lesson.content_url} target="_blank" rel="noreferrer" className="text-sm text-primary hover:underline">
-            Open PDF in new tab ↗
-          </a>
-          {downloadBtn}
-        </div>
+        {downloadBtn}
       </div>
     );
   }
@@ -423,12 +418,7 @@ function LessonContent({ lesson }: { lesson: Lesson }) {
     return (
       <div className="space-y-2">
         <iframe src={office} title={lesson.title} className="h-[70vh] w-full rounded-lg border" />
-        <div className="flex flex-wrap gap-3 items-center">
-          <a href={lesson.content_url} target="_blank" rel="noreferrer" className="text-sm text-primary hover:underline">
-            Open document in new tab ↗
-          </a>
-          {downloadBtn}
-        </div>
+        {downloadBtn}
       </div>
     );
   }
