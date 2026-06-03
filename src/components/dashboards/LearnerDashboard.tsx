@@ -18,7 +18,9 @@ interface Enrollment {
   id: string;
   progress: number;
   course_id: string;
-  course: { title: string; subject: string | null; description: string | null } | null;
+  course: { title: string; subject: string | null; description: string | null; created_at: string } | null;
+  last_lesson_id?: string | null;
+  last_lesson_at?: string | null;
 }
 interface Notification { id: string; title: string; message: string | null; is_read: boolean; created_at: string; }
 interface VarkResult { id: string; dominant: VarkStyle; created_at: string; }
@@ -36,7 +38,7 @@ export function LearnerDashboard() {
       const [eRes, nRes, vRes] = await Promise.all([
         supabase
           .from("enrollments")
-          .select("id, progress, course_id, course:courses(title, subject, description)")
+          .select("id, progress, course_id, course:courses(title, subject, description, created_at)")
           .eq("learner_id", user.id),
         supabase
           .from("notifications")
