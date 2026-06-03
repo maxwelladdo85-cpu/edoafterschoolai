@@ -74,20 +74,33 @@ function CoursePlayer() {
         ...m, lessons: lessons.filter((l) => l.module_id === m.id),
       }));
       setModules(mods);
-      setActiveId(mods.flatMap((m) => m.lessons)[0]?.id ?? null);
+      const allLessons = mods.flatMap((m) => m.lessons);
 
       // Load this learner's completions for these lessons (skip for staff viewing)
       const lessonIds = lessons.map((l) => l.id);
+      let lastViewedId: string | null = null;
       if (!isStaff && lessonIds.length) {
-        const { data: comps } = await supabase
-          .from("lesson_completions")
-          .select("lesson_id")
-          .eq("learner_id", user.id)
-          .in("lesson_id", lessonIds);
+        const [{ data: comps }, { data: lastView }] = await Promise.all([
+          supabase
+            .from("lesson_completions")
+            .select("lesson_id")
+            .eq("learner_id", user.id)
+            .in("lesson_id", lessonIds),
+          supabase
+            .from("lesson_views")
+            .select("lesson_id")
+            .eq("learner_id", user.id)
+            .in("lesson_id", lessonIds)
+            .order("viewed_at", { ascending: false })
+            .limit(1)
+            .maybeSingle(),
+        ]);
         setCompleted(new Set((comps ?? []).map((c: any) => c.lesson_id)));
+        lastViewedId = (lastView as any)?.lesson_id ?? null;
       } else {
         setCompleted(new Set());
       }
+      setActiveId(lastViewedId ?? allLessons[0]?.id ?? null);
       setLoading(false);
     })();
   }, [courseId, user, isStaff]);
