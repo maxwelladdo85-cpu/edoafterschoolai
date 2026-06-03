@@ -328,7 +328,7 @@ function BuilderPage() {
                 <Select value={subject} onValueChange={setSubject}>
                   <SelectTrigger><SelectValue placeholder="Select a primary school subject" /></SelectTrigger>
                   <SelectContent>
-                    {PRIMARY_SUBJECTS.map((s) => (
+                    {subjects.map((s) => (
                       <SelectItem key={s} value={s}>{s}</SelectItem>
                     ))}
                   </SelectContent>
