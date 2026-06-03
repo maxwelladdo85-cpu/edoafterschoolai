@@ -31,7 +31,7 @@ const scheduleSchema = z.object({
   zoom_url: z.string().trim().url("Enter a valid Zoom link").max(500),
 });
 
-interface CourseRow { id: string; title: string }
+interface CourseRow { id: string; title: string; subject?: string | null }
 interface ClassRow extends VirtualClass { course?: { title: string } | null }
 
 function VirtualClassesPage() {
@@ -62,7 +62,7 @@ function VirtualClassesPage() {
     if (!user) return;
     setLoading(true);
     const [{ data: cs }, { data: vcs }] = await Promise.all([
-      supabase.from("courses").select("id,title").eq("teacher_id", user.id).order("created_at", { ascending: false }),
+      supabase.from("courses").select("id,title,subject").eq("teacher_id", user.id).order("created_at", { ascending: false }),
       (supabase as any)
         .from("virtual_classes")
         .select("*")
@@ -208,17 +208,21 @@ function VirtualClassesPage() {
                 className="space-y-3"
               >
                 <div className="space-y-1">
-                  <Label>Subject</Label>
+                  <Label>Course</Label>
                   <Select name="course_id" defaultValue={initial.course_id}>
-                    <SelectTrigger><SelectValue placeholder="Select subject" /></SelectTrigger>
+                    <SelectTrigger><SelectValue placeholder="Select a course" /></SelectTrigger>
                     <SelectContent>
-                      {courses.map((c) => <SelectItem key={c.id} value={c.id}>{c.title}</SelectItem>)}
+                      {courses.map((c) => (
+                        <SelectItem key={c.id} value={c.id}>
+                          {c.title}{c.subject ? ` — ${c.subject}` : ""}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-1">
                   <Label>Topic</Label>
-                  <Input name="title" defaultValue={initial.title} placeholder="Algebra Q&A session" maxLength={150} required />
+                  <Input name="title" defaultValue={initial.title} placeholder="e.g. Introduction to Algebra" maxLength={150} required />
                 </div>
                 <div className="space-y-1">
                   <Label>Description (optional)</Label>
