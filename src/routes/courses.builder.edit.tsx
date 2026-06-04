@@ -14,6 +14,22 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { ChevronLeft, ChevronRight, GripVertical, Plus, Trash2, Upload, Loader2, Check, FileText, Film, Headphones, NotebookPen } from "lucide-react";
+import { CLASS_GROUPS } from "@/lib/classes";
+
+const CLASS_TO_SUBJECT_LEVEL: Record<string, string> = {
+  "Nursery 1": "Nursery",
+  "Nursery 2": "Nursery",
+  "Kindergarten (KG) / Nursery 3": "Nursery",
+  "Primary 1": "Primary 1-3",
+  "Primary 2": "Primary 1-3",
+  "Primary 3": "Primary 1-3",
+  "Primary 4": "Primary 4-6",
+  "Primary 5": "Primary 4-6",
+  "Primary 6": "Primary 4-6",
+  "JSS 1 (Basic 7)": "JSS 1-3",
+  "JSS 2 (Basic 8)": "JSS 1-3",
+  "JSS 3 (Basic 9)": "JSS 1-3",
+};
 import {
   DndContext,
   PointerSensor,
