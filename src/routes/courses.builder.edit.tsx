@@ -87,19 +87,25 @@ function BuilderPage() {
 
   // Step 1
   const [title, setTitle] = useState("");
+  const [classLevel, setClassLevel] = useState("");
   const [subject, setSubject] = useState("");
-  const [subjects, setSubjects] = useState<string[]>([]);
+  const [subjects, setSubjects] = useState<{ name: string; level: string | null }[]>([]);
 
   useEffect(() => {
     (async () => {
       const { data } = await (supabase as any)
         .from("subjects")
-        .select("name")
+        .select("name, level")
         .eq("is_active", true)
         .order("name", { ascending: true });
-      setSubjects(((data as any[]) ?? []).map((r) => r.name));
+      setSubjects(((data as any[]) ?? []).map((r) => ({ name: r.name, level: r.level })));
     })();
   }, []);
+
+  const subjectLevel = classLevel ? CLASS_TO_SUBJECT_LEVEL[classLevel] : null;
+  const filteredSubjects = subjectLevel
+    ? Array.from(new Set(subjects.filter((s) => s.level === subjectLevel).map((s) => s.name)))
+    : Array.from(new Set(subjects.map((s) => s.name)));
   const [description, setDescription] = useState("");
   const [thumbFile, setThumbFile] = useState<File | null>(null);
   const [thumbUrl, setThumbUrl] = useState<string | null>(null);
