@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Loader2, Megaphone, Send, Users, Plus } from "lucide-react";
 import { toast } from "sonner";
+import { CLASS_OPTIONS } from "@/lib/classes";
 
 export const Route = createFileRoute("/announcements")({
   component: AnnouncementsPage,
@@ -66,11 +67,10 @@ function AnnouncementsPage() {
         .order("send_at", { ascending: false })
         .limit(100),
     ]);
-    if (classes.error) { toast.error(classes.error.message); setClassLevels([]); setLoading(false); return; }
+    if (classes.error) { toast.error(classes.error.message); setClassLevels(CLASS_OPTIONS); setLoading(false); return; }
     const rows = (classes.data ?? []) as { class_level: string; learner_count: number }[];
-    const levels = rows.map((r) => r.class_level);
-    setClassLevels(levels);
-    if (!form.class_level && levels.length) setForm((f) => ({ ...f, class_level: levels[0] }));
+    setClassLevels(CLASS_OPTIONS);
+    if (!form.class_level && CLASS_OPTIONS.length) setForm((f) => ({ ...f, class_level: CLASS_OPTIONS[0] }));
     (window as any).__classCounts = Object.fromEntries(rows.map((r) => [r.class_level, Number(r.learner_count)]));
     if (!hist.error) setHistory((hist.data ?? []) as HistoryRow[]);
     setLoading(false);
@@ -82,7 +82,7 @@ function AnnouncementsPage() {
   useEffect(() => {
     if (!form.class_level) { setRecipientCount(null); return; }
     const counts = (window as any).__classCounts as Record<string, number> | undefined;
-    setRecipientCount(counts?.[form.class_level] ?? null);
+    setRecipientCount(counts?.[form.class_level] ?? 0);
   }, [form.class_level, classLevels]);
 
   const send = async () => {
