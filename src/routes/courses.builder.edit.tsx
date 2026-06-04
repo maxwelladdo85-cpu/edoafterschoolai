@@ -14,6 +14,22 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { ChevronLeft, ChevronRight, GripVertical, Plus, Trash2, Upload, Loader2, Check, FileText, Film, Headphones, NotebookPen } from "lucide-react";
+import { CLASS_GROUPS } from "@/lib/classes";
+
+const CLASS_TO_SUBJECT_LEVEL: Record<string, string> = {
+  "Nursery 1": "Nursery",
+  "Nursery 2": "Nursery",
+  "Kindergarten (KG) / Nursery 3": "Nursery",
+  "Primary 1": "Primary 1-3",
+  "Primary 2": "Primary 1-3",
+  "Primary 3": "Primary 1-3",
+  "Primary 4": "Primary 4-6",
+  "Primary 5": "Primary 4-6",
+  "Primary 6": "Primary 4-6",
+  "JSS 1 (Basic 7)": "JSS 1-3",
+  "JSS 2 (Basic 8)": "JSS 1-3",
+  "JSS 3 (Basic 9)": "JSS 1-3",
+};
 import {
   DndContext,
   PointerSensor,
@@ -71,19 +87,25 @@ function BuilderPage() {
 
   // Step 1
   const [title, setTitle] = useState("");
+  const [classLevel, setClassLevel] = useState("");
   const [subject, setSubject] = useState("");
-  const [subjects, setSubjects] = useState<string[]>([]);
+  const [subjects, setSubjects] = useState<{ name: string; level: string | null }[]>([]);
 
   useEffect(() => {
     (async () => {
       const { data } = await (supabase as any)
         .from("subjects")
-        .select("name")
+        .select("name, level")
         .eq("is_active", true)
         .order("name", { ascending: true });
-      setSubjects(((data as any[]) ?? []).map((r) => r.name));
+      setSubjects(((data as any[]) ?? []).map((r) => ({ name: r.name, level: r.level })));
     })();
   }, []);
+
+  const subjectLevel = classLevel ? CLASS_TO_SUBJECT_LEVEL[classLevel] : null;
+  const filteredSubjects = subjectLevel
+    ? Array.from(new Set(subjects.filter((s) => s.level === subjectLevel).map((s) => s.name)))
+    : Array.from(new Set(subjects.map((s) => s.name)));
   const [description, setDescription] = useState("");
   const [thumbFile, setThumbFile] = useState<File | null>(null);
   const [thumbUrl, setThumbUrl] = useState<string | null>(null);
@@ -107,6 +129,7 @@ function BuilderPage() {
       const { data: c } = await supabase.from("courses").select("*").eq("id", editId).maybeSingle();
       if (c) {
         setTitle(c.title ?? "");
+        setClassLevel(c.class_level ?? "");
         setSubject(c.subject ?? "");
         setDescription(c.description ?? "");
         setThumbUrl(c.thumbnail_url ?? null);
@@ -156,11 +179,12 @@ function BuilderPage() {
   const saveStep1 = async (): Promise<string | null> => {
     if (!user) return null;
     if (!title.trim()) { toast.error("Title is required"); return null; }
+    if (!classLevel) { toast.error("Please select a class"); return null; }
     if (thumbFile && thumbFile.size > 5 * 1024 * 1024) { toast.error("Thumbnail must be under 5 MB"); return null; }
     setSaving(true);
     try {
       let cid = courseId;
-      const payload: any = { title: title.trim(), subject: subject || null, description: description || null };
+      const payload: any = { title: title.trim(), class_level: classLevel || null, subject: subject || null, description: description || null };
       if (cid) {
         const { error } = await supabase.from("courses").update(payload).eq("id", cid);
         if (error) throw error;
@@ -324,11 +348,29 @@ function BuilderPage() {
             <CardContent className="space-y-4">
               <div className="space-y-1"><Label>Title *</Label><Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Introduction to Algebra" /></div>
               <div className="space-y-1">
-                <Label>Subject</Label>
-                <Select value={subject} onValueChange={setSubject}>
-                  <SelectTrigger><SelectValue placeholder="Select a primary school subject" /></SelectTrigger>
+                <Label>Class *</Label>
+                <Select value={classLevel} onValueChange={(v) => { setClassLevel(v); setSubject(""); }}>
+                  <SelectTrigger><SelectValue placeholder="Select the class this course is for" /></SelectTrigger>
                   <SelectContent>
-                    {subjects.map((s) => (
+                    {CLASS_GROUPS.map((g) => (
+                      <div key={g.label}>
+                        <div className="px-2 py-1 text-xs font-semibold text-muted-foreground">{g.label}</div>
+                        {g.classes.map((c) => (
+                          <SelectItem key={c} value={c}>{c}</SelectItem>
+                        ))}
+                      </div>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <Label>Subject</Label>
+                <Select value={subject} onValueChange={setSubject} disabled={!classLevel}>
+                  <SelectTrigger><SelectValue placeholder={classLevel ? "Select a subject" : "Select a class first"} /></SelectTrigger>
+                  <SelectContent>
+                    {filteredSubjects.length === 0 ? (
+                      <div className="px-2 py-2 text-xs text-muted-foreground">No subjects available for this class</div>
+                    ) : filteredSubjects.map((s) => (
                       <SelectItem key={s} value={s}>{s}</SelectItem>
                     ))}
                   </SelectContent>
