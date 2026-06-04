@@ -179,6 +179,7 @@ function BuilderPage() {
   const saveStep1 = async (): Promise<string | null> => {
     if (!user) return null;
     if (!title.trim()) { toast.error("Title is required"); return null; }
+    if (!classLevel) { toast.error("Please select a class"); return null; }
     if (thumbFile && thumbFile.size > 5 * 1024 * 1024) { toast.error("Thumbnail must be under 5 MB"); return null; }
     setSaving(true);
     try {
