@@ -82,7 +82,7 @@ function AnnouncementsPage() {
   useEffect(() => {
     if (!form.class_level) { setRecipientCount(null); return; }
     const counts = (window as any).__classCounts as Record<string, number> | undefined;
-    setRecipientCount(counts?.[form.class_level] ?? null);
+    setRecipientCount(counts?.[form.class_level] ?? 0);
   }, [form.class_level, classLevels]);
 
   const send = async () => {
