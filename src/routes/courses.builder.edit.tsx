@@ -346,11 +346,29 @@ function BuilderPage() {
             <CardContent className="space-y-4">
               <div className="space-y-1"><Label>Title *</Label><Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Introduction to Algebra" /></div>
               <div className="space-y-1">
-                <Label>Subject</Label>
-                <Select value={subject} onValueChange={setSubject}>
-                  <SelectTrigger><SelectValue placeholder="Select a primary school subject" /></SelectTrigger>
+                <Label>Class *</Label>
+                <Select value={classLevel} onValueChange={(v) => { setClassLevel(v); setSubject(""); }}>
+                  <SelectTrigger><SelectValue placeholder="Select the class this course is for" /></SelectTrigger>
                   <SelectContent>
-                    {subjects.map((s) => (
+                    {CLASS_GROUPS.map((g) => (
+                      <div key={g.label}>
+                        <div className="px-2 py-1 text-xs font-semibold text-muted-foreground">{g.label}</div>
+                        {g.classes.map((c) => (
+                          <SelectItem key={c} value={c}>{c}</SelectItem>
+                        ))}
+                      </div>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <Label>Subject</Label>
+                <Select value={subject} onValueChange={setSubject} disabled={!classLevel}>
+                  <SelectTrigger><SelectValue placeholder={classLevel ? "Select a subject" : "Select a class first"} /></SelectTrigger>
+                  <SelectContent>
+                    {filteredSubjects.length === 0 ? (
+                      <div className="px-2 py-2 text-xs text-muted-foreground">No subjects available for this class</div>
+                    ) : filteredSubjects.map((s) => (
                       <SelectItem key={s} value={s}>{s}</SelectItem>
                     ))}
                   </SelectContent>
