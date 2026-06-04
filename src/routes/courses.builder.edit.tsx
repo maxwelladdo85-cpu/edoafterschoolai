@@ -183,7 +183,7 @@ function BuilderPage() {
     setSaving(true);
     try {
       let cid = courseId;
-      const payload: any = { title: title.trim(), subject: subject || null, description: description || null };
+      const payload: any = { title: title.trim(), class_level: classLevel || null, subject: subject || null, description: description || null };
       if (cid) {
         const { error } = await supabase.from("courses").update(payload).eq("id", cid);
         if (error) throw error;
