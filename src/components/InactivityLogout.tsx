@@ -1,17 +1,23 @@
 import { useEffect, useRef } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useLocation } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 
 const IDLE_MS = 5 * 60 * 1000; // 5 minutes
+const EXEMPT_PATHS = ["/privacy", "/terms", "/cookies"];
 
 export function InactivityLogout() {
   const { user, signOut } = useAuth();
   const nav = useNavigate();
+  const location = useLocation();
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (!user) return;
+    if (EXEMPT_PATHS.some((p) => location.pathname.startsWith(p))) {
+      if (timerRef.current) clearTimeout(timerRef.current);
+      return;
+    }
 
     const reset = () => {
       if (timerRef.current) clearTimeout(timerRef.current);
@@ -38,7 +44,7 @@ export function InactivityLogout() {
       if (timerRef.current) clearTimeout(timerRef.current);
       events.forEach((e) => window.removeEventListener(e, reset));
     };
-  }, [user, signOut, nav]);
+  }, [user, signOut, nav, location.pathname]);
 
   return null;
 }
