@@ -1,4 +1,4 @@
-import logo from "@/assets/edo-subeb-logo.png";
+import logo from "@/assets/edo-subeb-logo.webp";
 
 export function Logo({ className = "", showText = true }: { className?: string; showText?: boolean }) {
   return (
