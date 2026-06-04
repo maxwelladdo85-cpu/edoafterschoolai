@@ -67,11 +67,10 @@ function AnnouncementsPage() {
         .order("send_at", { ascending: false })
         .limit(100),
     ]);
-    if (classes.error) { toast.error(classes.error.message); setClassLevels([]); setLoading(false); return; }
+    if (classes.error) { toast.error(classes.error.message); setClassLevels(CLASS_OPTIONS); setLoading(false); return; }
     const rows = (classes.data ?? []) as { class_level: string; learner_count: number }[];
-    const levels = rows.map((r) => r.class_level);
-    setClassLevels(levels);
-    if (!form.class_level && levels.length) setForm((f) => ({ ...f, class_level: levels[0] }));
+    setClassLevels(CLASS_OPTIONS);
+    if (!form.class_level && CLASS_OPTIONS.length) setForm((f) => ({ ...f, class_level: CLASS_OPTIONS[0] }));
     (window as any).__classCounts = Object.fromEntries(rows.map((r) => [r.class_level, Number(r.learner_count)]));
     if (!hist.error) setHistory((hist.data ?? []) as HistoryRow[]);
     setLoading(false);
