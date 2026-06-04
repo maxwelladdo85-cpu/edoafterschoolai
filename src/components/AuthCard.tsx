@@ -1,11 +1,10 @@
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
@@ -13,6 +12,10 @@ import { toast } from "sonner";
 import { Logo } from "@/components/Logo";
 import { Eye, EyeOff } from "lucide-react";
 import { lookupLearnerEmail } from "@/lib/learner-auth.functions";
+
+const ForgotPasswordDialog = lazy(() =>
+  import("@/components/ForgotPasswordDialog").then((m) => ({ default: m.ForgotPasswordDialog })),
+);
 
 function PasswordInput({ id, value, onChange, minLength }: { id: string; value: string; onChange: (v: string) => void; minLength?: number }) {
   const [show, setShow] = useState(false);
@@ -41,24 +44,11 @@ export function AuthCard() {
   const [role, setRole] = useState<"learner" | "teacher" | "admin">("learner");
   const [forgotOpen, setForgotOpen] = useState(false);
   const [forgotEmail, setForgotEmail] = useState("");
-  const [forgotLoading, setForgotLoading] = useState(false);
   const [learnerNin, setLearnerNin] = useState("");
   const [learnerPhone, setLearnerPhone] = useState("");
   const [learnerEmail, setLearnerEmail] = useState("");
   const lookupEmail = useServerFn(lookupLearnerEmail);
 
-  const handleForgot = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!forgotEmail) return toast.error("Enter your email");
-    setForgotLoading(true);
-    const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
-      redirectTo: `${window.location.origin}/reset-password`,
-    });
-    setForgotLoading(false);
-    if (error) return toast.error(error.message);
-    toast.success("Password reset email sent. Check your inbox.");
-    setForgotOpen(false);
-  };
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -279,34 +269,15 @@ export function AuthCard() {
         </CardContent>
       </Card>
 
-      <Dialog open={forgotOpen} onOpenChange={setForgotOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Reset your password</DialogTitle>
-            <DialogDescription>
-              Enter the email address linked to your account. We'll send you a secure link to set a new password.
-            </DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleForgot} className="space-y-3">
-            <div className="space-y-1">
-              <Label htmlFor="forgot-email">Email</Label>
-              <Input
-                id="forgot-email"
-                type="email"
-                required
-                value={forgotEmail}
-                onChange={(e) => setForgotEmail(e.target.value)}
-              />
-            </div>
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setForgotOpen(false)}>Cancel</Button>
-              <Button type="submit" disabled={forgotLoading}>
-                {forgotLoading ? "Sending..." : "Send reset link"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
+      {forgotOpen && (
+        <Suspense fallback={null}>
+          <ForgotPasswordDialog
+            open={forgotOpen}
+            onOpenChange={setForgotOpen}
+            initialEmail={forgotEmail}
+          />
+        </Suspense>
+      )}
     </div>
   );
 }
