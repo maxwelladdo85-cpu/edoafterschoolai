@@ -1,11 +1,10 @@
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
@@ -13,6 +12,10 @@ import { toast } from "sonner";
 import { Logo } from "@/components/Logo";
 import { Eye, EyeOff } from "lucide-react";
 import { lookupLearnerEmail } from "@/lib/learner-auth.functions";
+
+const ForgotPasswordDialog = lazy(() =>
+  import("@/components/ForgotPasswordDialog").then((m) => ({ default: m.ForgotPasswordDialog })),
+);
 
 function PasswordInput({ id, value, onChange, minLength }: { id: string; value: string; onChange: (v: string) => void; minLength?: number }) {
   const [show, setShow] = useState(false);
