@@ -21,8 +21,23 @@ import { PageHero } from "@/components/PageHero";
 import dashboardHero from "@/assets/dashboard-hero.jpg";
 
 interface Course { id: string; title: string; subject: string | null; description: string | null; is_active: boolean; created_at: string; class_level: string | null; teacher_name: string | null; thumbnail_url: string | null; }
+interface SubjectRecord { name: string; level: string | null; }
 
 const emptyForm = { title: "", subject: "", description: "", is_active: true, class_level: "", teacher_name: "" };
+const CLASS_TO_SUBJECT_LEVEL: Record<string, string> = {
+  "Nursery 1": "Nursery",
+  "Nursery 2": "Nursery",
+  "Kindergarten (KG) / Nursery 3": "Nursery",
+  "Primary 1": "Primary 1-3",
+  "Primary 2": "Primary 1-3",
+  "Primary 3": "Primary 1-3",
+  "Primary 4": "Primary 4-6",
+  "Primary 5": "Primary 4-6",
+  "Primary 6": "Primary 4-6",
+  "JSS 1 (Basic 7)": "JSS 1-3",
+  "JSS 2 (Basic 8)": "JSS 1-3",
+  "JSS 3 (Basic 9)": "JSS 1-3",
+};
 
 export function TeacherDashboard() {
   const { user } = useAuth();
@@ -35,9 +50,16 @@ export function TeacherDashboard() {
   const [saving, setSaving] = useState(false);
   const [subjectFilter, setSubjectFilter] = useState<string>("all");
   const [classFilter, setClassFilter] = useState<string>("all");
+  const [subjects, setSubjects] = useState<SubjectRecord[]>([]);
+  const [subjectsLoading, setSubjectsLoading] = useState(false);
+  const [subjectsError, setSubjectsError] = useState<string | null>(null);
 
   const subjectOptions = Array.from(new Set(courses.map((c) => c.subject).filter(Boolean) as string[])).sort();
   const classOptions = Array.from(new Set(courses.map((c) => c.class_level).filter(Boolean) as string[])).sort();
+  const selectedSubjectLevel = form.class_level ? CLASS_TO_SUBJECT_LEVEL[form.class_level] : null;
+  const availableSubjects = selectedSubjectLevel
+    ? Array.from(new Set(subjects.filter((s) => s.level === selectedSubjectLevel).map((s) => s.name))).sort()
+    : [];
   const filteredCourses = courses.filter((c) =>
     (subjectFilter === "all" || c.subject === subjectFilter) &&
     (classFilter === "all" || c.class_level === classFilter)
@@ -81,6 +103,25 @@ export function TeacherDashboard() {
     setCourses(data ?? []);
   };
   useEffect(() => { load(); }, [user]);
+
+  useEffect(() => {
+    (async () => {
+      setSubjectsLoading(true);
+      setSubjectsError(null);
+      const { data, error } = await supabase
+        .from("subjects")
+        .select("name, level")
+        .eq("is_active", true)
+        .order("name", { ascending: true });
+      if (error) {
+        setSubjects([]);
+        setSubjectsError(error.message);
+      } else {
+        setSubjects((data ?? []) as SubjectRecord[]);
+      }
+      setSubjectsLoading(false);
+    })();
+  }, []);
 
   const openCreate = () => {
     setEditingId(null);
@@ -178,10 +219,19 @@ export function TeacherDashboard() {
               <form onSubmit={save} className="space-y-3">
                 <div className="space-y-1"><Label>Title</Label><Input required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} /></div>
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1"><Label>Subject</Label><Input value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} placeholder="Mathematics, English…" /></div>
+                  <div className="space-y-1">
+                    <Label>Subject</Label>
+                    <Select value={form.subject} onValueChange={(v) => setForm({ ...form, subject: v })} disabled={!form.class_level || subjectsLoading || availableSubjects.length === 0}>
+                      <SelectTrigger><SelectValue placeholder={!form.class_level ? "Select class first" : subjectsLoading ? "Loading subjects…" : "Select subject"} /></SelectTrigger>
+                      <SelectContent>
+                        {availableSubjects.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                    {subjectsError && <p className="text-xs text-destructive">Subjects could not load. Please try again.</p>}
+                  </div>
                   <div className="space-y-1">
                     <Label>Class</Label>
-                    <Select value={form.class_level} onValueChange={(v) => setForm({ ...form, class_level: v })}>
+                    <Select value={form.class_level} onValueChange={(v) => setForm({ ...form, class_level: v, subject: "" })}>
                       <SelectTrigger><SelectValue placeholder="Select class" /></SelectTrigger>
                       <SelectContent>
                         {CLASS_GROUPS.map((g) => (
