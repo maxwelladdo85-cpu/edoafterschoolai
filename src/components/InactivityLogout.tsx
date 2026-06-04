@@ -44,7 +44,7 @@ export function InactivityLogout() {
       if (timerRef.current) clearTimeout(timerRef.current);
       events.forEach((e) => window.removeEventListener(e, reset));
     };
-  }, [user, signOut, nav]);
+  }, [user, signOut, nav, location.pathname]);
 
   return null;
 }
