@@ -129,6 +129,7 @@ function BuilderPage() {
       const { data: c } = await supabase.from("courses").select("*").eq("id", editId).maybeSingle();
       if (c) {
         setTitle(c.title ?? "");
+        setClassLevel(c.class_level ?? "");
         setSubject(c.subject ?? "");
         setDescription(c.description ?? "");
         setThumbUrl(c.thumbnail_url ?? null);
