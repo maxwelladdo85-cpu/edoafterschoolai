@@ -7,6 +7,7 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { NotificationBell } from "@/components/NotificationBell";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
   GraduationCap, FileText, Video, Music, FileType2, FolderPlus,
   ImageIcon, BookOpen, ClipboardList, CheckCircle2, UserPlus, PlayCircle, CalendarPlus,
