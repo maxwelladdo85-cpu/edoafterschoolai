@@ -48,6 +48,7 @@ export function AuthCard() {
   const [learnerPhone, setLearnerPhone] = useState("");
   const [learnerEmail, setLearnerEmail] = useState("");
   const lookupEmail = useServerFn(lookupLearnerEmail);
+  const checkNin = useServerFn(checkLearnerNinAvailable);
 
 
   const handleSignIn = async (e: React.FormEvent) => {
