@@ -108,25 +108,60 @@ export function AuthCard() {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const redirectUrl = `${window.location.origin}/dashboard`;
-    const { data, error } = await supabase.auth.signUp({
-      email, password,
-      options: { emailRedirectTo: redirectUrl, data: { full_name: name } },
-    });
-    if (error) { setLoading(false); return toast.error(error.message); }
+    try {
+      if (role === "learner") {
+        if (!/^[0-9]{11}$/.test(learnerNin.trim())) {
+          throw new Error("Enter the learner's 11-digit NIN");
+        }
+        const phoneDigits = learnerPhone.replace(/\D/g, "");
+        if (phoneDigits.length !== 11) {
+          throw new Error("Parent phone number must be 11 digits");
+        }
+        const { available } = await checkNin({ data: { nin: learnerNin.trim() } });
+        if (!available) {
+          throw new Error("A learner with this NIN already has an account. Please sign in instead.");
+        }
+      }
 
-    // Teacher signup -> mark profile pending; admin must approve before role granted.
-    if (data.user && role === "teacher") {
-      await supabase.from("profiles").update({ status: "pending" }).eq("id", data.user.id);
-      await supabase.auth.signOut();
+      const redirectUrl = `${window.location.origin}/dashboard`;
+      const { data, error } = await supabase.auth.signUp({
+        email, password,
+        options: { emailRedirectTo: redirectUrl, data: { full_name: name } },
+      });
+      if (error) throw error;
+
+      // Teacher signup -> mark profile pending; admin must approve before role granted.
+      if (data.user && role === "teacher") {
+        await supabase.from("profiles").update({ status: "pending" }).eq("id", data.user.id);
+        await supabase.auth.signOut();
+        toast.success("Account created. An admin must approve your teacher account before you can sign in.");
+        setTab("signin");
+        return;
+      }
+
+      // Learner signup -> persist NIN + parent phone on the freshly created profile.
+      if (data.user && role === "learner") {
+        const { error: updErr } = await supabase
+          .from("profiles")
+          .update({ nin: learnerNin.trim(), parent_phone: learnerPhone.trim() })
+          .eq("id", data.user.id);
+        if (updErr) {
+          // Likely the NIN unique-index race; surface a friendly message.
+          if (/nin/i.test(updErr.message) || /unique/i.test(updErr.message)) {
+            await supabase.auth.signOut();
+            throw new Error("A learner with this NIN already has an account.");
+          }
+          throw updErr;
+        }
+      }
+
+      toast.success("Welcome to Digital Learning @ Home");
+      nav({ to: "/dashboard" });
+    } catch (err: any) {
+      toast.error(err?.message ?? "Could not create account");
+    } finally {
       setLoading(false);
-      toast.success("Account created. An admin must approve your teacher account before you can sign in.");
-      setTab("signin");
-      return;
     }
-    setLoading(false);
-    toast.success("Welcome to Digital Learning @ Home");
-    nav({ to: "/dashboard" });
   };
 
   return (
