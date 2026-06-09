@@ -320,6 +320,66 @@ function UserSummaryPage() {
                   <p className="text-base font-medium">No activity yet</p>
                 </CardContent>
               </Card>
+            ) : role === "admin" ? (
+              <Card className="border-border/60" style={{ boxShadow: "var(--shadow-card)" }}>
+                <CardContent className="p-0">
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="min-w-[180px]">User</TableHead>
+                          <TableHead>Role</TableHead>
+                          <TableHead className="min-w-[260px]">Action</TableHead>
+                          <TableHead className="min-w-[220px]">Detail</TableHead>
+                          <TableHead className="whitespace-nowrap">When</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {activity.map((a) => {
+                          const Icon = a.icon;
+                          const row = (
+                            <>
+                              <TableCell className="font-medium">
+                                <div className="flex items-center gap-2">
+                                  <span className="flex h-7 w-7 flex-none items-center justify-center rounded-full bg-primary/10 text-primary">
+                                    <Icon className="h-4 w-4" />
+                                  </span>
+                                  <span className="truncate">{a.actor ?? "—"}</span>
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                {a.actorRole ? (
+                                  <Badge variant={a.actorRole === "admin" ? "destructive" : a.actorRole === "teacher" ? "default" : "secondary"}>
+                                    {a.actorRole}
+                                  </Badge>
+                                ) : (
+                                  <span className="text-muted-foreground">—</span>
+                                )}
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <span>{a.label}</span>
+                                  {a.badge && <Badge variant="secondary">{a.badge}</Badge>}
+                                </div>
+                              </TableCell>
+                              <TableCell className="text-sm text-muted-foreground">{a.detail ?? "—"}</TableCell>
+                              <TableCell className="whitespace-nowrap text-sm text-muted-foreground">
+                                {new Date(a.ts).toLocaleString()}
+                              </TableCell>
+                            </>
+                          );
+                          return (
+                            <TableRow key={a.id} className={a.href ? "cursor-pointer hover:bg-muted/50" : undefined}
+                              onClick={a.href ? () => nav({ to: a.href! }) : undefined}>
+                              {row}
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </CardContent>
+              </Card>
             ) : (
               <ol className="space-y-3">
                 {activity.map((a) => {
@@ -331,19 +391,6 @@ function UserSummaryPage() {
                         </div>
                         <div className="min-w-0 flex-1">
                           <div className="flex flex-wrap items-center gap-2">
-                            {a.actor && (
-                              <span className="font-semibold">
-                                {a.actor}
-                                {a.actorRole && (
-                                  <Badge
-                                    variant={a.actorRole === "admin" ? "destructive" : a.actorRole === "teacher" ? "default" : "secondary"}
-                                    className="ml-2 align-middle"
-                                  >
-                                    {a.actorRole}
-                                  </Badge>
-                                )}
-                              </span>
-                            )}
                             <p className="font-medium">{a.label}</p>
                             {a.badge && <Badge variant="secondary">{a.badge}</Badge>}
                           </div>
