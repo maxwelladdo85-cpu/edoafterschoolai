@@ -78,3 +78,23 @@ export const lookupLearnerEmail = createServerFn({ method: "POST" })
 
     return { email: profile.email };
   });
+
+const UniqueSchema = z.object({
+  nin: z.string().trim().regex(/^[0-9]{11}$/, "NIN must be 11 digits"),
+});
+
+/**
+ * Checks whether a learner NIN is already registered. Used during signup
+ * to prevent duplicate learner accounts on the same NIN.
+ */
+export const checkLearnerNinAvailable = createServerFn({ method: "POST" })
+  .inputValidator((d) => UniqueSchema.parse(d))
+  .handler(async ({ data }) => {
+    const { data: rows, error } = await supabaseAdmin
+      .from("profiles")
+      .select("id")
+      .eq("nin", data.nin)
+      .limit(1);
+    if (error) throw new Error(error.message);
+    return { available: !rows || rows.length === 0 };
+  });
