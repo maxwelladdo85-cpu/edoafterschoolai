@@ -289,6 +289,37 @@ export function AuthCard() {
                     </SelectContent>
                   </Select>
                 </div>
+                {role === "learner" && (
+                  <>
+                    <div className="space-y-1">
+                      <Label htmlFor="snin">NIN</Label>
+                      <Input
+                        id="snin"
+                        inputMode="numeric"
+                        maxLength={11}
+                        required
+                        placeholder="Learner's 11-digit NIN"
+                        value={learnerNin}
+                        onChange={(e) => setLearnerNin(e.target.value.replace(/\D/g, "").slice(0, 11))}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor="sphone">Parent phone number</Label>
+                      <Input
+                        id="sphone"
+                        inputMode="numeric"
+                        required
+                        maxLength={11}
+                        placeholder="e.g. 09074669411"
+                        value={learnerPhone}
+                        onChange={(e) => setLearnerPhone(e.target.value.replace(/\D/g, "").slice(0, 11))}
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        NIN and phone number will be used to sign in.
+                      </p>
+                    </div>
+                  </>
+                )}
                 <Button type="submit" disabled={loading} className="w-full">Create account</Button>
               </form>
               <p className="mt-4 text-center text-sm text-muted-foreground">
