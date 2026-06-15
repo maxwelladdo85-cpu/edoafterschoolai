@@ -282,33 +282,35 @@ export function AdminDashboard() {
           </h2>
           <Card>
             <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Requested</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {pending.map((p) => (
-                    <TableRow key={p.id}>
-                      <TableCell className="font-medium">{p.full_name ?? "—"}</TableCell>
-                      <TableCell>{p.email}</TableCell>
-                      <TableCell>{new Date(p.created_at).toLocaleDateString()}</TableCell>
-                      <TableCell className="text-right space-x-2">
-                        <Button size="sm" onClick={() => approveTeacher(p.id)}>
-                          <Check className="h-4 w-4 mr-1" /> Approve
-                        </Button>
-                        <Button size="sm" variant="outline" onClick={() => rejectTeacher(p.id)}>
-                          <X className="h-4 w-4 mr-1" /> Reject
-                        </Button>
-                      </TableCell>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="whitespace-nowrap">Name</TableHead>
+                      <TableHead className="whitespace-nowrap">Email</TableHead>
+                      <TableHead className="whitespace-nowrap">Requested</TableHead>
+                      <TableHead className="text-right whitespace-nowrap">Actions</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {pending.map((p) => (
+                      <TableRow key={p.id}>
+                        <TableCell className="font-medium">{p.full_name ?? "—"}</TableCell>
+                        <TableCell>{p.email}</TableCell>
+                        <TableCell className="whitespace-nowrap">{new Date(p.created_at).toLocaleDateString()}</TableCell>
+                        <TableCell className="text-right space-x-2 whitespace-nowrap">
+                          <Button size="sm" onClick={() => approveTeacher(p.id)}>
+                            <Check className="h-4 w-4 mr-1" /> Approve
+                          </Button>
+                          <Button size="sm" variant="outline" onClick={() => rejectTeacher(p.id)}>
+                            <X className="h-4 w-4 mr-1" /> Reject
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             </CardContent>
           </Card>
         </section>

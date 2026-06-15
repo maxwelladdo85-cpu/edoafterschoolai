@@ -13,7 +13,7 @@ interface PageHeroProps {
 export function PageHero({ eyebrow, EyebrowIcon, title, description, actions, backgroundImage }: PageHeroProps) {
   return (
     <section
-      className="relative overflow-hidden rounded-2xl p-8 md:p-10 text-primary-foreground"
+      className="relative overflow-hidden rounded-2xl p-5 sm:p-8 md:p-10 text-primary-foreground"
       style={{ backgroundImage: "var(--gradient-hero)", boxShadow: "var(--shadow-elegant)" }}
     >
       {backgroundImage && (
@@ -31,19 +31,19 @@ export function PageHero({ eyebrow, EyebrowIcon, title, description, actions, ba
         </>
       )}
       <div
-        className="absolute -right-24 -top-24 h-72 w-72 rounded-full opacity-30 blur-3xl"
+        className="absolute -right-24 -top-24 h-56 w-56 sm:h-72 sm:w-72 rounded-full opacity-30 blur-3xl"
         style={{ backgroundImage: "var(--gradient-gold)" }}
       />
-      <div className="absolute -bottom-20 -left-10 h-56 w-56 rounded-full bg-white/5 blur-3xl" />
-      <div className="relative flex flex-wrap items-end justify-between gap-6">
-        <div className="max-w-2xl">
+      <div className="absolute -bottom-20 -left-10 h-40 w-40 sm:h-56 sm:w-56 rounded-full bg-white/5 blur-3xl" />
+      <div className="relative flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between sm:gap-6">
+        <div className="min-w-0 max-w-2xl">
           {eyebrow && (
             <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium backdrop-blur">
               {EyebrowIcon && <EyebrowIcon className="h-3.5 w-3.5" />} {eyebrow}
             </span>
           )}
-          <h1 className="mt-4 text-4xl font-bold tracking-tight md:text-5xl">{title}</h1>
-          {description && <p className="mt-3 text-base md:text-lg text-white/90">{description}</p>}
+          <h1 className="mt-3 text-2xl font-bold tracking-tight sm:mt-4 sm:text-3xl md:text-5xl">{title}</h1>
+          {description && <p className="mt-2 text-sm sm:mt-3 sm:text-base md:text-lg text-white/90">{description}</p>}
         </div>
         {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
       </div>

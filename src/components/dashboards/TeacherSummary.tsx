@@ -79,21 +79,21 @@ export function TeacherSummary() {
     <div className="space-y-8">
       {/* Hero */}
       <section
-        className="relative overflow-hidden rounded-2xl p-8 md:p-10 text-primary-foreground"
+        className="relative overflow-hidden rounded-2xl p-5 sm:p-8 md:p-10 text-primary-foreground"
         style={{ backgroundImage: "var(--gradient-hero)", boxShadow: "var(--shadow-elegant)" }}
       >
-        <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full opacity-30 blur-3xl"
+        <div className="absolute -right-24 -top-24 h-56 w-56 sm:h-72 sm:w-72 rounded-full opacity-30 blur-3xl"
           style={{ backgroundImage: "var(--gradient-gold)" }} />
-        <div className="absolute -bottom-20 -left-10 h-56 w-56 rounded-full bg-white/5 blur-3xl" />
-        <div className="relative flex flex-wrap items-end justify-between gap-6">
-          <div className="max-w-2xl">
+        <div className="absolute -bottom-20 -left-10 h-40 w-40 sm:h-56 sm:w-56 rounded-full bg-white/5 blur-3xl" />
+        <div className="relative flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between sm:gap-6">
+          <div className="min-w-0 max-w-2xl">
             <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium backdrop-blur">
               <Sparkles className="h-3.5 w-3.5" /> Teacher workspace
             </span>
-            <h1 className="mt-4 text-4xl font-bold tracking-tight md:text-5xl">
+            <h1 className="mt-3 text-2xl font-bold tracking-tight sm:mt-4 sm:text-3xl md:text-5xl">
               Welcome back, {firstName}.
             </h1>
-            <p className="mt-3 text-base md:text-lg text-white/85">
+            <p className="mt-2 text-sm sm:mt-3 sm:text-base md:text-lg text-white/85">
               A snapshot of everything you've created — courses, lessons and learners — in one elegant view.
             </p>
           </div>
@@ -120,7 +120,7 @@ export function TeacherSummary() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-4xl font-bold tracking-tight">{loading ? "—" : s.value}</div>
+              <div className="text-3xl sm:text-4xl font-bold tracking-tight">{loading ? "—" : s.value}</div>
             </CardContent>
           </Card>
         ))}
