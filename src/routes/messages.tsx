@@ -95,7 +95,7 @@ function MessagesPage() {
 
   return (
     <DashboardShell title="Messages">
-      <div className="grid gap-4 md:grid-cols-[280px_1fr] h-[70vh]">
+      <div className="grid gap-4 md:grid-cols-[280px_1fr] md:h-[70vh]">
         <Card className="overflow-hidden">
           <CardContent className="p-0 h-full overflow-y-auto">
             {loading ? (
