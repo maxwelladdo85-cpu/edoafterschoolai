@@ -95,8 +95,8 @@ function MessagesPage() {
 
   return (
     <DashboardShell title="Messages">
-      <div className="grid gap-4 md:grid-cols-[280px_1fr] h-[70vh]">
-        <Card className="overflow-hidden">
+      <div className="grid gap-4 md:grid-cols-[280px_1fr] md:h-[70vh]">
+        <Card className="overflow-hidden max-h-[40vh] md:max-h-none">
           <CardContent className="p-0 h-full overflow-y-auto">
             {loading ? (
               <div className="flex justify-center py-10 text-muted-foreground"><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading…</div>
@@ -126,7 +126,7 @@ function MessagesPage() {
           </CardContent>
         </Card>
 
-        <Card className="flex flex-col">
+        <Card className="flex flex-col min-h-[60vh] md:min-h-0">
           {!activeContact ? (
             <CardContent className="flex-1 flex items-center justify-center text-muted-foreground">
               Select a conversation
