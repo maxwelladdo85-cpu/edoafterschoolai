@@ -43,17 +43,17 @@ function Index() {
           <header className="mx-auto flex max-w-6xl items-center justify-end px-6 pt-2 pb-0" />
 
 
-          <section className="mx-auto max-w-6xl px-6 pt-0 pb-10 text-center">
+          <section className="mx-auto max-w-6xl px-4 sm:px-6 pt-0 pb-10 text-center">
             <span className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-gold/20 backdrop-blur px-3 py-1 text-xs font-medium text-foreground">
               <Sparkles className="h-3 w-3" /> EdoSUBEB · Quality Education For All
             </span>
-            <h1 className="mt-6 text-6xl font-extrabold tracking-tight md:text-7xl lg:text-8xl">
+            <h1 className="mt-6 text-4xl font-extrabold tracking-tight sm:text-5xl md:text-7xl lg:text-8xl">
               Digital learning <span className="text-primary">@ Home</span>
             </h1>
-            <p className="mx-auto mt-6 max-w-3xl text-xl font-bold text-foreground/90 md:text-2xl">
+            <p className="mx-auto mt-4 max-w-3xl text-base font-bold text-foreground/90 sm:mt-6 sm:text-xl md:text-2xl">
               An AI-powered learning management platform for Learners, Teachers and Administrators across Edo State.
             </p>
-            <div className="mt-8 flex justify-center gap-3">
+            <div className="mt-6 sm:mt-8 flex flex-wrap justify-center gap-3">
               <Link to="/login"><Button size="lg">Get started</Button></Link>
               <Link to="/login"><Button size="lg" variant="outline">I have an account</Button></Link>
             </div>
@@ -61,7 +61,7 @@ function Index() {
         </div>
       </div>
 
-      <main className="mx-auto -mt-12 max-w-6xl px-6 pb-16">
+      <main className="mx-auto -mt-12 max-w-6xl px-4 sm:px-6 pb-16">
 
         <section className="grid gap-6 md:grid-cols-3">
           {[
