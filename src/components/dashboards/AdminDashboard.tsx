@@ -339,53 +339,55 @@ export function AdminDashboard() {
         </div>
         <Card>
           <CardContent className="p-0">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Roles</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Joined</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredUsers.length === 0 ? (
-                  <TableRow><TableCell colSpan={6} className="py-8 text-center text-muted-foreground">No users found.</TableCell></TableRow>
-                ) : filteredUsers.map((u) => (
-                  <TableRow key={u.id}>
-                    <TableCell className="font-medium">{u.full_name ?? "—"}</TableCell>
-                    <TableCell>{u.email}</TableCell>
-                    <TableCell>
-                      <div className="flex flex-wrap gap-1">
-                        {u.roles.map((r) => (
-                          <Badge key={r} variant={r === "admin" ? "destructive" : r === "teacher" ? "default" : "secondary"}>{r}</Badge>
-                        ))}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={u.status === "active" ? "default" : u.status === "pending" ? "outline" : "secondary"}>
-                        {u.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{new Date(u.created_at).toLocaleDateString()}</TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        {u.status !== "pending" && (
-                          <Button size="sm" variant="outline" onClick={() => toggleStatus(u.id, u.status)}>
-                            {u.status === "active" ? "Deactivate" : "Activate"}
-                          </Button>
-                        )}
-                        <Button size="sm" variant="destructive" onClick={() => openDelete(u)}>
-                          <Trash2 className="mr-1 h-4 w-4" />Delete
-                        </Button>
-                      </div>
-                    </TableCell>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="whitespace-nowrap">Name</TableHead>
+                    <TableHead className="whitespace-nowrap">Email</TableHead>
+                    <TableHead className="whitespace-nowrap">Roles</TableHead>
+                    <TableHead className="whitespace-nowrap">Status</TableHead>
+                    <TableHead className="whitespace-nowrap">Joined</TableHead>
+                    <TableHead className="text-right whitespace-nowrap">Actions</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {filteredUsers.length === 0 ? (
+                    <TableRow><TableCell colSpan={6} className="py-8 text-center text-muted-foreground">No users found.</TableCell></TableRow>
+                  ) : filteredUsers.map((u) => (
+                    <TableRow key={u.id}>
+                      <TableCell className="font-medium">{u.full_name ?? "—"}</TableCell>
+                      <TableCell>{u.email}</TableCell>
+                      <TableCell>
+                        <div className="flex flex-wrap gap-1">
+                          {u.roles.map((r) => (
+                            <Badge key={r} variant={r === "admin" ? "destructive" : r === "teacher" ? "default" : "secondary"}>{r}</Badge>
+                          ))}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={u.status === "active" ? "default" : u.status === "pending" ? "outline" : "secondary"}>
+                          {u.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap">{new Date(u.created_at).toLocaleDateString()}</TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2 whitespace-nowrap">
+                          {u.status !== "pending" && (
+                            <Button size="sm" variant="outline" onClick={() => toggleStatus(u.id, u.status)}>
+                              {u.status === "active" ? "Deactivate" : "Activate"}
+                            </Button>
+                          )}
+                          <Button size="sm" variant="destructive" onClick={() => openDelete(u)}>
+                            <Trash2 className="mr-1 h-4 w-4" />Delete
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           </CardContent>
         </Card>
       </section>

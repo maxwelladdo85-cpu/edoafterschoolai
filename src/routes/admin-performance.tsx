@@ -171,26 +171,28 @@ function AdminPerformancePage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead className="text-right">Messages</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {!perf?.top_ai_users_today?.length ? (
-                  <TableRow><TableCell colSpan={3} className="py-8 text-center text-muted-foreground">No AI Tutor usage yet today.</TableCell></TableRow>
-                ) : perf.top_ai_users_today.map((u, i) => (
-                  <TableRow key={i}>
-                    <TableCell className="font-medium">{u.full_name ?? "—"}</TableCell>
-                    <TableCell>{u.email ?? "—"}</TableCell>
-                    <TableCell className="text-right tabular-nums">{u.message_count}</TableCell>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="whitespace-nowrap">Name</TableHead>
+                    <TableHead className="whitespace-nowrap">Email</TableHead>
+                    <TableHead className="text-right whitespace-nowrap">Messages</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {!perf?.top_ai_users_today?.length ? (
+                    <TableRow><TableCell colSpan={3} className="py-8 text-center text-muted-foreground">No AI Tutor usage yet today.</TableCell></TableRow>
+                  ) : perf.top_ai_users_today.map((u, i) => (
+                    <TableRow key={i}>
+                      <TableCell className="font-medium">{u.full_name ?? "—"}</TableCell>
+                      <TableCell>{u.email ?? "—"}</TableCell>
+                      <TableCell className="text-right tabular-nums">{u.message_count}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           </CardContent>
         </Card>
 
