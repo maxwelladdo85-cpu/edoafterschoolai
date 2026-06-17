@@ -11,7 +11,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // web side fails to call SplashScreen.hide().
         DispatchQueue.main.asyncAfter(deadline: .now() + 4.0) {
             NotificationCenter.default.post(
-                name: .capacitorHideSplash,
+                name: Notification.Name("capacitorHideSplash"),
                 object: nil
             )
         }
