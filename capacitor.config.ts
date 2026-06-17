@@ -22,10 +22,10 @@ const config: CapacitorConfig = {
 
   // Marketing version → CFBundleShortVersionString in Info.plist.
   // Bump for every public release (e.g. "1.0.1", "1.1.0").
-  version: "1.0.0",
+  version: "1.4.0",
 
   server: {
-    url: "https://edoafterschoolai.lovable.app",
+    url: "https://edodlah.com",
     cleartext: false,
     androidScheme: "https",
     iosScheme: "https",
@@ -40,13 +40,14 @@ const config: CapacitorConfig = {
 
   plugins: {
     SplashScreen: {
-      launchShowDuration: 1500,
+      launchShowDuration: 3000,
       backgroundColor: "#00843D",
       androidSplashResourceName: "splash",
       showSpinner: false,
       iosSpinnerStyle: "small",
       splashFullScreen: true,
       splashImmersive: true,
+      autoHide: true,
     },
     StatusBar: {
       style: "DARK",

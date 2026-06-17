@@ -120,11 +120,20 @@ function RootShell({ children }: { children: React.ReactNode }) {
   );
 }
 
+function hideSplash() {
+  try {
+    import("@capacitor/splash-screen").then(({ SplashScreen }) => {
+      SplashScreen.hide();
+    }).catch(() => {});
+  } catch {}
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   if (typeof window !== "undefined") {
-    // Register service worker only in real browser tabs (skip Lovable editor iframe / preview).
+    hideSplash();
+
     const inIframe = (() => { try { return window.self !== window.top; } catch { return true; } })();
     const host = window.location.hostname;
     const isPreviewHost =

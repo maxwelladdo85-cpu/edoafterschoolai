@@ -7,7 +7,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+        // Safety net: force-hide the splash screen after 4 seconds in case the
+        // web side fails to call SplashScreen.hide().
+        DispatchQueue.main.asyncAfter(deadline: .now() + 4.0) {
+            NotificationCenter.default.post(
+                name: .capacitorHideSplash,
+                object: nil
+            )
+        }
         return true
     }
 
