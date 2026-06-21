@@ -440,10 +440,13 @@ export type Database = {
           lga: string | null
           nin: string | null
           parent_phone: string | null
+          phone: string | null
           school_id: string | null
           school_type: string | null
           status: string
           teacher_id: string | null
+          ussd_enabled: boolean
+          ussd_pin_hash: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -456,10 +459,13 @@ export type Database = {
           lga?: string | null
           nin?: string | null
           parent_phone?: string | null
+          phone?: string | null
           school_id?: string | null
           school_type?: string | null
           status?: string
           teacher_id?: string | null
+          ussd_enabled?: boolean
+          ussd_pin_hash?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -472,10 +478,13 @@ export type Database = {
           lga?: string | null
           nin?: string | null
           parent_phone?: string | null
+          phone?: string | null
           school_id?: string | null
           school_type?: string | null
           status?: string
           teacher_id?: string | null
+          ussd_enabled?: boolean
+          ussd_pin_hash?: string | null
         }
         Relationships: [
           {
@@ -717,6 +726,53 @@ export type Database = {
         }
         Relationships: []
       }
+      sms_log: {
+        Row: {
+          body: string
+          created_at: string
+          error: string | null
+          id: string
+          learner_id: string | null
+          phone: string
+          provider_message_id: string | null
+          purpose: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          error?: string | null
+          id?: string
+          learner_id?: string | null
+          phone: string
+          provider_message_id?: string | null
+          purpose: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          error?: string | null
+          id?: string
+          learner_id?: string | null
+          phone?: string
+          provider_message_id?: string | null
+          purpose?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sms_log_learner_id_fkey"
+            columns: ["learner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subjects: {
         Row: {
           created_at: string
@@ -838,6 +894,41 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      ussd_sessions: {
+        Row: {
+          created_at: string
+          learner_id: string | null
+          phone: string
+          session_id: string
+          state: Json
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          learner_id?: string | null
+          phone: string
+          session_id: string
+          state?: Json
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          learner_id?: string | null
+          phone?: string
+          session_id?: string
+          state?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ussd_sessions_learner_id_fkey"
+            columns: ["learner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       vark_results: {
         Row: {
@@ -1138,6 +1229,7 @@ export type Database = {
         }
         Returns: string
       }
+      ussd_expire_old_sessions: { Args: never; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "teacher" | "learner"

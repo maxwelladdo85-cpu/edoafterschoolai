@@ -26,6 +26,7 @@ import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as CertificatesRouteImport } from './routes/certificates'
 import { Route as AssessmentsRouteImport } from './routes/assessments'
 import { Route as AnnouncementsRouteImport } from './routes/announcements'
+import { Route as AdminUssdRouteImport } from './routes/admin-ussd'
 import { Route as AdminPerformanceRouteImport } from './routes/admin-performance'
 import { Route as AdminAnalyticsRouteImport } from './routes/admin-analytics'
 import { Route as IndexRouteImport } from './routes/index'
@@ -38,6 +39,7 @@ import { Route as ApiTeacherAiRouteImport } from './routes/api/teacher-ai'
 import { Route as QuizzesQuizIdTakeRouteImport } from './routes/quizzes.$quizId.take'
 import { Route as QuizzesQuizIdEditRouteImport } from './routes/quizzes.$quizId.edit'
 import { Route as CoursesBuilderEditRouteImport } from './routes/courses.builder.edit'
+import { Route as ApiPublicUssdRouteImport } from './routes/api/public/ussd'
 
 const VirtualClassesRoute = VirtualClassesRouteImport.update({
   id: '/virtual-classes',
@@ -124,6 +126,11 @@ const AnnouncementsRoute = AnnouncementsRouteImport.update({
   path: '/announcements',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminUssdRoute = AdminUssdRouteImport.update({
+  id: '/admin-ussd',
+  path: '/admin-ussd',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminPerformanceRoute = AdminPerformanceRouteImport.update({
   id: '/admin-performance',
   path: '/admin-performance',
@@ -184,11 +191,17 @@ const CoursesBuilderEditRoute = CoursesBuilderEditRouteImport.update({
   path: '/edit',
   getParentRoute: () => CoursesBuilderRoute,
 } as any)
+const ApiPublicUssdRoute = ApiPublicUssdRouteImport.update({
+  id: '/api/public/ussd',
+  path: '/api/public/ussd',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin-analytics': typeof AdminAnalyticsRoute
   '/admin-performance': typeof AdminPerformanceRoute
+  '/admin-ussd': typeof AdminUssdRoute
   '/announcements': typeof AnnouncementsRoute
   '/assessments': typeof AssessmentsRoute
   '/certificates': typeof CertificatesRoute
@@ -212,6 +225,7 @@ export interface FileRoutesByFullPath {
   '/courses/builder': typeof CoursesBuilderRouteWithChildren
   '/quizzes/$courseId': typeof QuizzesCourseIdRoute
   '/courses/': typeof CoursesIndexRoute
+  '/api/public/ussd': typeof ApiPublicUssdRoute
   '/courses/builder/edit': typeof CoursesBuilderEditRoute
   '/quizzes/$quizId/edit': typeof QuizzesQuizIdEditRoute
   '/quizzes/$quizId/take': typeof QuizzesQuizIdTakeRoute
@@ -220,6 +234,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin-analytics': typeof AdminAnalyticsRoute
   '/admin-performance': typeof AdminPerformanceRoute
+  '/admin-ussd': typeof AdminUssdRoute
   '/announcements': typeof AnnouncementsRoute
   '/assessments': typeof AssessmentsRoute
   '/certificates': typeof CertificatesRoute
@@ -242,6 +257,7 @@ export interface FileRoutesByTo {
   '/courses/builder': typeof CoursesBuilderRouteWithChildren
   '/quizzes/$courseId': typeof QuizzesCourseIdRoute
   '/courses': typeof CoursesIndexRoute
+  '/api/public/ussd': typeof ApiPublicUssdRoute
   '/courses/builder/edit': typeof CoursesBuilderEditRoute
   '/quizzes/$quizId/edit': typeof QuizzesQuizIdEditRoute
   '/quizzes/$quizId/take': typeof QuizzesQuizIdTakeRoute
@@ -251,6 +267,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin-analytics': typeof AdminAnalyticsRoute
   '/admin-performance': typeof AdminPerformanceRoute
+  '/admin-ussd': typeof AdminUssdRoute
   '/announcements': typeof AnnouncementsRoute
   '/assessments': typeof AssessmentsRoute
   '/certificates': typeof CertificatesRoute
@@ -274,6 +291,7 @@ export interface FileRoutesById {
   '/courses/builder': typeof CoursesBuilderRouteWithChildren
   '/quizzes/$courseId': typeof QuizzesCourseIdRoute
   '/courses/': typeof CoursesIndexRoute
+  '/api/public/ussd': typeof ApiPublicUssdRoute
   '/courses/builder/edit': typeof CoursesBuilderEditRoute
   '/quizzes/$quizId/edit': typeof QuizzesQuizIdEditRoute
   '/quizzes/$quizId/take': typeof QuizzesQuizIdTakeRoute
@@ -284,6 +302,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin-analytics'
     | '/admin-performance'
+    | '/admin-ussd'
     | '/announcements'
     | '/assessments'
     | '/certificates'
@@ -307,6 +326,7 @@ export interface FileRouteTypes {
     | '/courses/builder'
     | '/quizzes/$courseId'
     | '/courses/'
+    | '/api/public/ussd'
     | '/courses/builder/edit'
     | '/quizzes/$quizId/edit'
     | '/quizzes/$quizId/take'
@@ -315,6 +335,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin-analytics'
     | '/admin-performance'
+    | '/admin-ussd'
     | '/announcements'
     | '/assessments'
     | '/certificates'
@@ -337,6 +358,7 @@ export interface FileRouteTypes {
     | '/courses/builder'
     | '/quizzes/$courseId'
     | '/courses'
+    | '/api/public/ussd'
     | '/courses/builder/edit'
     | '/quizzes/$quizId/edit'
     | '/quizzes/$quizId/take'
@@ -345,6 +367,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin-analytics'
     | '/admin-performance'
+    | '/admin-ussd'
     | '/announcements'
     | '/assessments'
     | '/certificates'
@@ -368,6 +391,7 @@ export interface FileRouteTypes {
     | '/courses/builder'
     | '/quizzes/$courseId'
     | '/courses/'
+    | '/api/public/ussd'
     | '/courses/builder/edit'
     | '/quizzes/$quizId/edit'
     | '/quizzes/$quizId/take'
@@ -377,6 +401,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminAnalyticsRoute: typeof AdminAnalyticsRoute
   AdminPerformanceRoute: typeof AdminPerformanceRoute
+  AdminUssdRoute: typeof AdminUssdRoute
   AnnouncementsRoute: typeof AnnouncementsRoute
   AssessmentsRoute: typeof AssessmentsRoute
   CertificatesRoute: typeof CertificatesRoute
@@ -397,6 +422,7 @@ export interface RootRouteChildren {
   ApiTeacherAiRoute: typeof ApiTeacherAiRoute
   ApiTutorRoute: typeof ApiTutorRoute
   QuizzesCourseIdRoute: typeof QuizzesCourseIdRoute
+  ApiPublicUssdRoute: typeof ApiPublicUssdRoute
   QuizzesQuizIdEditRoute: typeof QuizzesQuizIdEditRoute
   QuizzesQuizIdTakeRoute: typeof QuizzesQuizIdTakeRoute
 }
@@ -522,6 +548,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AnnouncementsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin-ussd': {
+      id: '/admin-ussd'
+      path: '/admin-ussd'
+      fullPath: '/admin-ussd'
+      preLoaderRoute: typeof AdminUssdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin-performance': {
       id: '/admin-performance'
       path: '/admin-performance'
@@ -606,6 +639,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CoursesBuilderEditRouteImport
       parentRoute: typeof CoursesBuilderRoute
     }
+    '/api/public/ussd': {
+      id: '/api/public/ussd'
+      path: '/api/public/ussd'
+      fullPath: '/api/public/ussd'
+      preLoaderRoute: typeof ApiPublicUssdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -640,6 +680,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminAnalyticsRoute: AdminAnalyticsRoute,
   AdminPerformanceRoute: AdminPerformanceRoute,
+  AdminUssdRoute: AdminUssdRoute,
   AnnouncementsRoute: AnnouncementsRoute,
   AssessmentsRoute: AssessmentsRoute,
   CertificatesRoute: CertificatesRoute,
@@ -660,19 +701,10 @@ const rootRouteChildren: RootRouteChildren = {
   ApiTeacherAiRoute: ApiTeacherAiRoute,
   ApiTutorRoute: ApiTutorRoute,
   QuizzesCourseIdRoute: QuizzesCourseIdRoute,
+  ApiPublicUssdRoute: ApiPublicUssdRoute,
   QuizzesQuizIdEditRoute: QuizzesQuizIdEditRoute,
   QuizzesQuizIdTakeRoute: QuizzesQuizIdTakeRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
