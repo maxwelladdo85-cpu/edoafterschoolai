@@ -15,6 +15,7 @@ import {
   adminSetUssdAccess,
   adminListSmsLog,
 } from "@/lib/admin-ussd.functions";
+import { UssdSimulator } from "@/components/UssdSimulator";
 
 export const Route = createFileRoute("/admin-ussd")({
   component: AdminUssdPage,
@@ -197,6 +198,8 @@ function AdminUssdPage() {
             </div>
           </CardContent>
         </Card>
+
+        <UssdSimulator />
 
         <Card>
           <CardHeader>
