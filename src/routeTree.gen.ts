@@ -38,6 +38,7 @@ import { Route as ApiTeacherAiRouteImport } from './routes/api/teacher-ai'
 import { Route as QuizzesQuizIdTakeRouteImport } from './routes/quizzes.$quizId.take'
 import { Route as QuizzesQuizIdEditRouteImport } from './routes/quizzes.$quizId.edit'
 import { Route as CoursesBuilderEditRouteImport } from './routes/courses.builder.edit'
+import { Route as ApiPublicUssdRouteImport } from './routes/api/public/ussd'
 
 const VirtualClassesRoute = VirtualClassesRouteImport.update({
   id: '/virtual-classes',
@@ -184,6 +185,11 @@ const CoursesBuilderEditRoute = CoursesBuilderEditRouteImport.update({
   path: '/edit',
   getParentRoute: () => CoursesBuilderRoute,
 } as any)
+const ApiPublicUssdRoute = ApiPublicUssdRouteImport.update({
+  id: '/api/public/ussd',
+  path: '/api/public/ussd',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -212,6 +218,7 @@ export interface FileRoutesByFullPath {
   '/courses/builder': typeof CoursesBuilderRouteWithChildren
   '/quizzes/$courseId': typeof QuizzesCourseIdRoute
   '/courses/': typeof CoursesIndexRoute
+  '/api/public/ussd': typeof ApiPublicUssdRoute
   '/courses/builder/edit': typeof CoursesBuilderEditRoute
   '/quizzes/$quizId/edit': typeof QuizzesQuizIdEditRoute
   '/quizzes/$quizId/take': typeof QuizzesQuizIdTakeRoute
@@ -242,6 +249,7 @@ export interface FileRoutesByTo {
   '/courses/builder': typeof CoursesBuilderRouteWithChildren
   '/quizzes/$courseId': typeof QuizzesCourseIdRoute
   '/courses': typeof CoursesIndexRoute
+  '/api/public/ussd': typeof ApiPublicUssdRoute
   '/courses/builder/edit': typeof CoursesBuilderEditRoute
   '/quizzes/$quizId/edit': typeof QuizzesQuizIdEditRoute
   '/quizzes/$quizId/take': typeof QuizzesQuizIdTakeRoute
@@ -274,6 +282,7 @@ export interface FileRoutesById {
   '/courses/builder': typeof CoursesBuilderRouteWithChildren
   '/quizzes/$courseId': typeof QuizzesCourseIdRoute
   '/courses/': typeof CoursesIndexRoute
+  '/api/public/ussd': typeof ApiPublicUssdRoute
   '/courses/builder/edit': typeof CoursesBuilderEditRoute
   '/quizzes/$quizId/edit': typeof QuizzesQuizIdEditRoute
   '/quizzes/$quizId/take': typeof QuizzesQuizIdTakeRoute
@@ -307,6 +316,7 @@ export interface FileRouteTypes {
     | '/courses/builder'
     | '/quizzes/$courseId'
     | '/courses/'
+    | '/api/public/ussd'
     | '/courses/builder/edit'
     | '/quizzes/$quizId/edit'
     | '/quizzes/$quizId/take'
@@ -337,6 +347,7 @@ export interface FileRouteTypes {
     | '/courses/builder'
     | '/quizzes/$courseId'
     | '/courses'
+    | '/api/public/ussd'
     | '/courses/builder/edit'
     | '/quizzes/$quizId/edit'
     | '/quizzes/$quizId/take'
@@ -368,6 +379,7 @@ export interface FileRouteTypes {
     | '/courses/builder'
     | '/quizzes/$courseId'
     | '/courses/'
+    | '/api/public/ussd'
     | '/courses/builder/edit'
     | '/quizzes/$quizId/edit'
     | '/quizzes/$quizId/take'
@@ -397,6 +409,7 @@ export interface RootRouteChildren {
   ApiTeacherAiRoute: typeof ApiTeacherAiRoute
   ApiTutorRoute: typeof ApiTutorRoute
   QuizzesCourseIdRoute: typeof QuizzesCourseIdRoute
+  ApiPublicUssdRoute: typeof ApiPublicUssdRoute
   QuizzesQuizIdEditRoute: typeof QuizzesQuizIdEditRoute
   QuizzesQuizIdTakeRoute: typeof QuizzesQuizIdTakeRoute
 }
@@ -606,6 +619,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CoursesBuilderEditRouteImport
       parentRoute: typeof CoursesBuilderRoute
     }
+    '/api/public/ussd': {
+      id: '/api/public/ussd'
+      path: '/api/public/ussd'
+      fullPath: '/api/public/ussd'
+      preLoaderRoute: typeof ApiPublicUssdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -660,6 +680,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiTeacherAiRoute: ApiTeacherAiRoute,
   ApiTutorRoute: ApiTutorRoute,
   QuizzesCourseIdRoute: QuizzesCourseIdRoute,
+  ApiPublicUssdRoute: ApiPublicUssdRoute,
   QuizzesQuizIdEditRoute: QuizzesQuizIdEditRoute,
   QuizzesQuizIdTakeRoute: QuizzesQuizIdTakeRoute,
 }
