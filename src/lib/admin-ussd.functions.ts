@@ -55,8 +55,7 @@ export const adminSetUssdAccess = createServerFn({ method: "POST" })
       }
     }
     if (!Object.keys(patch).length) return { ok: true };
-    const { error } = await supabaseAdmin
-      .from("profiles")
+    const { error } = await (supabaseAdmin.from("profiles") as any)
       .update(patch)
       .eq("id", data.userId);
     if (error) throw error;
