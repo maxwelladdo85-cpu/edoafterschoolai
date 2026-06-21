@@ -26,6 +26,7 @@ import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as CertificatesRouteImport } from './routes/certificates'
 import { Route as AssessmentsRouteImport } from './routes/assessments'
 import { Route as AnnouncementsRouteImport } from './routes/announcements'
+import { Route as AdminUssdRouteImport } from './routes/admin-ussd'
 import { Route as AdminPerformanceRouteImport } from './routes/admin-performance'
 import { Route as AdminAnalyticsRouteImport } from './routes/admin-analytics'
 import { Route as IndexRouteImport } from './routes/index'
@@ -125,6 +126,11 @@ const AnnouncementsRoute = AnnouncementsRouteImport.update({
   path: '/announcements',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminUssdRoute = AdminUssdRouteImport.update({
+  id: '/admin-ussd',
+  path: '/admin-ussd',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminPerformanceRoute = AdminPerformanceRouteImport.update({
   id: '/admin-performance',
   path: '/admin-performance',
@@ -195,6 +201,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin-analytics': typeof AdminAnalyticsRoute
   '/admin-performance': typeof AdminPerformanceRoute
+  '/admin-ussd': typeof AdminUssdRoute
   '/announcements': typeof AnnouncementsRoute
   '/assessments': typeof AssessmentsRoute
   '/certificates': typeof CertificatesRoute
@@ -227,6 +234,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin-analytics': typeof AdminAnalyticsRoute
   '/admin-performance': typeof AdminPerformanceRoute
+  '/admin-ussd': typeof AdminUssdRoute
   '/announcements': typeof AnnouncementsRoute
   '/assessments': typeof AssessmentsRoute
   '/certificates': typeof CertificatesRoute
@@ -259,6 +267,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin-analytics': typeof AdminAnalyticsRoute
   '/admin-performance': typeof AdminPerformanceRoute
+  '/admin-ussd': typeof AdminUssdRoute
   '/announcements': typeof AnnouncementsRoute
   '/assessments': typeof AssessmentsRoute
   '/certificates': typeof CertificatesRoute
@@ -293,6 +302,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin-analytics'
     | '/admin-performance'
+    | '/admin-ussd'
     | '/announcements'
     | '/assessments'
     | '/certificates'
@@ -325,6 +335,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin-analytics'
     | '/admin-performance'
+    | '/admin-ussd'
     | '/announcements'
     | '/assessments'
     | '/certificates'
@@ -356,6 +367,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin-analytics'
     | '/admin-performance'
+    | '/admin-ussd'
     | '/announcements'
     | '/assessments'
     | '/certificates'
@@ -389,6 +401,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminAnalyticsRoute: typeof AdminAnalyticsRoute
   AdminPerformanceRoute: typeof AdminPerformanceRoute
+  AdminUssdRoute: typeof AdminUssdRoute
   AnnouncementsRoute: typeof AnnouncementsRoute
   AssessmentsRoute: typeof AssessmentsRoute
   CertificatesRoute: typeof CertificatesRoute
@@ -535,6 +548,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AnnouncementsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin-ussd': {
+      id: '/admin-ussd'
+      path: '/admin-ussd'
+      fullPath: '/admin-ussd'
+      preLoaderRoute: typeof AdminUssdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin-performance': {
       id: '/admin-performance'
       path: '/admin-performance'
@@ -660,6 +680,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminAnalyticsRoute: AdminAnalyticsRoute,
   AdminPerformanceRoute: AdminPerformanceRoute,
+  AdminUssdRoute: AdminUssdRoute,
   AnnouncementsRoute: AnnouncementsRoute,
   AssessmentsRoute: AssessmentsRoute,
   CertificatesRoute: CertificatesRoute,
