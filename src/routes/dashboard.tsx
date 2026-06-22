@@ -48,7 +48,7 @@ function DashboardPage() {
             <span className="text-sm font-medium capitalize text-muted-foreground">{role} dashboard</span>
             <div className="ml-auto"><NotificationBell /></div>
           </header>
-          <main className="flex-1 p-4 sm:p-6 md:p-8 overflow-x-hidden">
+          <main className="flex-1 p-4 sm:p-6 md:p-8 overflow-x-hidden pb-[calc(env(safe-area-inset-bottom)+6rem)]">
             {role === "admin" ? <AdminDashboard /> : role === "teacher" ? <TeacherSummary /> : <LearnerDashboard />}
           </main>
         </div>
