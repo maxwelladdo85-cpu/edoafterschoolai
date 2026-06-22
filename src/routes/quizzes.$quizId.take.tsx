@@ -179,7 +179,7 @@ function QuizRunner() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
+      <div className="flex min-h-[100dvh] items-center justify-center bg-background">
         <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Loading quiz…
       </div>
     );
@@ -187,15 +187,15 @@ function QuizRunner() {
 
 
   if (!quiz) {
-    return <div className="p-10 text-center">Quiz not found.</div>;
+    return <div className="flex min-h-[100dvh] items-center justify-center p-10 text-center">Quiz not found.</div>;
   }
 
   // RESULTS VIEW
   if (results) {
     const pct = results.max > 0 ? Math.round((results.score / results.max) * 100) : 0;
     return (
-      <div className="min-h-screen bg-background p-4 md:p-8">
-        <div className="mx-auto max-w-3xl space-y-6">
+      <div className="min-h-[100dvh] bg-background p-4 md:p-8">
+        <div className="mx-auto max-w-3xl space-y-6 pb-[calc(env(safe-area-inset-bottom)+6rem)]">
           <Card>
             <CardHeader>
               <CardTitle className="text-2xl">Results · {quiz.title}</CardTitle>
@@ -222,7 +222,7 @@ function QuizRunner() {
                   </CardTitle>
                   {r.isCorrect ? (
                     <Badge className="gap-1 bg-green-600 hover:bg-green-600"><CheckCircle2 className="h-3 w-3" />+{r.pointsAwarded}</Badge>
-                  ) : (
+                  ) (
                     <Badge variant="destructive" className="gap-1"><XCircle className="h-3 w-3" />0/{r.question.points}</Badge>
                   )}
                 </div>
@@ -264,7 +264,7 @@ function QuizRunner() {
   const lowTime = secondsLeft <= 30;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-[100dvh] bg-background">
       {/* Sticky header */}
       <header className="sticky top-0 z-10 border-b bg-card/95 backdrop-blur">
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-3 px-4 py-3">
@@ -279,7 +279,7 @@ function QuizRunner() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-3xl space-y-4 p-4 md:p-8">
+      <main className="mx-auto max-w-3xl space-y-4 p-4 md:p-8 pb-[calc(env(safe-area-inset-bottom)+6rem)]">
         {questions.length === 0 ? (
           <Card><CardContent className="py-16 text-center text-muted-foreground">This quiz has no questions yet.</CardContent></Card>
         ) : questions.map((q, i) => {
