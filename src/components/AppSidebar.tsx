@@ -3,7 +3,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { LayoutDashboard, BookOpen, Users, Bell, LogOut, GraduationCap, UserCircle, Settings, ClipboardCheck, Megaphone, Sparkles, Wand2, Video, MessageCircle, Award, Activity, BarChart3, ChevronDown } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
-  SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem,
+  SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar,
 } from "@/components/ui/sidebar";
 import { useAuth, type AppRole } from "@/hooks/use-auth";
 import { Logo } from "./Logo";
@@ -112,8 +112,12 @@ const NAV: Record<AppRole, NavSection[]> = {
 
 export function AppSidebar() {
   const { role, user, signOut } = useAuth();
+  const { isMobile, setOpenMobile } = useSidebar();
   const path = useRouterState({ select: (r) => r.location.pathname });
   const sections = NAV[role ?? "learner"];
+  const closeMobileSidebar = () => {
+    if (isMobile) setOpenMobile(false);
+  };
 
   // Open the section that contains the active route by default; otherwise the first section.
   const activeSection =
@@ -157,7 +161,7 @@ export function AppSidebar() {
                           </VarkStartDialog>
                         ) : (
                           <SidebarMenuButton asChild isActive={path === item.url} className="text-base h-auto py-3 [&>svg]:!size-5">
-                            <Link to={item.url}>
+                            <Link to={item.url} onClick={closeMobileSidebar}>
                               <item.icon />
                               <span>{item.title}</span>
                             </Link>
