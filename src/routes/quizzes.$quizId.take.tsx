@@ -222,7 +222,7 @@ function QuizRunner() {
                   </CardTitle>
                   {r.isCorrect ? (
                     <Badge className="gap-1 bg-green-600 hover:bg-green-600"><CheckCircle2 className="h-3 w-3" />+{r.pointsAwarded}</Badge>
-                  ) (
+                  ) : (
                     <Badge variant="destructive" className="gap-1"><XCircle className="h-3 w-3" />0/{r.question.points}</Badge>
                   )}
                 </div>
