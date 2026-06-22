@@ -294,7 +294,7 @@ function UserSummaryPage() {
             <span className="text-sm font-medium text-muted-foreground">User Summary</span>
             <div className="ml-auto"><NotificationBell /></div>
           </header>
-          <main className="flex-1 space-y-8 p-6 md:p-8">
+          <main className="flex-1 space-y-8 p-6 md:p-8 pb-[calc(env(safe-area-inset-bottom)+6rem)]">
             <PageHero
               eyebrow="Activity timeline"
               EyebrowIcon={ClipboardList}

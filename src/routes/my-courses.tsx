@@ -33,7 +33,7 @@ function MyCoursesPage() {
             <span className="text-sm font-medium text-muted-foreground">My Courses</span>
             <div className="ml-auto"><NotificationBell /></div>
           </header>
-          <main className="flex-1 p-6 md:p-8">
+          <main className="flex-1 p-6 md:p-8 pb-[calc(env(safe-area-inset-bottom)+6rem)]">
             <TeacherDashboard />
           </main>
         </div>
