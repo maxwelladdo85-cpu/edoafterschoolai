@@ -25,15 +25,15 @@ function MyCoursesPage() {
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full">
+      <div className="app-shell">
         <AppSidebar />
-        <div className="flex flex-1 flex-col">
-          <header className="flex h-14 items-center gap-2 border-b bg-card px-4">
+        <div className="app-shell-content">
+          <header className="app-shell-header flex h-14 items-center gap-2 border-b bg-card px-4">
             <SidebarTrigger />
             <span className="text-sm font-medium text-muted-foreground">My Courses</span>
             <div className="ml-auto"><NotificationBell /></div>
           </header>
-          <main className="flex-1 p-6 md:p-8 pb-[calc(env(safe-area-inset-bottom)+6rem)]">
+          <main className="app-main-scroll p-6 md:p-8">
             <TeacherDashboard />
           </main>
         </div>
