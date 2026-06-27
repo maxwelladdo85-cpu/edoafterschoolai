@@ -2,13 +2,21 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Award, BookOpenCheck, ClipboardCheck, Flame, Trophy } from "lucide-react";
+import { Award, BookOpenCheck, ClipboardCheck, Flame, Trophy, Star, Sparkles, CalendarCheck2, Lightbulb, Users2, TrendingUp, Medal } from "lucide-react";
 
 const BADGE_META: Record<string, { label: string; icon: any; desc: string }> = {
   first_lesson: { label: "First Lesson", icon: BookOpenCheck, desc: "Completed your first lesson" },
   first_quiz: { label: "First Quiz Passed", icon: ClipboardCheck, desc: "Passed your first quiz" },
   first_course: { label: "First Course", icon: Trophy, desc: "Completed an entire course" },
   streak_7: { label: "7-Day Streak", icon: Flame, desc: "Learned 7 days in a row" },
+  gold_star: { label: "Gold Star", icon: Star, desc: "Awarded by your teacher" },
+  super_star: { label: "Super Star", icon: Sparkles, desc: "Awarded by your teacher" },
+  hard_worker: { label: "Hard Worker", icon: Medal, desc: "Awarded by your teacher" },
+  perfect_attendance: { label: "Perfect Attendance", icon: CalendarCheck2, desc: "Awarded by your teacher" },
+  top_scorer: { label: "Top Scorer", icon: Trophy, desc: "Awarded by your teacher" },
+  creative_thinker: { label: "Creative Thinker", icon: Lightbulb, desc: "Awarded by your teacher" },
+  team_player: { label: "Team Player", icon: Users2, desc: "Awarded by your teacher" },
+  most_improved: { label: "Most Improved", icon: TrendingUp, desc: "Awarded by your teacher" },
 };
 
 export function BadgesPanel({ learnerId }: { learnerId: string }) {
