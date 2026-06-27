@@ -1183,6 +1183,15 @@ export type Database = {
           learner_count: number
         }[]
       }
+      list_messageable_users: {
+        Args: never
+        Returns: {
+          email: string
+          full_name: string
+          role: string
+          user_id: string
+        }[]
+      }
       list_my_message_contacts: {
         Args: never
         Returns: {
@@ -1216,6 +1225,10 @@ export type Database = {
         Args: { p_class_level: string; p_message: string; p_title: string }
         Returns: number
       }
+      send_course_announcement: {
+        Args: { p_course_id: string; p_message: string; p_title: string }
+        Returns: number
+      }
       send_teacher_announcement: {
         Args: { p_class_level: string; p_message: string; p_title: string }
         Returns: number
@@ -1228,6 +1241,14 @@ export type Database = {
           p_teacher_id: string
         }
         Returns: string
+      }
+      teacher_award_badge: {
+        Args: { p_code: string; p_learner: string }
+        Returns: undefined
+      }
+      teacher_award_badge_to_class: {
+        Args: { p_class_level: string; p_code: string }
+        Returns: number
       }
       ussd_expire_old_sessions: { Args: never; Returns: undefined }
     }
