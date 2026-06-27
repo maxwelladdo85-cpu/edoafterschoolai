@@ -4,7 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/DashboardShell";
 import { Card, CardContent } from "@/components/ui/card";
-import { Award, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Award, Download, Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/certificates")({ component: CertificatesPage });
 
@@ -15,6 +16,46 @@ interface Cert {
   course_name: string;
   course_id: string;
   issued_at: string;
+}
+
+function buildCertificateSvg(c: Cert): string {
+  const issued = new Date(c.issued_at).toLocaleDateString();
+  const esc = (s: string) =>
+    s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 850" width="1200" height="850">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#fdfaf0"/>
+      <stop offset="100%" stop-color="#f3ead2"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="850" fill="url(#bg)"/>
+  <rect x="30" y="30" width="1140" height="790" fill="none" stroke="#00843D" stroke-width="6"/>
+  <rect x="50" y="50" width="1100" height="750" fill="none" stroke="#D4AF37" stroke-width="2"/>
+  <text x="600" y="160" text-anchor="middle" font-family="Georgia, serif" font-size="48" font-weight="bold" fill="#00843D">Certificate of Completion</text>
+  <text x="600" y="220" text-anchor="middle" font-family="Georgia, serif" font-size="22" fill="#555">Edo SUBEB Digital Learning @ Home</text>
+  <text x="600" y="340" text-anchor="middle" font-family="Georgia, serif" font-size="26" fill="#333">This is proudly presented to</text>
+  <text x="600" y="420" text-anchor="middle" font-family="Georgia, serif" font-size="56" font-weight="bold" fill="#111">${esc(c.learner_name)}</text>
+  <line x1="300" y1="450" x2="900" y2="450" stroke="#D4AF37" stroke-width="2"/>
+  <text x="600" y="510" text-anchor="middle" font-family="Georgia, serif" font-size="24" fill="#333">for successfully completing</text>
+  <text x="600" y="570" text-anchor="middle" font-family="Georgia, serif" font-size="36" font-weight="bold" fill="#00843D">${esc(c.course_name)}</text>
+  <text x="600" y="700" text-anchor="middle" font-family="Georgia, serif" font-size="20" fill="#555">Issued: ${esc(issued)}</text>
+  <text x="600" y="740" text-anchor="middle" font-family="monospace" font-size="14" fill="#888">Certificate ID: ${esc(c.certificate_code)}</text>
+</svg>`;
+}
+
+function downloadCertificate(c: Cert) {
+  const svg = buildCertificateSvg(c);
+  const blob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `Certificate-${c.certificate_code}.svg`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 function CertificatesPage() {
@@ -61,9 +102,14 @@ function CertificatesPage() {
                   Issued {new Date(c.issued_at).toLocaleDateString()}
                 </p>
                 <p className="text-[10px] font-mono text-muted-foreground">ID: {c.certificate_code}</p>
-                <Link to="/courses/$courseId" params={{ courseId: c.course_id }} className="text-xs text-primary hover:underline">
-                  View course →
-                </Link>
+                <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
+                  <Button size="sm" onClick={() => downloadCertificate(c)}>
+                    <Download className="mr-2 h-4 w-4" /> Download
+                  </Button>
+                  <Link to="/courses/$courseId" params={{ courseId: c.course_id }} className="text-xs text-primary hover:underline">
+                    View course →
+                  </Link>
+                </div>
               </CardContent>
             </Card>
           ))}

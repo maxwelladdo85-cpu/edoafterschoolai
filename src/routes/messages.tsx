@@ -6,8 +6,9 @@ import { DashboardShell } from "@/components/DashboardShell";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Send, Inbox } from "lucide-react";
+import { Loader2, Send, Inbox, Search } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
 
@@ -17,7 +18,7 @@ interface Contact { user_id: string; full_name: string | null; email: string | n
 interface Msg { id: string; sender_id: string; recipient_id: string; body: string; created_at: string; read_at: string | null }
 
 function MessagesPage() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, role } = useAuth();
   const nav = useNavigate();
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [active, setActive] = useState<string | null>(null);
@@ -25,6 +26,7 @@ function MessagesPage() {
   const [body, setBody] = useState("");
   const [sending, setSending] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
   const endRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => { if (!authLoading && !user) nav({ to: "/login" }); }, [authLoading, user, nav]);
@@ -33,10 +35,14 @@ function MessagesPage() {
     if (!user) return;
     (async () => {
       setLoading(true);
-      const { data } = await supabase.rpc("list_my_message_contacts");
-      const list = (data ?? []) as Contact[];
-      setContacts(list);
-      if (list.length && !active) setActive(list[0].user_id);
+      // Use new RPC that returns: all teachers (for learners), enrolled learners (for teachers), everyone (for admins)
+      const { data, error } = await supabase.rpc("list_messageable_users");
+      if (error) {
+        toast.error(error.message);
+        setContacts([]);
+      } else {
+        setContacts((data ?? []) as Contact[]);
+      }
       setLoading(false);
     })();
   }, [user]);
@@ -49,7 +55,6 @@ function MessagesPage() {
       .or(`and(sender_id.eq.${user.id},recipient_id.eq.${other}),and(sender_id.eq.${other},recipient_id.eq.${user.id})`)
       .order("created_at", { ascending: true });
     setMessages((data ?? []) as Msg[]);
-    // mark received as read
     await supabase
       .from("direct_messages")
       .update({ read_at: new Date().toISOString() })
@@ -66,7 +71,7 @@ function MessagesPage() {
       .channel("dm-realtime")
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "direct_messages" }, (payload) => {
         const m = payload.new as Msg;
-        if (m.sender_id === user.id || m.recipient_id === user.id) {
+        if (m.sender_id === user.id || m.recipient_id === user.id || role === "admin") {
           if (active && (m.sender_id === active || m.recipient_id === active)) {
             setMessages((prev) => [...prev, m]);
           }
@@ -74,7 +79,7 @@ function MessagesPage() {
       })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, [user, active]);
+  }, [user, active, role]);
 
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
 
@@ -90,32 +95,58 @@ function MessagesPage() {
     loadThread(active);
   };
 
+  const filteredContacts = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return contacts;
+    return contacts.filter((c) =>
+      (c.full_name?.toLowerCase().includes(q)) || (c.email?.toLowerCase().includes(q))
+    );
+  }, [contacts, search]);
+
   const activeContact = useMemo(() => contacts.find((c) => c.user_id === active), [contacts, active]);
   const label = (c: Contact) => c.full_name || c.email || "User";
 
+  const placeholderText =
+    role === "learner" ? "Search a teacher by name…" :
+    role === "teacher" ? "Search a learner by name…" :
+    "Search any user…";
+
   return (
     <DashboardShell title="Messages">
-      <div className="grid gap-4 md:grid-cols-[280px_1fr] md:h-[70vh]">
-        <Card className="overflow-hidden max-h-[40vh] md:max-h-none">
-          <CardContent className="p-0 h-full overflow-y-auto">
+      <div className="grid gap-4 md:grid-cols-[300px_1fr] md:h-[70vh]">
+        <Card className="overflow-hidden max-h-[50vh] md:max-h-none flex flex-col">
+          <div className="border-b p-2">
+            <div className="relative">
+              <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder={placeholderText}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-8 h-9"
+              />
+            </div>
+          </div>
+          <CardContent className="p-0 flex-1 overflow-y-auto">
             {loading ? (
               <div className="flex justify-center py-10 text-muted-foreground"><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading…</div>
-            ) : contacts.length === 0 ? (
+            ) : filteredContacts.length === 0 ? (
               <div className="p-6 text-center text-sm text-muted-foreground">
                 <Inbox className="mx-auto mb-2 h-6 w-6" />
-                No contacts yet. Enroll in a course to message your teacher.
+                {contacts.length === 0
+                  ? (role === "learner" ? "No teachers found yet." : "No contacts yet.")
+                  : "No matches for that search."}
               </div>
             ) : (
               <ul>
-                {contacts.map((c) => (
+                {filteredContacts.map((c) => (
                   <li key={c.user_id}>
                     <button
                       onClick={() => setActive(c.user_id)}
                       className={`flex w-full items-start gap-2 border-b p-3 text-left text-sm hover:bg-muted ${active === c.user_id ? "bg-muted" : ""}`}
                     >
-                      <div className="flex-1">
-                        <p className="font-medium">{label(c)}</p>
-                        <p className="text-xs text-muted-foreground">{c.email}</p>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium truncate">{label(c)}</p>
+                        <p className="text-xs text-muted-foreground truncate">{c.email}</p>
                       </div>
                       <Badge variant="outline" className="capitalize">{c.role}</Badge>
                     </button>
@@ -128,8 +159,10 @@ function MessagesPage() {
 
         <Card className="flex flex-col min-h-[60vh] md:min-h-0">
           {!activeContact ? (
-            <CardContent className="flex-1 flex items-center justify-center text-muted-foreground">
-              Select a conversation
+            <CardContent className="flex-1 flex items-center justify-center text-muted-foreground text-sm text-center px-6">
+              {role === "learner"
+                ? "Pick a teacher from the list (search by name) to start a conversation."
+                : "Select a conversation"}
             </CardContent>
           ) : (
             <>
@@ -156,18 +189,25 @@ function MessagesPage() {
                 })}
                 <div ref={endRef} />
               </div>
-              <div className="border-t p-3 flex gap-2">
-                <Textarea
-                  placeholder="Type a message…"
-                  value={body}
-                  onChange={(e) => setBody(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
-                  className="min-h-[44px] max-h-32"
-                />
-                <Button onClick={send} disabled={sending || !body.trim()}>
-                  {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                </Button>
-              </div>
+              {role !== "admin" && (
+                <div className="border-t p-3 flex gap-2">
+                  <Textarea
+                    placeholder="Type a message…"
+                    value={body}
+                    onChange={(e) => setBody(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
+                    className="min-h-[44px] max-h-32"
+                  />
+                  <Button onClick={send} disabled={sending || !body.trim()}>
+                    {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                  </Button>
+                </div>
+              )}
+              {role === "admin" && (
+                <div className="border-t p-3 text-xs text-muted-foreground text-center">
+                  Read-only admin view. Messages are visible for moderation.
+                </div>
+              )}
             </>
           )}
         </Card>
