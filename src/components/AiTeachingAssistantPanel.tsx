@@ -264,7 +264,7 @@ function QuizGenerator() {
         onOpenChange={setSendOpen}
         payload={
           questions
-            ? { mode: "quiz", defaultTitle: "AI-generated quiz", questions, courseId: courseId || undefined }
+            ? { mode: "quiz", defaultTitle: "AI-generated quiz", questions }
             : null
         }
       />
