@@ -56,6 +56,13 @@ export function BadgesPanel({ learnerId }: { learnerId: string }) {
                 </div>
               );
             })}
+            {codes.filter((c) => !BADGE_META[c]).map((c) => (
+              <div key={c} className="rounded-lg border p-3 text-center bg-gold/10 border-gold">
+                <Award className="mx-auto mb-2 h-7 w-7 text-gold" />
+                <p className="text-sm font-semibold capitalize">{c.replace(/_/g, " ")}</p>
+                <p className="text-xs text-muted-foreground">Awarded by your teacher</p>
+              </div>
+            ))}
           </div>
         )}
       </CardContent>
