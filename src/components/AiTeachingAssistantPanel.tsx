@@ -338,12 +338,29 @@ function LessonPlanner() {
 }
 
 function ContentSummariser() {
+  const courses = useTeacherCourses();
+  const [courseId, setCourseId] = useState<string>("");
+  const [loadingCourse, setLoadingCourse] = useState(false);
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
   const [content, setContent] = useState<string | null>(null);
+  const [sharing, setSharing] = useState(false);
+
+  const loadFromCourse = async (id: string) => {
+    setCourseId(id);
+    if (!id) return;
+    setLoadingCourse(true);
+    try {
+      const c = await fetchCourseContent(id);
+      if (!c.trim()) toast.message("That course has no lesson text yet — paste content below.");
+      else { setText(c); toast.success("Loaded course content"); }
+    } catch (e: any) {
+      toast.error(e?.message || "Could not load course content");
+    } finally { setLoadingCourse(false); }
+  };
 
   const generate = async () => {
-    if (text.trim().length < 100) { toast.error("Paste a longer document."); return; }
+    if (text.trim().length < 100) { toast.error("Pick a course or paste a longer document."); return; }
     setLoading(true);
     setContent(null);
     try {
@@ -354,21 +371,65 @@ function ContentSummariser() {
     } finally { setLoading(false); }
   };
 
+  const shareWithClass = async () => {
+    if (!courseId) { toast.error("Pick a course first to share with its enrolled learners."); return; }
+    if (!content) return;
+    const course = courses.find((c) => c.id === courseId);
+    setSharing(true);
+    const { data, error } = await supabase.rpc("send_course_announcement", {
+      p_course_id: courseId,
+      p_title: `Summary: ${course?.title ?? "Course"}`,
+      p_message: content,
+    });
+    setSharing(false);
+    if (error) return toast.error(error.message);
+    toast.success(`Shared summary with ${data ?? 0} learner(s) in "${course?.title ?? "course"}".`);
+  };
+
   return (
     <div className="space-y-4">
+      <div className="space-y-2">
+        <Label>Course (optional)</Label>
+        <Select value={courseId} onValueChange={loadFromCourse}>
+          <SelectTrigger>
+            <SelectValue placeholder={courses.length === 0 ? "No courses yet" : "Pick a course to summarise"} />
+          </SelectTrigger>
+          <SelectContent>
+            {courses.map((c) => <SelectItem key={c.id} value={c.id}>{c.title}</SelectItem>)}
+          </SelectContent>
+        </Select>
+      </div>
       <div className="space-y-2">
         <div className="flex items-center justify-between gap-2">
           <Label>Document</Label>
           <UploadDocButton disabled={loading} onText={(t) => setText((prev) => (prev ? prev + "\n\n" + t : t))} />
         </div>
-        <Textarea rows={8} value={text} onChange={(e) => setText(e.target.value)} placeholder="Paste the document text, or upload a PDF, DOCX or TXT file…" />
+        <Textarea
+          rows={8}
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder={loadingCourse ? "Loading course content…" : "Paste the document text, upload a file, or pick a course above."}
+        />
         <p className="text-xs text-muted-foreground">Supported uploads: PDF, DOCX, TXT (max 15 MB).</p>
       </div>
-      <Button onClick={generate} disabled={loading}>
+      <Button onClick={generate} disabled={loading || loadingCourse}>
         {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileText className="mr-2 h-4 w-4" />}
         Summarise for Students
       </Button>
-      {content && <MarkdownResult content={content} saveTitle="AI student summary" />}
+      {content && (
+        <div className="space-y-3">
+          <MarkdownResult content={content} saveTitle="AI student summary" />
+          <div className="flex flex-wrap gap-2">
+            <Button variant="secondary" size="sm" disabled={!courseId || sharing} onClick={shareWithClass}>
+              {sharing ? <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> : <Share2 className="mr-2 h-3.5 w-3.5" />}
+              Share with class
+            </Button>
+            {!courseId && (
+              <p className="text-xs text-muted-foreground self-center">Pick a course above to enable sharing.</p>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
