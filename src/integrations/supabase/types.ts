@@ -1183,6 +1183,14 @@ export type Database = {
           learner_count: number
         }[]
       }
+      list_learners_in_class: {
+        Args: { p_class_level: string }
+        Returns: {
+          email: string
+          full_name: string
+          user_id: string
+        }[]
+      }
       list_messageable_users: {
         Args: never
         Returns: {
