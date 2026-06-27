@@ -144,14 +144,36 @@ function UploadDocButton({ onText, disabled }: { onText: (text: string) => void;
 }
 
 function QuizGenerator() {
+  const courses = useTeacherCourses();
+  const [courseId, setCourseId] = useState<string>("");
+  const [loadingCourse, setLoadingCourse] = useState(false);
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
   const [questions, setQuestions] = useState<QuizQuestion[] | null>(null);
   const [sendOpen, setSendOpen] = useState(false);
 
+  const loadFromCourse = async (id: string) => {
+    setCourseId(id);
+    if (!id) return;
+    setLoadingCourse(true);
+    try {
+      const content = await fetchCourseContent(id);
+      if (!content.trim()) {
+        toast.message("That course has no lesson text yet — paste or upload content below.");
+      } else {
+        setText(content);
+        toast.success("Loaded course content");
+      }
+    } catch (e: any) {
+      toast.error(e?.message || "Could not load course content");
+    } finally {
+      setLoadingCourse(false);
+    }
+  };
+
   const generate = async () => {
     if (text.trim().length < 50) {
-      toast.error("Paste at least a paragraph of lesson text.");
+      toast.error("Select a course or paste at least a paragraph of lesson text.");
       return;
     }
     setLoading(true);
@@ -171,6 +193,19 @@ function QuizGenerator() {
   return (
     <div className="space-y-4">
       <div className="space-y-2">
+        <Label>Course (optional)</Label>
+        <Select value={courseId} onValueChange={loadFromCourse}>
+          <SelectTrigger>
+            <SelectValue placeholder={courses.length === 0 ? "No courses yet" : "Pick a course to auto-load its content"} />
+          </SelectTrigger>
+          <SelectContent>
+            {courses.map((c) => <SelectItem key={c.id} value={c.id}>{c.title}</SelectItem>)}
+          </SelectContent>
+        </Select>
+        <p className="text-xs text-muted-foreground">Questions will be aligned to the selected course content.</p>
+      </div>
+
+      <div className="space-y-2">
         <div className="flex items-center justify-between gap-2">
           <Label>Lesson text</Label>
           <UploadDocButton disabled={loading} onText={(t) => setText((prev) => (prev ? prev + "\n\n" + t : t))} />
@@ -179,11 +214,11 @@ function QuizGenerator() {
           value={text}
           onChange={(e) => setText(e.target.value)}
           rows={6}
-          placeholder="Paste the lesson content here, or upload a PDF, DOCX or TXT file…"
+          placeholder={loadingCourse ? "Loading course content…" : "Paste the lesson content here, upload a file, or pick a course above."}
         />
         <p className="text-xs text-muted-foreground">Supported uploads: PDF, DOCX, TXT (max 15 MB).</p>
       </div>
-      <Button onClick={generate} disabled={loading}>
+      <Button onClick={generate} disabled={loading || loadingCourse}>
         {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ListChecks className="mr-2 h-4 w-4" />}
         Generate 10 MCQs
       </Button>
@@ -229,7 +264,7 @@ function QuizGenerator() {
         onOpenChange={setSendOpen}
         payload={
           questions
-            ? { mode: "quiz", defaultTitle: "AI-generated quiz", questions }
+            ? { mode: "quiz", defaultTitle: "AI-generated quiz", questions, courseId: courseId || undefined }
             : null
         }
       />
