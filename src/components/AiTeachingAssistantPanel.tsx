@@ -1,15 +1,61 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Sparkles, Loader2, ListChecks, CalendarRange, FileText, GraduationCap, Copy, Upload, BookPlus, ClipboardList } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Sparkles, Loader2, ListChecks, CalendarRange, FileText, GraduationCap, Copy, Upload, BookPlus, ClipboardList, Share2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { ACCEPTED_DOC_TYPES, extractDocumentText } from "@/lib/extract-document-text";
 import { SendToCourseDialog } from "@/components/SendToCourseDialog";
+
+type TeacherCourse = { id: string; title: string };
+
+function useTeacherCourses() {
+  const { user } = useAuth();
+  const [courses, setCourses] = useState<TeacherCourse[]>([]);
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      const { data } = await supabase
+        .from("courses")
+        .select("id, title")
+        .eq("teacher_id", user.id)
+        .order("created_at", { ascending: false });
+      setCourses((data ?? []) as TeacherCourse[]);
+    })();
+  }, [user]);
+  return courses;
+}
+
+async function fetchCourseContent(courseId: string): Promise<string> {
+  const { data: modules } = await supabase
+    .from("modules")
+    .select("id, title, position")
+    .eq("course_id", courseId)
+    .order("position", { ascending: true });
+  if (!modules || modules.length === 0) return "";
+  const modIds = modules.map((m: any) => m.id);
+  const { data: lessons } = await supabase
+    .from("lessons")
+    .select("module_id, title, content_text, position")
+    .in("module_id", modIds)
+    .order("position", { ascending: true });
+  const parts: string[] = [];
+  for (const m of modules as any[]) {
+    parts.push(`# ${m.title}`);
+    const mls = (lessons ?? []).filter((l: any) => l.module_id === m.id);
+    for (const l of mls) {
+      parts.push(`## ${l.title}`);
+      if (l.content_text) parts.push(l.content_text);
+    }
+  }
+  return parts.join("\n\n");
+}
 
 type QuizQuestion = {
   question: string;
