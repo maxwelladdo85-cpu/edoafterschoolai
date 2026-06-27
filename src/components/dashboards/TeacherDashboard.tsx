@@ -17,6 +17,7 @@ import { AssignClassButton } from "@/components/dashboards/AssignClassButton";
 import { CLASS_GROUPS } from "@/lib/classes";
 import { toast } from "sonner";
 import { MaterialUploader } from "@/components/dashboards/MaterialUploader";
+import { TeacherStickersPanel } from "@/components/dashboards/TeacherStickersPanel";
 import { PageHero } from "@/components/PageHero";
 import dashboardHero from "@/assets/dashboard-hero.jpg";
 
@@ -361,6 +362,10 @@ export function TeacherDashboard() {
             ))}
           </div>
         )}
+      </section>
+
+      <section>
+        <TeacherStickersPanel />
       </section>
     </div>
   );

@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { Cookie, Mail, ArrowLeft } from "lucide-react";
 
 export const Route = createFileRoute("/cookies")({
@@ -22,10 +22,14 @@ function CookiePage() {
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-4">
-          <Link to="/" className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+          <button
+            type="button"
+            onClick={() => { if (window.history.length > 1) window.history.back(); else window.location.href = "/"; }}
+            className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+          >
             <ArrowLeft className="h-4 w-4" />
-            Back to home
-          </Link>
+            Back
+          </button>
           <span className="text-sm font-semibold text-primary">EdoLearn</span>
         </div>
       </header>

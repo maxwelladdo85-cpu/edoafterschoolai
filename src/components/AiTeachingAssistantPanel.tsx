@@ -1,15 +1,61 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Sparkles, Loader2, ListChecks, CalendarRange, FileText, GraduationCap, Copy, Upload, BookPlus, ClipboardList } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Sparkles, Loader2, ListChecks, CalendarRange, FileText, GraduationCap, Copy, Upload, BookPlus, ClipboardList, Share2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { ACCEPTED_DOC_TYPES, extractDocumentText } from "@/lib/extract-document-text";
 import { SendToCourseDialog } from "@/components/SendToCourseDialog";
+
+type TeacherCourse = { id: string; title: string };
+
+function useTeacherCourses() {
+  const { user } = useAuth();
+  const [courses, setCourses] = useState<TeacherCourse[]>([]);
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      const { data } = await supabase
+        .from("courses")
+        .select("id, title")
+        .eq("teacher_id", user.id)
+        .order("created_at", { ascending: false });
+      setCourses((data ?? []) as TeacherCourse[]);
+    })();
+  }, [user]);
+  return courses;
+}
+
+async function fetchCourseContent(courseId: string): Promise<string> {
+  const { data: modules } = await supabase
+    .from("modules")
+    .select("id, title, position")
+    .eq("course_id", courseId)
+    .order("position", { ascending: true });
+  if (!modules || modules.length === 0) return "";
+  const modIds = modules.map((m: any) => m.id);
+  const { data: lessons } = await supabase
+    .from("lessons")
+    .select("module_id, title, content_text, position")
+    .in("module_id", modIds)
+    .order("position", { ascending: true });
+  const parts: string[] = [];
+  for (const m of modules as any[]) {
+    parts.push(`# ${m.title}`);
+    const mls = (lessons ?? []).filter((l: any) => l.module_id === m.id);
+    for (const l of mls) {
+      parts.push(`## ${l.title}`);
+      if (l.content_text) parts.push(l.content_text);
+    }
+  }
+  return parts.join("\n\n");
+}
 
 type QuizQuestion = {
   question: string;
@@ -98,14 +144,36 @@ function UploadDocButton({ onText, disabled }: { onText: (text: string) => void;
 }
 
 function QuizGenerator() {
+  const courses = useTeacherCourses();
+  const [courseId, setCourseId] = useState<string>("");
+  const [loadingCourse, setLoadingCourse] = useState(false);
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
   const [questions, setQuestions] = useState<QuizQuestion[] | null>(null);
   const [sendOpen, setSendOpen] = useState(false);
 
+  const loadFromCourse = async (id: string) => {
+    setCourseId(id);
+    if (!id) return;
+    setLoadingCourse(true);
+    try {
+      const content = await fetchCourseContent(id);
+      if (!content.trim()) {
+        toast.message("That course has no lesson text yet — paste or upload content below.");
+      } else {
+        setText(content);
+        toast.success("Loaded course content");
+      }
+    } catch (e: any) {
+      toast.error(e?.message || "Could not load course content");
+    } finally {
+      setLoadingCourse(false);
+    }
+  };
+
   const generate = async () => {
     if (text.trim().length < 50) {
-      toast.error("Paste at least a paragraph of lesson text.");
+      toast.error("Select a course or paste at least a paragraph of lesson text.");
       return;
     }
     setLoading(true);
@@ -125,6 +193,19 @@ function QuizGenerator() {
   return (
     <div className="space-y-4">
       <div className="space-y-2">
+        <Label>Course (optional)</Label>
+        <Select value={courseId} onValueChange={loadFromCourse}>
+          <SelectTrigger>
+            <SelectValue placeholder={courses.length === 0 ? "No courses yet" : "Pick a course to auto-load its content"} />
+          </SelectTrigger>
+          <SelectContent>
+            {courses.map((c) => <SelectItem key={c.id} value={c.id}>{c.title}</SelectItem>)}
+          </SelectContent>
+        </Select>
+        <p className="text-xs text-muted-foreground">Questions will be aligned to the selected course content.</p>
+      </div>
+
+      <div className="space-y-2">
         <div className="flex items-center justify-between gap-2">
           <Label>Lesson text</Label>
           <UploadDocButton disabled={loading} onText={(t) => setText((prev) => (prev ? prev + "\n\n" + t : t))} />
@@ -133,11 +214,11 @@ function QuizGenerator() {
           value={text}
           onChange={(e) => setText(e.target.value)}
           rows={6}
-          placeholder="Paste the lesson content here, or upload a PDF, DOCX or TXT file…"
+          placeholder={loadingCourse ? "Loading course content…" : "Paste the lesson content here, upload a file, or pick a course above."}
         />
         <p className="text-xs text-muted-foreground">Supported uploads: PDF, DOCX, TXT (max 15 MB).</p>
       </div>
-      <Button onClick={generate} disabled={loading}>
+      <Button onClick={generate} disabled={loading || loadingCourse}>
         {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ListChecks className="mr-2 h-4 w-4" />}
         Generate 10 MCQs
       </Button>
@@ -257,12 +338,29 @@ function LessonPlanner() {
 }
 
 function ContentSummariser() {
+  const courses = useTeacherCourses();
+  const [courseId, setCourseId] = useState<string>("");
+  const [loadingCourse, setLoadingCourse] = useState(false);
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
   const [content, setContent] = useState<string | null>(null);
+  const [sharing, setSharing] = useState(false);
+
+  const loadFromCourse = async (id: string) => {
+    setCourseId(id);
+    if (!id) return;
+    setLoadingCourse(true);
+    try {
+      const c = await fetchCourseContent(id);
+      if (!c.trim()) toast.message("That course has no lesson text yet — paste content below.");
+      else { setText(c); toast.success("Loaded course content"); }
+    } catch (e: any) {
+      toast.error(e?.message || "Could not load course content");
+    } finally { setLoadingCourse(false); }
+  };
 
   const generate = async () => {
-    if (text.trim().length < 100) { toast.error("Paste a longer document."); return; }
+    if (text.trim().length < 100) { toast.error("Pick a course or paste a longer document."); return; }
     setLoading(true);
     setContent(null);
     try {
@@ -273,21 +371,65 @@ function ContentSummariser() {
     } finally { setLoading(false); }
   };
 
+  const shareWithClass = async () => {
+    if (!courseId) { toast.error("Pick a course first to share with its enrolled learners."); return; }
+    if (!content) return;
+    const course = courses.find((c) => c.id === courseId);
+    setSharing(true);
+    const { data, error } = await supabase.rpc("send_course_announcement", {
+      p_course_id: courseId,
+      p_title: `Summary: ${course?.title ?? "Course"}`,
+      p_message: content,
+    });
+    setSharing(false);
+    if (error) return toast.error(error.message);
+    toast.success(`Shared summary with ${data ?? 0} learner(s) in "${course?.title ?? "course"}".`);
+  };
+
   return (
     <div className="space-y-4">
+      <div className="space-y-2">
+        <Label>Course (optional)</Label>
+        <Select value={courseId} onValueChange={loadFromCourse}>
+          <SelectTrigger>
+            <SelectValue placeholder={courses.length === 0 ? "No courses yet" : "Pick a course to summarise"} />
+          </SelectTrigger>
+          <SelectContent>
+            {courses.map((c) => <SelectItem key={c.id} value={c.id}>{c.title}</SelectItem>)}
+          </SelectContent>
+        </Select>
+      </div>
       <div className="space-y-2">
         <div className="flex items-center justify-between gap-2">
           <Label>Document</Label>
           <UploadDocButton disabled={loading} onText={(t) => setText((prev) => (prev ? prev + "\n\n" + t : t))} />
         </div>
-        <Textarea rows={8} value={text} onChange={(e) => setText(e.target.value)} placeholder="Paste the document text, or upload a PDF, DOCX or TXT file…" />
+        <Textarea
+          rows={8}
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder={loadingCourse ? "Loading course content…" : "Paste the document text, upload a file, or pick a course above."}
+        />
         <p className="text-xs text-muted-foreground">Supported uploads: PDF, DOCX, TXT (max 15 MB).</p>
       </div>
-      <Button onClick={generate} disabled={loading}>
+      <Button onClick={generate} disabled={loading || loadingCourse}>
         {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileText className="mr-2 h-4 w-4" />}
         Summarise for Students
       </Button>
-      {content && <MarkdownResult content={content} saveTitle="AI student summary" />}
+      {content && (
+        <div className="space-y-3">
+          <MarkdownResult content={content} saveTitle="AI student summary" />
+          <div className="flex flex-wrap gap-2">
+            <Button variant="secondary" size="sm" disabled={!courseId || sharing} onClick={shareWithClass}>
+              {sharing ? <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> : <Share2 className="mr-2 h-3.5 w-3.5" />}
+              Share with class
+            </Button>
+            {!courseId && (
+              <p className="text-xs text-muted-foreground self-center">Pick a course above to enable sharing.</p>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
