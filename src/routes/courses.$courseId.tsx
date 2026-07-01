@@ -372,6 +372,24 @@ function CoursePlayer() {
         <CourseForum courseId={courseId} />
       </div>
       {!isStaff && <AiTutorWidget courseId={courseId} courseTitle={course.title} />}
+
+      <Dialog open={showCongrats} onOpenChange={setShowCongrats}>
+        <DialogContent className="sm:max-w-md text-center">
+          <DialogHeader className="items-center gap-3">
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary">
+              <Trophy className="h-7 w-7" />
+            </div>
+            <DialogTitle className="text-xl">Weldone Champ !</DialogTitle>
+          </DialogHeader>
+          <p className="text-muted-foreground">you just finished achieved something great! Keep learning.</p>
+          <div className="flex justify-center gap-2 pt-2">
+            <Button onClick={() => setShowCongrats(false)}>Continue</Button>
+            <Button variant="outline" asChild>
+              <Link to="/certificates">View certificates</Link>
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </DashboardShell>
   );
 }
