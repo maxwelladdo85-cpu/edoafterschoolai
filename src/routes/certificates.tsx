@@ -6,6 +6,7 @@ import { DashboardShell } from "@/components/DashboardShell";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Award, Download, Loader2 } from "lucide-react";
+import { SUBEB_LOGO_DATA_URL } from "@/lib/subeb-logo-data";
 
 export const Route = createFileRoute("/certificates")({ component: CertificatesPage });
 
@@ -19,29 +20,54 @@ interface Cert {
 }
 
 function buildCertificateSvg(c: Cert): string {
-  const issued = new Date(c.issued_at).toLocaleDateString();
+  const issued = new Date(c.issued_at).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
   const esc = (s: string) =>
     s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 850" width="1200" height="850">
-  <defs>
-    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
-      <stop offset="0%" stop-color="#fdfaf0"/>
-      <stop offset="100%" stop-color="#f3ead2"/>
-    </linearGradient>
-  </defs>
-  <rect width="1200" height="850" fill="url(#bg)"/>
-  <rect x="30" y="30" width="1140" height="790" fill="none" stroke="#00843D" stroke-width="6"/>
-  <rect x="50" y="50" width="1100" height="750" fill="none" stroke="#D4AF37" stroke-width="2"/>
-  <text x="600" y="160" text-anchor="middle" font-family="Georgia, serif" font-size="48" font-weight="bold" fill="#00843D">Certificate of Completion</text>
-  <text x="600" y="220" text-anchor="middle" font-family="Georgia, serif" font-size="22" fill="#555">Edo SUBEB Digital Learning @ Home</text>
-  <text x="600" y="340" text-anchor="middle" font-family="Georgia, serif" font-size="26" fill="#333">This is proudly presented to</text>
-  <text x="600" y="420" text-anchor="middle" font-family="Georgia, serif" font-size="56" font-weight="bold" fill="#111">${esc(c.learner_name)}</text>
-  <line x1="300" y1="450" x2="900" y2="450" stroke="#D4AF37" stroke-width="2"/>
-  <text x="600" y="510" text-anchor="middle" font-family="Georgia, serif" font-size="24" fill="#333">for successfully completing</text>
-  <text x="600" y="570" text-anchor="middle" font-family="Georgia, serif" font-size="36" font-weight="bold" fill="#00843D">${esc(c.course_name)}</text>
-  <text x="600" y="700" text-anchor="middle" font-family="Georgia, serif" font-size="20" fill="#555">Issued: ${esc(issued)}</text>
-  <text x="600" y="740" text-anchor="middle" font-family="monospace" font-size="14" fill="#888">Certificate ID: ${esc(c.certificate_code)}</text>
+  <rect width="1200" height="850" fill="#ffffff"/>
+  <!-- Gold outer border -->
+  <rect x="20" y="20" width="1160" height="810" fill="none" stroke="#D4AF37" stroke-width="6"/>
+  <rect x="34" y="34" width="1132" height="782" fill="none" stroke="#D4AF37" stroke-width="1"/>
+
+  <!-- Green header band -->
+  <rect x="60" y="60" width="1080" height="160" fill="#00843D"/>
+  <text x="600" y="128" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="bold" fill="#ffffff" letter-spacing="1">EDO STATE UNIVERSAL BASIC EDUCATION BOARD</text>
+  <text x="600" y="180" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="20" fill="#ffffff">EdoSUBEB • Quality Education for All</text>
+
+  <!-- Logo -->
+  <image href="${SUBEB_LOGO_DATA_URL}" x="530" y="245" width="140" height="140" preserveAspectRatio="xMidYMid meet"/>
+
+  <!-- Title -->
+  <text x="600" y="450" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-style="italic" font-size="56" font-weight="bold" fill="#111111">Certificate of Completion</text>
+
+  <text x="600" y="500" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="22" fill="#555555">This is to certify that</text>
+
+  <!-- Recipient name -->
+  <text x="600" y="575" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-style="italic" font-size="46" font-weight="bold" fill="#111111">${esc(c.learner_name)}</text>
+  <line x1="230" y1="600" x2="970" y2="600" stroke="#D4AF37" stroke-width="2"/>
+
+  <text x="600" y="650" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="22" fill="#555555">has successfully completed the course</text>
+
+  <!-- Course name -->
+  <text x="600" y="705" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-style="italic" font-size="30" font-weight="bold" fill="#00843D">${esc(c.course_name)}</text>
+
+  <!-- Signature lines -->
+  <line x1="110" y1="770" x2="410" y2="770" stroke="#C62828" stroke-width="1.5"/>
+  <text x="260" y="792" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="bold" fill="#111111">Executive Chairman</text>
+  <text x="260" y="812" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#555555">Edo SUBEB</text>
+
+  <line x1="790" y1="770" x2="1090" y2="770" stroke="#C62828" stroke-width="1.5"/>
+  <text x="940" y="792" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="bold" fill="#111111">Director, EdoSUBEB</text>
+  <text x="940" y="812" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#555555">Digital Learning Division</text>
+
+  <!-- Issued + ID -->
+  <text x="600" y="790" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" fill="#333333">Issued on ${esc(issued)}</text>
+  <text x="600" y="812" text-anchor="middle" font-family="'Courier New', monospace" font-size="13" fill="#888888" letter-spacing="1">Certificate ID: ${esc(c.certificate_code)}</text>
 </svg>`;
 }
 
