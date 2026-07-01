@@ -31,7 +31,7 @@ function CoursesLibrary() {
   const { user, role, loading: authLoading } = useAuth();
   const nav = useNavigate();
   const [courses, setCourses] = useState<CourseRow[]>([]);
-  const [enrolledIds, setEnrolledIds] = useState<Set<string>>(new Set());
+  const [enrolledMap, setEnrolledMap] = useState<Map<string, number>>(new Map());
   const [loading, setLoading] = useState(true);
   const [enrollingId, setEnrollingId] = useState<string | null>(null);
   const isTeacher = role === "teacher";
