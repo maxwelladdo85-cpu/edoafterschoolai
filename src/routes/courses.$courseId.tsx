@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ArrowLeft, ChevronLeft, ChevronRight, Eye, FileText, Film, Headphones, Loader2, NotebookPen, PlayCircle, CheckCircle2, Circle } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, Eye, FileText, Film, Headphones, Loader2, NotebookPen, PlayCircle, CheckCircle2, Circle, Trophy } from "lucide-react";
 import { toast } from "sonner";
 import { AiTutorWidget } from "@/components/AiTutorWidget";
 import { CourseForum } from "@/components/CourseForum";
@@ -42,6 +42,7 @@ function CoursePlayer() {
   const [loading, setLoading] = useState(true);
   const [completed, setCompleted] = useState<Set<string>>(new Set());
   const [savingComplete, setSavingComplete] = useState(false);
+  const [showCongrats, setShowCongrats] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) nav({ to: "/login" });
@@ -152,6 +153,9 @@ function CoursePlayer() {
         if (error) throw error;
         next.add(activeLesson.id);
         toast.success("Lesson completed");
+        if (next.size === totalLessons && !isStaff) {
+          setShowCongrats(true);
+        }
       }
       setCompleted(next);
       await syncEnrollmentProgress(next);
@@ -368,6 +372,24 @@ function CoursePlayer() {
         <CourseForum courseId={courseId} />
       </div>
       {!isStaff && <AiTutorWidget courseId={courseId} courseTitle={course.title} />}
+
+      <Dialog open={showCongrats} onOpenChange={setShowCongrats}>
+        <DialogContent className="sm:max-w-md text-center">
+          <DialogHeader className="items-center gap-3">
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary">
+              <Trophy className="h-7 w-7" />
+            </div>
+            <DialogTitle className="text-xl">Weldone Champ !</DialogTitle>
+          </DialogHeader>
+          <p className="text-muted-foreground">you just finished achieved something great! Keep learning.</p>
+          <div className="flex justify-center gap-2 pt-2">
+            <Button onClick={() => setShowCongrats(false)}>Continue</Button>
+            <Button variant="outline" asChild>
+              <Link to="/certificates">View certificates</Link>
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </DashboardShell>
   );
 }
