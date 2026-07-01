@@ -89,8 +89,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:site", content: "@Lovable" },
       { name: "twitter:title", content: "Digital Learning @ Home — SUBEB" },
       { name: "twitter:description", content: "Edo State Universal Basic Education Board after-school AI learning platform." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/d7b6a823-11bf-492c-964b-28b8382dfc98/id-preview-15deea65--c5c30c8b-e490-42c3-a3fb-7189991ece2f.lovable.app-1778728795945.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/d7b6a823-11bf-492c-964b-28b8382dfc98/id-preview-15deea65--c5c30c8b-e490-42c3-a3fb-7189991ece2f.lovable.app-1778728795945.png" },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/9233e9af-d638-4b1d-883f-d6a23fa4490f/id-preview-f3a2deec--c5c30c8b-e490-42c3-a3fb-7189991ece2f.lovable.app-1782649890502.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/9233e9af-d638-4b1d-883f-d6a23fa4490f/id-preview-f3a2deec--c5c30c8b-e490-42c3-a3fb-7189991ece2f.lovable.app-1782649890502.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
