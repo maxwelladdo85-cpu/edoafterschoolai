@@ -6,7 +6,7 @@ import { DashboardShell } from "@/components/DashboardShell";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, GraduationCap, Loader2, PlayCircle } from "lucide-react";
+import { BookOpen, GraduationCap, Loader2, PlayCircle, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { PageHero } from "@/components/PageHero";
 import heroLibrary from "@/assets/hero-library.jpg";
