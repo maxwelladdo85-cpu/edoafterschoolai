@@ -6,7 +6,7 @@ import { DashboardShell } from "@/components/DashboardShell";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, GraduationCap, Loader2, PlayCircle } from "lucide-react";
+import { BookOpen, GraduationCap, Loader2, PlayCircle, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { PageHero } from "@/components/PageHero";
 import heroLibrary from "@/assets/hero-library.jpg";
@@ -31,7 +31,7 @@ function CoursesLibrary() {
   const { user, role, loading: authLoading } = useAuth();
   const nav = useNavigate();
   const [courses, setCourses] = useState<CourseRow[]>([]);
-  const [enrolledIds, setEnrolledIds] = useState<Set<string>>(new Set());
+  const [enrolledMap, setEnrolledMap] = useState<Map<string, number>>(new Map());
   const [loading, setLoading] = useState(true);
   const [enrollingId, setEnrollingId] = useState<string | null>(null);
   const isTeacher = role === "teacher";
@@ -54,8 +54,8 @@ function CoursesLibrary() {
       const [{ data: cs }, { data: es }] = await Promise.all([
         coursesQuery,
         isTeacher
-          ? Promise.resolve({ data: [] as { course_id: string }[] })
-          : supabase.from("enrollments").select("course_id").eq("learner_id", user.id),
+          ? Promise.resolve({ data: [] as { course_id: string; progress: number }[] })
+          : supabase.from("enrollments").select("course_id, progress").eq("learner_id", user.id),
       ]);
       let rows: CourseRow[] = ((cs as any) ?? []).map((r: any) => ({ ...r, teacher: null }));
       if (rows.length) {
@@ -65,7 +65,9 @@ function CoursesLibrary() {
         rows = rows.map((r) => ({ ...r, teacher: { full_name: map.get(r.teacher_id) ?? null } }));
       }
       setCourses(rows);
-      setEnrolledIds(new Set((es ?? []).map((e: any) => e.course_id)));
+      const em = new Map<string, number>();
+      (es ?? []).forEach((e: any) => em.set(e.course_id, e.progress));
+      setEnrolledMap(em);
       setLoading(false);
     })();
   }, [user, role, isTeacher]);
@@ -78,7 +80,11 @@ function CoursesLibrary() {
     if (error && !error.message.toLowerCase().includes("duplicate")) {
       return toast.error(error.message);
     }
-    setEnrolledIds((s) => new Set(s).add(courseId));
+    setEnrolledMap((prev) => {
+      const next = new Map(prev);
+      next.set(courseId, 0);
+      return next;
+    });
     toast.success("Enrolled — opening course");
     nav({ to: "/courses/$courseId", params: { courseId } });
   };
@@ -113,7 +119,9 @@ function CoursesLibrary() {
         ) : (
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {courses.map((c) => {
-              const enrolled = enrolledIds.has(c.id);
+              const progress = enrolledMap.get(c.id);
+              const enrolled = progress !== undefined;
+              const isComplete = enrolled && progress >= 100;
               return (
                 <Card key={c.id} className="overflow-hidden flex flex-col border-border/60 transition-all hover:-translate-y-0.5" style={{ boxShadow: "var(--shadow-card)" }}>
                   <div className="aspect-[16/9] w-full overflow-hidden bg-muted">
@@ -142,6 +150,12 @@ function CoursesLibrary() {
                     {isTeacher ? (
                       <Button asChild className="w-full" variant="secondary">
                         <Link to="/courses/$courseId" params={{ courseId: c.id }}>Open course</Link>
+                      </Button>
+                    ) : isComplete ? (
+                      <Button asChild className="w-full font-semibold shadow-md hover:shadow-lg transition-shadow">
+                        <Link to="/courses/$courseId" params={{ courseId: c.id }}>
+                          <RefreshCw className="mr-2 h-4 w-4" /> Take course again
+                        </Link>
                       </Button>
                     ) : enrolled ? (
                       <Button asChild className="w-full font-semibold shadow-md hover:shadow-lg transition-shadow">
