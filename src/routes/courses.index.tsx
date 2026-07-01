@@ -54,8 +54,8 @@ function CoursesLibrary() {
       const [{ data: cs }, { data: es }] = await Promise.all([
         coursesQuery,
         isTeacher
-          ? Promise.resolve({ data: [] as { course_id: string }[] })
-          : supabase.from("enrollments").select("course_id").eq("learner_id", user.id),
+          ? Promise.resolve({ data: [] as { course_id: string; progress: number }[] })
+          : supabase.from("enrollments").select("course_id, progress").eq("learner_id", user.id),
       ]);
       let rows: CourseRow[] = ((cs as any) ?? []).map((r: any) => ({ ...r, teacher: null }));
       if (rows.length) {
@@ -65,7 +65,9 @@ function CoursesLibrary() {
         rows = rows.map((r) => ({ ...r, teacher: { full_name: map.get(r.teacher_id) ?? null } }));
       }
       setCourses(rows);
-      setEnrolledIds(new Set((es ?? []).map((e: any) => e.course_id)));
+      const em = new Map<string, number>();
+      (es ?? []).forEach((e: any) => em.set(e.course_id, e.progress));
+      setEnrolledMap(em);
       setLoading(false);
     })();
   }, [user, role, isTeacher]);
@@ -78,7 +80,11 @@ function CoursesLibrary() {
     if (error && !error.message.toLowerCase().includes("duplicate")) {
       return toast.error(error.message);
     }
-    setEnrolledIds((s) => new Set(s).add(courseId));
+    setEnrolledMap((prev) => {
+      const next = new Map(prev);
+      next.set(courseId, 0);
+      return next;
+    });
     toast.success("Enrolled — opening course");
     nav({ to: "/courses/$courseId", params: { courseId } });
   };
