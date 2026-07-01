@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Award, Download, Loader2 } from "lucide-react";
 import { SUBEB_LOGO_DATA_URL } from "@/lib/subeb-logo-data";
+import { jsPDF } from "jspdf";
 
 export const Route = createFileRoute("/certificates")({ component: CertificatesPage });
 
