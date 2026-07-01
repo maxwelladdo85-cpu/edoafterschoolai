@@ -72,17 +72,35 @@ function buildCertificateSvg(c: Cert): string {
 </svg>`;
 }
 
-function downloadCertificate(c: Cert) {
+async function downloadCertificate(c: Cert) {
   const svg = buildCertificateSvg(c);
-  const blob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `Certificate-${c.certificate_code}.svg`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  // Rasterize SVG → canvas → PNG → PDF (landscape A4-ish, matches 1200x850 viewBox)
+  const svgBlob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
+  const svgUrl = URL.createObjectURL(svgBlob);
+  try {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    await new Promise<void>((resolve, reject) => {
+      img.onload = () => resolve();
+      img.onerror = () => reject(new Error("Failed to render certificate"));
+      img.src = svgUrl;
+    });
+    const scale = 2; // higher DPI
+    const canvas = document.createElement("canvas");
+    canvas.width = 1200 * scale;
+    canvas.height = 850 * scale;
+    const ctx = canvas.getContext("2d")!;
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    const png = canvas.toDataURL("image/png");
+
+    const pdf = new jsPDF({ orientation: "landscape", unit: "pt", format: [1200, 850] });
+    pdf.addImage(png, "PNG", 0, 0, 1200, 850);
+    pdf.save(`Certificate-${c.certificate_code}.pdf`);
+  } finally {
+    setTimeout(() => URL.revokeObjectURL(svgUrl), 1000);
+  }
 }
 
 function CertificatesPage() {
