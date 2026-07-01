@@ -153,6 +153,9 @@ function CoursePlayer() {
         if (error) throw error;
         next.add(activeLesson.id);
         toast.success("Lesson completed");
+        if (next.size === totalLessons && !isStaff) {
+          setShowCongrats(true);
+        }
       }
       setCompleted(next);
       await syncEnrollmentProgress(next);
