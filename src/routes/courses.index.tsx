@@ -119,7 +119,9 @@ function CoursesLibrary() {
         ) : (
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {courses.map((c) => {
-              const enrolled = enrolledIds.has(c.id);
+              const progress = enrolledMap.get(c.id);
+              const enrolled = progress !== undefined;
+              const isComplete = enrolled && progress >= 100;
               return (
                 <Card key={c.id} className="overflow-hidden flex flex-col border-border/60 transition-all hover:-translate-y-0.5" style={{ boxShadow: "var(--shadow-card)" }}>
                   <div className="aspect-[16/9] w-full overflow-hidden bg-muted">
@@ -148,6 +150,12 @@ function CoursesLibrary() {
                     {isTeacher ? (
                       <Button asChild className="w-full" variant="secondary">
                         <Link to="/courses/$courseId" params={{ courseId: c.id }}>Open course</Link>
+                      </Button>
+                    ) : isComplete ? (
+                      <Button asChild className="w-full font-semibold shadow-md hover:shadow-lg transition-shadow">
+                        <Link to="/courses/$courseId" params={{ courseId: c.id }}>
+                          <RefreshCw className="mr-2 h-4 w-4" /> Take course again
+                        </Link>
                       </Button>
                     ) : enrolled ? (
                       <Button asChild className="w-full font-semibold shadow-md hover:shadow-lg transition-shadow">
