@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ArrowLeft, ChevronLeft, ChevronRight, Eye, FileText, Film, Headphones, Loader2, NotebookPen, PlayCircle, CheckCircle2, Circle } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, Eye, FileText, Film, Headphones, Loader2, NotebookPen, PlayCircle, CheckCircle2, Circle, Trophy } from "lucide-react";
 import { toast } from "sonner";
 import { AiTutorWidget } from "@/components/AiTutorWidget";
 import { CourseForum } from "@/components/CourseForum";
