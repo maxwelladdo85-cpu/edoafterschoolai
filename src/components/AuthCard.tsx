@@ -115,7 +115,7 @@ export function AuthCard() {
         }
         const phoneDigits = learnerPhone.replace(/\D/g, "");
         if (phoneDigits.length !== 11) {
-          throw new Error("Parent phone number must be 11 digits");
+          throw new Error("Phone number must be 11 digits");
         }
         const { available } = await checkNin({ data: { nin: learnerNin.trim() } });
         if (!available) {
@@ -207,7 +207,7 @@ export function AuthCard() {
                       />
                     </div>
                     <div className="space-y-1">
-                      <Label htmlFor="lphone">Parent phone number</Label>
+                      <Label htmlFor="lphone">Phone number</Label>
                       <Input
                         id="lphone"
                         inputMode="numeric"
