@@ -153,19 +153,21 @@ function SettingsPage() {
       setNin((p as any)?.nin ?? "");
 
       // Auto-open sections that are missing data so users are prompted to fill them.
-      const pp = p as any;
-      const missing = new Set<string>();
-      if (!pp?.full_name || !pp?.email) missing.add("profile");
-      if (!pp?.date_of_birth) missing.add("dob");
-      if (role === "learner" && !pp?.class_level) missing.add("class");
-      if ((role === "learner" || role === "teacher") && !pp?.lga) missing.add("lga");
-      if (role !== "admin" && (!pp?.school_id || !pp?.school_type)) missing.add("school");
-      if (role === "teacher") {
-        if (!pp?.parent_phone) missing.add("contact");
-      } else if (role === "learner") {
-        if (!pp?.parent_phone || !pp?.nin) missing.add("contact");
+      if (role !== "learner") {
+        const pp = p as any;
+        const missing = new Set<string>();
+        if (!pp?.full_name || !pp?.email) missing.add("profile");
+        if (!pp?.date_of_birth) missing.add("dob");
+        if (role === "learner" && !pp?.class_level) missing.add("class");
+        if ((role === "learner" || role === "teacher") && !pp?.lga) missing.add("lga");
+        if (role !== "admin" && (!pp?.school_id || !pp?.school_type)) missing.add("school");
+        if (role === "teacher") {
+          if (!pp?.parent_phone) missing.add("contact");
+        } else if (role === "learner") {
+          if (!pp?.parent_phone || !pp?.nin) missing.add("contact");
+        }
+        setEditing(missing);
       }
-      setEditing(missing);
 
       if (role === "teacher") {
         const { data: cs } = await supabase.from("courses").select("id,is_active").eq("teacher_id", user.id);
@@ -384,9 +386,11 @@ function SettingsPage() {
                     <SummaryRow icon={Mail} label="Email" value={profile?.email ?? user.email} />
                     <SummaryRow icon={Shield} label="Role" value={role ?? "—"} />
                     <SummaryRow icon={Calendar} label="Member since" value={profile?.created_at ? new Date(profile.created_at).toLocaleDateString() : "—"} />
-                    <div className="sm:col-span-2 flex justify-end">
-                      <Button size="sm" variant="outline" onClick={() => startEdit("profile")}><Pencil className="mr-2 h-4 w-4" />Change</Button>
-                    </div>
+                    {role !== "learner" && (
+                      <div className="sm:col-span-2 flex justify-end">
+                        <Button size="sm" variant="outline" onClick={() => startEdit("profile")}><Pencil className="mr-2 h-4 w-4" />Change</Button>
+                      </div>
+                    )}
                   </div>
                 )}
               </CardContent>
@@ -433,7 +437,9 @@ function SettingsPage() {
                 ) : (
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <SummaryRow icon={Calendar} label="Date of birth" value={profile?.date_of_birth ? new Date(profile.date_of_birth).toLocaleDateString() : ""} />
-                    <Button size="sm" variant="outline" onClick={() => startEdit("dob")}><Pencil className="mr-2 h-4 w-4" />Change</Button>
+                    {role !== "learner" && (
+                      <Button size="sm" variant="outline" onClick={() => startEdit("dob")}><Pencil className="mr-2 h-4 w-4" />Change</Button>
+                    )}
                   </div>
                 )}
               </CardContent>
@@ -461,7 +467,9 @@ function SettingsPage() {
                   ) : (
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <SummaryRow icon={GraduationCap} label="Class" value={profile?.class_level} />
-                      <Button size="sm" variant="outline" onClick={() => startEdit("class")}><Pencil className="mr-2 h-4 w-4" />Change</Button>
+                      {role !== "learner" && (
+                        <Button size="sm" variant="outline" onClick={() => startEdit("class")}><Pencil className="mr-2 h-4 w-4" />Change</Button>
+                      )}
                     </div>
                   )}
                 </CardContent>
@@ -489,8 +497,11 @@ function SettingsPage() {
                     </>
                   ) : (
                     <div className="flex flex-wrap items-center justify-between gap-3">
+                      ): null}
                       <SummaryRow icon={SchoolIcon} label="Local Government" value={profile?.lga} />
-                      <Button size="sm" variant="outline" onClick={() => startEdit("lga")}><Pencil className="mr-2 h-4 w-4" />Change</Button>
+                      {role !== "learner" && (
+                        <Button size="sm" variant="outline" onClick={() => startEdit("lga")}><Pencil className="mr-2 h-4 w-4" />Change</Button>
+                      )}
                     </div>
                   )}
                 </CardContent>
