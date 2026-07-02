@@ -158,14 +158,9 @@ function SettingsPage() {
         const missing = new Set<string>();
         if (!pp?.full_name || !pp?.email) missing.add("profile");
         if (!pp?.date_of_birth) missing.add("dob");
-        if (role === "learner" && !pp?.class_level) missing.add("class");
-        if ((role === "learner" || role === "teacher") && !pp?.lga) missing.add("lga");
+        if (role === "teacher" && !pp?.lga) missing.add("lga");
         if (role !== "admin" && (!pp?.school_id || !pp?.school_type)) missing.add("school");
-        if (role === "teacher") {
-          if (!pp?.parent_phone) missing.add("contact");
-        } else if (role === "learner") {
-          if (!pp?.parent_phone || !pp?.nin) missing.add("contact");
-        }
+        if (role === "teacher" && !pp?.parent_phone) missing.add("contact");
         setEditing(missing);
       }
 
