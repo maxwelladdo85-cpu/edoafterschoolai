@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { Logo } from "@/components/Logo";
 import { Eye, EyeOff } from "lucide-react";
 import { lookupLearnerEmail, checkLearnerNinAvailable } from "@/lib/learner-auth.functions";
+import { lookupTeacherEmail } from "@/lib/teacher-auth.functions";
 
 const ForgotPasswordDialog = lazy(() =>
   import("@/components/ForgotPasswordDialog").then((m) => ({ default: m.ForgotPasswordDialog })),
