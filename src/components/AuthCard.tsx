@@ -48,7 +48,10 @@ export function AuthCard() {
   const [learnerNin, setLearnerNin] = useState("");
   const [learnerPhone, setLearnerPhone] = useState("");
   const [learnerEmail, setLearnerEmail] = useState("");
+  const [teacherOracle, setTeacherOracle] = useState("");
+  const [teacherEmail, setTeacherEmail] = useState("");
   const lookupEmail = useServerFn(lookupLearnerEmail);
+  const lookupTeacher = useServerFn(lookupTeacherEmail);
   const checkNin = useServerFn(checkLearnerNinAvailable);
 
 
