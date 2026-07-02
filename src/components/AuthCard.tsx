@@ -213,7 +213,7 @@ export function AuthCard() {
                         inputMode="numeric"
                         required
                         maxLength={11}
-                        placeholder="e.g. 09074669411"
+                        placeholder="090XXXXX (Must be 11 digits)"
                         value={learnerPhone}
                         onChange={(e) => setLearnerPhone(e.target.value.replace(/\D/g, "").slice(0, 11))}
                         aria-invalid={learnerPhone.length > 0 && learnerPhone.length !== 11}
@@ -222,7 +222,7 @@ export function AuthCard() {
                       <p className={`text-xs ${learnerPhone.length === 11 ? "text-emerald-600" : learnerPhone.length > 0 ? "text-destructive" : "text-muted-foreground"}`}>
                         {learnerPhone.length === 11
                           ? "Looks good"
-                          : `Enter 11 digits in the format 09074669411 (${learnerPhone.length}/11)`}
+                          : `Enter 11 digits, e.g. 090XXXXX (${learnerPhone.length}/11)`}
                       </p>
                     </div>
                     <div className="space-y-1">
