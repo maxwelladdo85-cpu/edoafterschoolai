@@ -579,9 +579,11 @@ function SettingsPage() {
                     <SummaryRow icon={SchoolIcon} label="School" value={schoolOptions.find((s) => s.id === profile?.school_id)?.name} />
                     <SummaryRow icon={GraduationCap} label="School type" value={profile?.school_type} />
                     <SummaryRow icon={SchoolIcon} label="LGA" value={profile?.lga} />
-                    <div className="flex items-end justify-end">
-                      <Button size="sm" variant="outline" onClick={() => startEdit("school")}><Pencil className="mr-2 h-4 w-4" />Change</Button>
-                    </div>
+                    {role !== "learner" && (
+                      <div className="flex items-end justify-end">
+                        <Button size="sm" variant="outline" onClick={() => startEdit("school")}><Pencil className="mr-2 h-4 w-4" />Change</Button>
+                      </div>
+                    )}
                   </div>
                 )}
               </CardContent>
@@ -664,9 +666,11 @@ function SettingsPage() {
                   <div className="grid gap-3 sm:grid-cols-2">
                     <SummaryRow icon={Phone} label={role === "teacher" ? "Phone" : "Parent phone"} value={profile?.parent_phone} />
                     {role !== "teacher" && <SummaryRow icon={IdCard} label="NIN" value={profile?.nin} />}
-                    <div className="sm:col-span-2 flex justify-end">
-                      <Button size="sm" variant="outline" onClick={() => startEdit("contact")}><Pencil className="mr-2 h-4 w-4" />Change</Button>
-                    </div>
+                    {role !== "learner" && (
+                      <div className="sm:col-span-2 flex justify-end">
+                        <Button size="sm" variant="outline" onClick={() => startEdit("contact")}><Pencil className="mr-2 h-4 w-4" />Change</Button>
+                      </div>
+                    )}
                   </div>
                 )}
               </CardContent>
