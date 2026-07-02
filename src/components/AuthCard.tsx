@@ -251,6 +251,29 @@ export function AuthCard() {
                       />
                     </div>
                   </>
+                ) : role === "teacher" ? (
+                  <>
+                    <div className="space-y-1">
+                      <Label htmlFor="toracle">Oracle number</Label>
+                      <Input
+                        id="toracle"
+                        required
+                        placeholder="e.g. T1000"
+                        value={teacherOracle}
+                        onChange={(e) => setTeacherOracle(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor="temail">Email <span className="text-muted-foreground">(optional)</span></Label>
+                      <Input
+                        id="temail"
+                        type="email"
+                        placeholder="Only needed if more than one account matches"
+                        value={teacherEmail}
+                        onChange={(e) => setTeacherEmail(e.target.value)}
+                      />
+                    </div>
+                  </>
                 ) : (
                   <div className="space-y-1">
                     <Label htmlFor="e1">Email</Label>
