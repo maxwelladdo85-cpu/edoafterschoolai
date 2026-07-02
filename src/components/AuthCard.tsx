@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { Logo } from "@/components/Logo";
 import { Eye, EyeOff } from "lucide-react";
 import { lookupLearnerEmail, checkLearnerNinAvailable } from "@/lib/learner-auth.functions";
+import { lookupTeacherEmail } from "@/lib/teacher-auth.functions";
 
 const ForgotPasswordDialog = lazy(() =>
   import("@/components/ForgotPasswordDialog").then((m) => ({ default: m.ForgotPasswordDialog })),
@@ -47,7 +48,10 @@ export function AuthCard() {
   const [learnerNin, setLearnerNin] = useState("");
   const [learnerPhone, setLearnerPhone] = useState("");
   const [learnerEmail, setLearnerEmail] = useState("");
+  const [teacherOracle, setTeacherOracle] = useState("");
+  const [teacherEmail, setTeacherEmail] = useState("");
   const lookupEmail = useServerFn(lookupLearnerEmail);
+  const lookupTeacher = useServerFn(lookupTeacherEmail);
   const checkNin = useServerFn(checkLearnerNinAvailable);
 
 
@@ -69,6 +73,17 @@ export function AuthCard() {
             nin: learnerNin.trim(),
             phone: learnerPhone.trim(),
             email: learnerEmail.trim() || undefined,
+          },
+        });
+        signInEmail = res.email;
+      } else if (role === "teacher") {
+        if (!teacherOracle.trim()) {
+          throw new Error("Enter your Oracle number");
+        }
+        const res = await lookupTeacher({
+          data: {
+            oracle: teacherOracle.trim(),
+            email: teacherEmail.trim() || undefined,
           },
         });
         signInEmail = res.email;
@@ -233,6 +248,29 @@ export function AuthCard() {
                         placeholder="Only needed if more than one account matches"
                         value={learnerEmail}
                         onChange={(e) => setLearnerEmail(e.target.value)}
+                      />
+                    </div>
+                  </>
+                ) : role === "teacher" ? (
+                  <>
+                    <div className="space-y-1">
+                      <Label htmlFor="toracle">Oracle number</Label>
+                      <Input
+                        id="toracle"
+                        required
+                        placeholder="e.g. T1000"
+                        value={teacherOracle}
+                        onChange={(e) => setTeacherOracle(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor="temail">Email <span className="text-muted-foreground">(optional)</span></Label>
+                      <Input
+                        id="temail"
+                        type="email"
+                        placeholder="Only needed if more than one account matches"
+                        value={teacherEmail}
+                        onChange={(e) => setTeacherEmail(e.target.value)}
                       />
                     </div>
                   </>
