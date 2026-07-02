@@ -76,6 +76,17 @@ export function AuthCard() {
           },
         });
         signInEmail = res.email;
+      } else if (role === "teacher") {
+        if (!teacherOracle.trim()) {
+          throw new Error("Enter your Oracle number");
+        }
+        const res = await lookupTeacher({
+          data: {
+            oracle: teacherOracle.trim(),
+            email: teacherEmail.trim() || undefined,
+          },
+        });
+        signInEmail = res.email;
       }
 
       const { data: signInData, error } = await supabase.auth.signInWithPassword({
