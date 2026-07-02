@@ -497,7 +497,6 @@ function SettingsPage() {
                     </>
                   ) : (
                     <div className="flex flex-wrap items-center justify-between gap-3">
-                      ): null}
                       <SummaryRow icon={SchoolIcon} label="Local Government" value={profile?.lga} />
                       {role !== "learner" && (
                         <Button size="sm" variant="outline" onClick={() => startEdit("lga")}><Pencil className="mr-2 h-4 w-4" />Change</Button>
