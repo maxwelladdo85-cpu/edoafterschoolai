@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 
-const IDLE_MS = 5 * 60 * 1000; // 5 minutes
+const IDLE_MS = 60 * 60 * 1000; // 60 minutes
 const EXEMPT_PATHS = ["/privacy", "/terms", "/cookies"];
 
 export function InactivityLogout() {
