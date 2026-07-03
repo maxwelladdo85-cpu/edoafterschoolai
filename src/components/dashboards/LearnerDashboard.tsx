@@ -74,9 +74,10 @@ export function LearnerDashboard() {
         backgroundImage={dashboardHero}
       />
 
-      <section className="grid gap-4 md:grid-cols-3">
+      <section className="grid gap-4 md:grid-cols-4">
         <StatCard icon={<BookOpen />} label="Enrolled Courses" value={enrollments.length} tint="from-primary/15 to-primary/5" />
-        <StatCard icon={<GraduationCap />} label="Avg Progress" value={`${Math.round(enrollments.reduce((s, e) => s + e.progress, 0) / Math.max(1, enrollments.length))}%`} tint="from-emerald-500/15 to-emerald-500/5" />
+        <StatCard icon={<GraduationCap />} label="Completed Courses" value={enrollments.filter(e => e.progress === 100).length} tint="from-emerald-500/15 to-emerald-500/5" />
+        <StatCard icon={<GraduationCap />} label="Avg Progress" value={`${Math.round(enrollments.reduce((s, e) => s + e.progress, 0) / Math.max(1, enrollments.length))}%`} tint="from-sky-500/15 to-sky-500/5" />
         <StatCard icon={<Bell />} label="Unread Alerts" value={notifications.filter(n => !n.is_read).length} tint="from-gold/20 to-gold/5" />
       </section>
 
