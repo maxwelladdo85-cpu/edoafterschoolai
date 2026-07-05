@@ -14,7 +14,10 @@ const RowSchema = z.object({
   school_id: z.string().trim().uuid().optional().or(z.literal("")).transform((v) => (v ? v : undefined)),
   school_type: z.string().trim().max(50).optional().or(z.literal("")).transform((v) => (v ? v : undefined)),
   date_of_birth: z.string().trim().max(50).optional().or(z.literal("")).transform((v) => (v ? v : undefined)),
+  oracle_id: z.string().trim().max(50).optional().or(z.literal("")).transform((v) => (v ? v : undefined)),
+  school_name: z.string().trim().max(200).optional().or(z.literal("")).transform((v) => (v ? v : undefined)),
 });
+
 
 const InputSchema = z.object({
   rows: z.array(RowSchema).min(1).max(500),
