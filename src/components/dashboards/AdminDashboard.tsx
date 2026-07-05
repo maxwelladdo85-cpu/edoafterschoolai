@@ -446,7 +446,12 @@ export function AdminDashboard() {
                       </TableCell>
                       <TableCell className="whitespace-nowrap">{new Date(u.created_at).toLocaleDateString()}</TableCell>
                       <TableCell className="text-right">
-                        <div className="flex justify-end gap-2 whitespace-nowrap">
+                        <div className="flex justify-end gap-2 whitespace-nowrap flex-wrap">
+                          {u.roles.includes("teacher") && (
+                            <Button size="sm" variant="outline" onClick={() => openAssignSchool(u)}>
+                              <SchoolIcon className="mr-1 h-4 w-4" />Assign school
+                            </Button>
+                          )}
                           {u.status !== "pending" && (
                             <Button size="sm" variant="outline" onClick={() => toggleStatus(u.id, u.status)}>
                               {u.status === "active" ? "Deactivate" : "Activate"}
