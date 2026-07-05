@@ -246,7 +246,7 @@ function BulkUploadCard({
                   <TableHead>#</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Name</TableHead>
-                  <TableHead>Class</TableHead>
+                  <TableHead>{role === "teacher" ? "Class Taught" : "Class"}</TableHead>
                   {role === "teacher" && <TableHead>Phone</TableHead>}
                   {role === "teacher" && <TableHead>Oracle ID</TableHead>}
                   {role === "teacher" && <TableHead>School</TableHead>}
