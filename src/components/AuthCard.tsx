@@ -10,9 +10,10 @@ import { useNavigate, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Logo } from "@/components/Logo";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Smartphone } from "lucide-react";
 import { lookupLearnerEmail, checkLearnerNinAvailable } from "@/lib/learner-auth.functions";
 import { lookupTeacherEmail } from "@/lib/teacher-auth.functions";
+import edolearnApk from "@/assets/edolearn-apk.asset.json";
 
 const ForgotPasswordDialog = lazy(() =>
   import("@/components/ForgotPasswordDialog").then((m) => ({ default: m.ForgotPasswordDialog })),
