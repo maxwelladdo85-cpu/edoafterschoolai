@@ -10,11 +10,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Users, BookOpen, GraduationCap, Video, Search, Check, X, UserCog, Download, Trash2, Loader2 } from "lucide-react";
+import { Users, BookOpen, GraduationCap, Video, Search, Check, X, UserCog, Download, Trash2, Loader2, School as SchoolIcon, FileSpreadsheet } from "lucide-react";
 import { BulkUploadUsers } from "@/components/dashboards/BulkUploadUsers";
 import { TeacherReportsPanel } from "@/components/dashboards/TeacherReportsPanel";
 import { PageHero } from "@/components/PageHero";
@@ -24,6 +26,7 @@ import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, LineChart, Line, Legend,
 } from "recharts";
 import { format, parseISO } from "date-fns";
+import * as XLSX from "xlsx";
 
 type Overview = { total_learners: number; total_teachers: number; total_courses: number; active_sessions_today: number; pending_teachers: number };
 type WeeklyRow = { day: string; enrollments: number };
@@ -32,6 +35,8 @@ type CompletionRow = { course_id: string; title: string; completion_pct: number 
 type DauRow = { day: string; active_users: number };
 type PendingTeacher = { id: string; email: string | null; full_name: string | null; created_at: string };
 type UserRow = { id: string; email: string | null; full_name: string | null; status: string; created_at: string; roles: string[] };
+type SchoolRow = { id: string; name: string; lga: string; school_type: string };
+
 
 export function AdminDashboard() {
   const [overview, setOverview] = useState<Overview | null>(null);
