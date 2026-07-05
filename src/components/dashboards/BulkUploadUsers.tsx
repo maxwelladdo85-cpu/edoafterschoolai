@@ -155,6 +155,7 @@ function BulkUploadCard({
         email: r.email, full_name: r.full_name, role: r.role as "learner" | "teacher",
         class_level: r.class_level, lga: r.lga, password: r.password,
         parent_phone: r.parent_phone, school_id: r.school_id, school_type: r.school_type, date_of_birth: r.date_of_birth,
+        oracle_id: r.oracle_id, school_name: r.school_name,
       })) } });
       setResults(res.results as ResultRow[]);
       toast.success(`Created ${res.created} ${role}(s)${res.failed ? `, ${res.failed} failed` : ""}`);
