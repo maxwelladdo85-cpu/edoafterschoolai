@@ -12,6 +12,7 @@ type ParsedRow = {
   email: string; full_name: string; role: string;
   class_level?: string; lga?: string; password?: string;
   parent_phone?: string; school_id?: string; school_type?: string; date_of_birth?: string;
+  oracle_id?: string; school_name?: string;
   _error?: string;
 };
 
@@ -21,7 +22,7 @@ type ResultRow = {
 };
 
 const LEARNER_HEADERS = ["email", "full_name", "class_level", "lga", "password"];
-const TEACHER_HEADERS = ["full_name", "phone_number", "email", "lga", "school_type", "class_level", "school_id", "date_of_birth", "password"];
+const TEACHER_HEADERS = ["full_name", "phone_number", "email", "lga", "school_type", "class_taught", "oracle_id", "school_name", "date_of_birth", "password"];
 
 function makeTemplateCSV(headers: string[], rows: string[]) {
   return headers.join(",") + "\n" + rows.join("\n") + "\n";
@@ -33,9 +34,10 @@ const LEARNER_TEMPLATE_CSV = makeTemplateCSV(LEARNER_HEADERS, [
 ]);
 
 const TEACHER_TEMPLATE_CSV = makeTemplateCSV(TEACHER_HEADERS, [
-  "John Smith,08012345678,john@example.com,Ikpoba-Okha,primary,Primary 4,f6749aa3-7475-43fd-9840-b1a8cc18f903,1985-04-12,",
-  "Mary Okafor,08087654321,mary@example.com,Oredo,primary,JSS 1,04322772-a498-4dbd-9c22-c7f4b90f4c9f,1990-08-22,",
+  "John Smith,08012345678,john@example.com,Ikpoba-Okha,primary,Primary 4,T1000,Ihogbe Primary School,1985-04-12,",
+  "Mary Okafor,08087654321,mary@example.com,Oredo,primary,JSS 1,T1001,Emotan Model Primary School,1990-08-22,",
 ]);
+
 
 function parseRoleCSV(text: string, role: "learner" | "teacher"): { rows: ParsedRow[]; errors: string[] } {
   const errors: string[] = [];
