@@ -266,25 +266,9 @@ export function TeacherDashboard() {
                   )}
                   <p className="text-base text-muted-foreground line-clamp-3">{c.description}</p>
                   <div className="flex flex-wrap justify-end gap-2">
-                    <MaterialUploader courseId={c.id} />
-                    <AssignClassButton courseId={c.id} defaultClass={c.class_level} />
-                    <Button size="sm" variant="outline" asChild><Link to="/courses/builder/edit" search={{ id: c.id }}><Wand2 className="mr-1 h-3.5 w-3.5" />Builder</Link></Button>
-                    <Button size="sm" variant="outline" onClick={() => openEdit(c)}><Pencil className="mr-1 h-3.5 w-3.5" />Edit</Button>
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button size="sm" variant="destructive"><Trash2 className="mr-1 h-3.5 w-3.5" />Delete</Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Delete "{c.title}"?</AlertDialogTitle>
-                          <AlertDialogDescription>This will permanently remove the course and all its modules, lessons, quizzes, and enrollments.</AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction onClick={() => remove(c.id)}>Delete</AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+                    <Button size="sm" variant="outline" asChild>
+                      <Link to="/courses/$courseId" params={{ courseId: c.id }}><BookOpen className="mr-1 h-3.5 w-3.5" />Preview</Link>
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
