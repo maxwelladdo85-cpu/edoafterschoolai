@@ -12,6 +12,7 @@ type ParsedRow = {
   email: string; full_name: string; role: string;
   class_level?: string; lga?: string; password?: string;
   parent_phone?: string; school_id?: string; school_type?: string; date_of_birth?: string;
+  oracle_id?: string; school_name?: string;
   _error?: string;
 };
 
@@ -21,7 +22,7 @@ type ResultRow = {
 };
 
 const LEARNER_HEADERS = ["email", "full_name", "class_level", "lga", "password"];
-const TEACHER_HEADERS = ["full_name", "phone_number", "email", "lga", "school_type", "class_level", "school_id", "date_of_birth", "password"];
+const TEACHER_HEADERS = ["full_name", "phone_number", "email", "lga", "school_type", "class_taught", "oracle_id", "school_name", "date_of_birth", "password"];
 
 function makeTemplateCSV(headers: string[], rows: string[]) {
   return headers.join(",") + "\n" + rows.join("\n") + "\n";
@@ -33,9 +34,10 @@ const LEARNER_TEMPLATE_CSV = makeTemplateCSV(LEARNER_HEADERS, [
 ]);
 
 const TEACHER_TEMPLATE_CSV = makeTemplateCSV(TEACHER_HEADERS, [
-  "John Smith,08012345678,john@example.com,Ikpoba-Okha,primary,Primary 4,f6749aa3-7475-43fd-9840-b1a8cc18f903,1985-04-12,",
-  "Mary Okafor,08087654321,mary@example.com,Oredo,primary,JSS 1,04322772-a498-4dbd-9c22-c7f4b90f4c9f,1990-08-22,",
+  "John Smith,08012345678,john@example.com,Ikpoba-Okha,primary,Primary 4,T1000,Ihogbe Primary School,1985-04-12,",
+  "Mary Okafor,08087654321,mary@example.com,Oredo,primary,JSS 1,T1001,Emotan Model Primary School,1990-08-22,",
 ]);
+
 
 function parseRoleCSV(text: string, role: "learner" | "teacher"): { rows: ParsedRow[]; errors: string[] } {
   const errors: string[] = [];
@@ -68,8 +70,10 @@ function parseRoleCSV(text: string, role: "learner" | "teacher"): { rows: Parsed
     errors.push(`CSV must have headers: email, full_name${role === "learner" ? ", class_level" : ""} (optional: lga, password)`);
     return { rows: [], errors };
   }
-  const iClass = idx("class_level"), iLga = idx("lga"), iPwd = idx("password");
+  const iClass = idx("class_level"), iClassTaught = idx("class_taught"), iLga = idx("lga"), iPwd = idx("password");
   const iPhone = idx("phone_number"), iSchoolId = idx("school_id"), iSchoolType = idx("school_type"), iDob = idx("date_of_birth");
+  const iOracle = idx("oracle_id"), iSchoolName = idx("school_name");
+  const iClassAny = role === "teacher" && iClassTaught >= 0 ? iClassTaught : iClass;
 
   const rows: ParsedRow[] = [];
   for (let i = 1; i < lines.length; i++) {
@@ -78,21 +82,25 @@ function parseRoleCSV(text: string, role: "learner" | "teacher"): { rows: Parsed
       email: cells[iEmail] ?? "",
       full_name: cells[iName] ?? "",
       role,
-      class_level: iClass >= 0 ? cells[iClass] : undefined,
+      class_level: iClassAny >= 0 ? cells[iClassAny] : undefined,
       lga: iLga >= 0 ? cells[iLga] : undefined,
       password: iPwd >= 0 ? cells[iPwd] : undefined,
       parent_phone: iPhone >= 0 ? cells[iPhone] : undefined,
       school_id: iSchoolId >= 0 ? cells[iSchoolId] : undefined,
       school_type: iSchoolType >= 0 ? cells[iSchoolType] : undefined,
       date_of_birth: iDob >= 0 ? cells[iDob] : undefined,
+      oracle_id: iOracle >= 0 ? cells[iOracle] : undefined,
+      school_name: iSchoolName >= 0 ? cells[iSchoolName] : undefined,
     };
     if (!row.email || /^\S+@\S+\.\S+$/.test(row.email) === false) row._error = "Invalid email";
     else if (!row.full_name) row._error = "Missing name";
     else if (role === "learner" && iClass >= 0 && !row.class_level) row._error = "Missing class_level";
+    else if (role === "teacher" && !row.oracle_id) row._error = "Missing oracle_id";
     rows.push(row);
   }
   return { rows, errors };
 }
+
 
 function downloadCsv(filename: string, text: string) {
   const blob = new Blob([`\ufeff${text}`], { type: "text/csv;charset=utf-8;" });
@@ -147,6 +155,7 @@ function BulkUploadCard({
         email: r.email, full_name: r.full_name, role: r.role as "learner" | "teacher",
         class_level: r.class_level, lga: r.lga, password: r.password,
         parent_phone: r.parent_phone, school_id: r.school_id, school_type: r.school_type, date_of_birth: r.date_of_birth,
+        oracle_id: r.oracle_id, school_name: r.school_name,
       })) } });
       setResults(res.results as ResultRow[]);
       toast.success(`Created ${res.created} ${role}(s)${res.failed ? `, ${res.failed} failed` : ""}`);
@@ -188,7 +197,7 @@ function BulkUploadCard({
           <span className="font-mono">{headersLabel}</span>. Optional:{" "}
           <span className="font-mono">
             {role === "teacher"
-              ? "phone_number, lga, school_type, class_level, school_id, date_of_birth, password"
+              ? "phone_number, lga, school_type, class_taught, school_name, date_of_birth, password"
               : "lga, password"}
           </span>.
           If password is blank a secure one is generated and returned in the results CSV.
@@ -237,8 +246,9 @@ function BulkUploadCard({
                   <TableHead>#</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Name</TableHead>
-                  <TableHead>Class</TableHead>
+                  <TableHead>{role === "teacher" ? "Class Taught" : "Class"}</TableHead>
                   {role === "teacher" && <TableHead>Phone</TableHead>}
+                  {role === "teacher" && <TableHead>Oracle ID</TableHead>}
                   {role === "teacher" && <TableHead>School</TableHead>}
                   <TableHead>LGA</TableHead>
                   <TableHead>Status</TableHead>
@@ -252,7 +262,8 @@ function BulkUploadCard({
                       <TableCell>{r.full_name}</TableCell>
                       <TableCell>{r.class_level ?? "—"}</TableCell>
                       {role === "teacher" && <TableCell>{r.parent_phone ?? "—"}</TableCell>}
-                      {role === "teacher" && <TableCell>{r.school_id ? r.school_id.slice(0, 8) + "…" : "—"}</TableCell>}
+                      {role === "teacher" && <TableCell className="font-mono text-xs">{r.oracle_id ?? "—"}</TableCell>}
+                      {role === "teacher" && <TableCell>{r.school_name ?? "—"}</TableCell>}
                       <TableCell>{r.lga ?? "—"}</TableCell>
                       <TableCell>
                         {r._error
@@ -328,7 +339,7 @@ export function BulkUploadUsers({ onDone }: { onDone?: () => void }) {
         templateCSV={TEACHER_TEMPLATE_CSV}
         templateFilename="bulk-teachers-template.csv"
         description="Upload a CSV to onboard multiple teachers at once."
-        headersLabel="full_name, phone_number, email, lga, school_type, class_level, school_id, date_of_birth, password"
+        headersLabel="full_name, email, oracle_id, school_name, class_taught, phone_number, lga, school_type, date_of_birth, password"
         onDone={onDone}
       />
       <BulkUploadCard

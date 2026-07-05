@@ -14,7 +14,10 @@ const RowSchema = z.object({
   school_id: z.string().trim().uuid().optional().or(z.literal("")).transform((v) => (v ? v : undefined)),
   school_type: z.string().trim().max(50).optional().or(z.literal("")).transform((v) => (v ? v : undefined)),
   date_of_birth: z.string().trim().max(50).optional().or(z.literal("")).transform((v) => (v ? v : undefined)),
+  oracle_id: z.string().trim().max(50).optional().or(z.literal("")).transform((v) => (v ? v : undefined)),
+  school_name: z.string().trim().max(200).optional().or(z.literal("")).transform((v) => (v ? v : undefined)),
 });
+
 
 const InputSchema = z.object({
   rows: z.array(RowSchema).min(1).max(500),
@@ -63,11 +66,19 @@ export const bulkCreateUsers = createServerFn({ method: "POST" })
         if (r.class_level) profilePatch.class_level = r.class_level;
         if (r.lga) profilePatch.lga = r.lga;
         if (r.parent_phone) profilePatch.parent_phone = r.parent_phone;
-        if (r.school_id) profilePatch.school_id = r.school_id;
+        let resolvedSchoolId = r.school_id ?? null;
+        if (!resolvedSchoolId && r.school_name) {
+          const { data: sch } = await (supabaseAdmin.from("schools") as any)
+            .select("id").ilike("name", r.school_name).maybeSingle();
+          if (sch?.id) resolvedSchoolId = sch.id;
+        }
+        if (resolvedSchoolId) profilePatch.school_id = resolvedSchoolId;
         if (r.school_type) profilePatch.school_type = r.school_type;
         if (r.date_of_birth) profilePatch.date_of_birth = r.date_of_birth;
+        if (r.oracle_id) profilePatch.teacher_id = r.oracle_id;
         profilePatch.status = "active";
         await (supabaseAdmin.from("profiles") as any).update(profilePatch).eq("id", uid);
+
 
         if (r.role === "teacher") {
           await supabaseAdmin.from("user_roles").insert({ user_id: uid, role: "teacher" } as any);

@@ -10,11 +10,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Users, BookOpen, GraduationCap, Video, Search, Check, X, UserCog, Download, Trash2, Loader2 } from "lucide-react";
+import { Users, BookOpen, GraduationCap, Video, Search, Check, X, UserCog, Download, Trash2, Loader2, School as SchoolIcon, FileSpreadsheet } from "lucide-react";
 import { BulkUploadUsers } from "@/components/dashboards/BulkUploadUsers";
 import { TeacherReportsPanel } from "@/components/dashboards/TeacherReportsPanel";
 import { PageHero } from "@/components/PageHero";
@@ -24,6 +26,7 @@ import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, LineChart, Line, Legend,
 } from "recharts";
 import { format, parseISO } from "date-fns";
+import * as XLSX from "xlsx";
 
 type Overview = { total_learners: number; total_teachers: number; total_courses: number; active_sessions_today: number; pending_teachers: number };
 type WeeklyRow = { day: string; enrollments: number };
@@ -32,6 +35,8 @@ type CompletionRow = { course_id: string; title: string; completion_pct: number 
 type DauRow = { day: string; active_users: number };
 type PendingTeacher = { id: string; email: string | null; full_name: string | null; created_at: string };
 type UserRow = { id: string; email: string | null; full_name: string | null; status: string; created_at: string; roles: string[] };
+type SchoolRow = { id: string; name: string; lga: string; school_type: string };
+
 
 export function AdminDashboard() {
   const [overview, setOverview] = useState<Overview | null>(null);
@@ -47,6 +52,41 @@ export function AdminDashboard() {
   const [deleteReason, setDeleteReason] = useState("");
   const [deleting, setDeleting] = useState(false);
   const deleteUserFn = useServerFn(deleteUserAsAdmin);
+  const [schools, setSchools] = useState<SchoolRow[]>([]);
+  const [assignTarget, setAssignTarget] = useState<UserRow | null>(null);
+  const [assignSchoolId, setAssignSchoolId] = useState<string>("");
+  const [assigning, setAssigning] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase.from("schools").select("id,name,lga,school_type").eq("is_active", true).order("name");
+      setSchools((data ?? []) as SchoolRow[]);
+    })();
+  }, []);
+
+  const openAssignSchool = (u: UserRow) => { setAssignTarget(u); setAssignSchoolId(""); };
+  const confirmAssignSchool = async () => {
+    if (!assignTarget || !assignSchoolId) return toast.error("Select a school");
+    setAssigning(true);
+    try {
+      const { error } = await (supabase.from("profiles") as any)
+        .update({ school_id: assignSchoolId }).eq("id", assignTarget.id);
+      if (error) throw error;
+      const school = schools.find((s) => s.id === assignSchoolId);
+      await supabase.from("notifications").insert({
+        user_id: assignTarget.id,
+        title: "You have been assigned to a school",
+        message: `You have been assigned to ${school?.name ?? "a new school"}${school?.lga ? ` (${school.lga})` : ""}. Please review your profile.`,
+      } as any);
+      toast.success(`${assignTarget.full_name ?? "Teacher"} assigned to ${school?.name ?? "school"}`);
+      setAssignTarget(null);
+    } catch (e: any) {
+      toast.error(e?.message ?? "Failed to assign school");
+    } finally {
+      setAssigning(false);
+    }
+  };
+
 
   const loadAll = async () => {
     const [ov, wk, tc, cr, da, pt, profiles, roles] = await Promise.all([
@@ -141,15 +181,27 @@ export function AdminDashboard() {
     URL.revokeObjectURL(url);
   };
 
+  const downloadXlsx = (filename: string, rows: Record<string, any>[], sheetName = "Sheet1") => {
+    if (!rows.length) return toast.error("No data to export");
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, sheetName);
+    XLSX.writeFile(wb, filename);
+  };
+
+  const usersRows = () => users.map((u) => ({
+    full_name: u.full_name ?? "", email: u.email ?? "",
+    roles: u.roles.join("|"), status: u.status, joined_at: u.created_at,
+  }));
+
   const exportUsers = () => {
-    const rows = users.map((u) => ({
-      full_name: u.full_name ?? "",
-      email: u.email ?? "",
-      roles: u.roles.join("|"),
-      status: u.status,
-      joined_at: u.created_at,
-    }));
+    const rows = usersRows();
     downloadCsv(`users-${new Date().toISOString().slice(0,10)}.csv`, rows);
+    toast.success(`Exported ${rows.length} users`);
+  };
+  const exportUsersXlsx = () => {
+    const rows = usersRows();
+    downloadXlsx(`users-${new Date().toISOString().slice(0,10)}.xlsx`, rows, "Users");
     toast.success(`Exported ${rows.length} users`);
   };
 
@@ -159,6 +211,12 @@ export function AdminDashboard() {
     downloadCsv(`activity-${new Date().toISOString().slice(0,10)}.csv`, (data ?? []) as any[]);
     toast.success(`Exported ${(data ?? []).length} activity events`);
   };
+  const exportActivityXlsx = async () => {
+    const { data, error } = await supabase.rpc("admin_user_activity_log", { p_limit: 10000 });
+    if (error) return toast.error(error.message);
+    downloadXlsx(`activity-${new Date().toISOString().slice(0,10)}.xlsx`, (data ?? []) as any[], "Activity");
+    toast.success(`Exported ${(data ?? []).length} activity events`);
+  };
 
   const exportLogins = async () => {
     const { data, error } = await supabase.rpc("admin_user_last_seen");
@@ -166,6 +224,13 @@ export function AdminDashboard() {
     downloadCsv(`active-users-${new Date().toISOString().slice(0,10)}.csv`, (data ?? []) as any[]);
     toast.success(`Exported ${(data ?? []).length} user activity records`);
   };
+  const exportLoginsXlsx = async () => {
+    const { data, error } = await supabase.rpc("admin_user_last_seen");
+    if (error) return toast.error(error.message);
+    downloadXlsx(`active-users-${new Date().toISOString().slice(0,10)}.xlsx`, (data ?? []) as any[], "ActiveUsers");
+    toast.success(`Exported ${(data ?? []).length} user activity records`);
+  };
+
 
   return (
     <div className="space-y-8">
@@ -193,14 +258,23 @@ export function AdminDashboard() {
             <Button variant="outline" size="sm" onClick={exportUsers}>
               <Download className="h-4 w-4 mr-2" /> Users (CSV)
             </Button>
+            <Button variant="outline" size="sm" onClick={exportUsersXlsx}>
+              <FileSpreadsheet className="h-4 w-4 mr-2" /> Users (Excel)
+            </Button>
             <Button variant="outline" size="sm" onClick={exportActivity}>
               <Download className="h-4 w-4 mr-2" /> User activity (CSV)
+            </Button>
+            <Button variant="outline" size="sm" onClick={exportActivityXlsx}>
+              <FileSpreadsheet className="h-4 w-4 mr-2" /> User activity (Excel)
             </Button>
             <Button variant="outline" size="sm" onClick={exportLogins}>
               <Download className="h-4 w-4 mr-2" /> Active users / last seen (CSV)
             </Button>
+            <Button variant="outline" size="sm" onClick={exportLoginsXlsx}>
+              <FileSpreadsheet className="h-4 w-4 mr-2" /> Active users / last seen (Excel)
+            </Button>
             <p className="w-full text-xs text-muted-foreground mt-1">
-              CSV files open directly in Excel and Google Sheets.
+              Download in CSV or Excel format.
             </p>
           </CardContent>
         </Card>
@@ -372,7 +446,12 @@ export function AdminDashboard() {
                       </TableCell>
                       <TableCell className="whitespace-nowrap">{new Date(u.created_at).toLocaleDateString()}</TableCell>
                       <TableCell className="text-right">
-                        <div className="flex justify-end gap-2 whitespace-nowrap">
+                        <div className="flex justify-end gap-2 whitespace-nowrap flex-wrap">
+                          {u.roles.includes("teacher") && (
+                            <Button size="sm" variant="outline" onClick={() => openAssignSchool(u)}>
+                              <SchoolIcon className="mr-1 h-4 w-4" />Assign school
+                            </Button>
+                          )}
                           {u.status !== "pending" && (
                             <Button size="sm" variant="outline" onClick={() => toggleStatus(u.id, u.status)}>
                               {u.status === "active" ? "Deactivate" : "Activate"}
@@ -391,6 +470,34 @@ export function AdminDashboard() {
           </CardContent>
         </Card>
       </section>
+
+      <Dialog open={!!assignTarget} onOpenChange={(o) => !o && setAssignTarget(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Assign teacher to a school</DialogTitle>
+            <DialogDescription>
+              {assignTarget?.full_name ?? assignTarget?.email} will be notified in the app once assigned.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Label>School</Label>
+            <Select value={assignSchoolId} onValueChange={setAssignSchoolId}>
+              <SelectTrigger><SelectValue placeholder="Select school" /></SelectTrigger>
+              <SelectContent>
+                {schools.map((s) => (
+                  <SelectItem key={s.id} value={s.id}>{s.name} — {s.lga} ({s.school_type})</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setAssignTarget(null)} disabled={assigning}>Cancel</Button>
+            <Button onClick={confirmAssignSchool} disabled={assigning || !assignSchoolId}>
+              {assigning ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Assigning…</> : "Assign & notify"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <AlertDialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
         <AlertDialogContent>

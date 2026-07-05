@@ -100,7 +100,7 @@ export function TeacherDashboard() {
 
   const load = async () => {
     if (!user) return;
-    const { data } = await supabase.from("courses").select("*").eq("teacher_id", user.id).order("created_at", { ascending: false });
+    const { data } = await supabase.from("courses").select("*").order("created_at", { ascending: false });
     setCourses(data ?? []);
   };
   useEffect(() => { load(); }, [user]);
@@ -203,81 +203,10 @@ export function TeacherDashboard() {
         eyebrow="Teacher workspace"
         EyebrowIcon={GraduationCap}
         title="Teacher Workspace"
-        description="Manage and publish your courses with style."
+        description="Preview courses and interact with your students."
         backgroundImage={dashboardHero}
-        actions={
-          <div className="flex flex-wrap gap-2">
-            
-            <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setEditingId(null); setForm(emptyForm); } }}>
-            <DialogTrigger asChild>
-              <Button className="gap-2 bg-gold text-gold-foreground hover:opacity-90" onClick={openCreate}><Plus className="h-4 w-4" /> Quick Create</Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>{editingId ? "Edit course" : "New course"}</DialogTitle>
-                <DialogDescription>{editingId ? "Update your course details." : "Add a course your learners can enroll in."}</DialogDescription>
-              </DialogHeader>
-              <form onSubmit={save} className="space-y-3">
-                <div className="space-y-1"><Label>Title</Label><Input required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} /></div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <Label>Subject</Label>
-                    <Select value={form.subject} onValueChange={(v) => setForm({ ...form, subject: v })} disabled={!form.class_level || subjectsLoading || availableSubjects.length === 0}>
-                      <SelectTrigger><SelectValue placeholder={!form.class_level ? "Select class first" : subjectsLoading ? "Loading subjects…" : "Select subject"} /></SelectTrigger>
-                      <SelectContent>
-                        {availableSubjects.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                    {subjectsError && <p className="text-xs text-destructive">Subjects could not load. Please try again.</p>}
-                  </div>
-                  <div className="space-y-1">
-                    <Label>Class</Label>
-                    <Select value={form.class_level} onValueChange={(v) => setForm({ ...form, class_level: v, subject: "" })}>
-                      <SelectTrigger><SelectValue placeholder="Select class" /></SelectTrigger>
-                      <SelectContent>
-                        {CLASS_GROUPS.map((g) => (
-                          <SelectGroup key={g.label}>
-                            <SelectLabel>{g.label}</SelectLabel>
-                            {g.classes.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                          </SelectGroup>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <div className="space-y-1"><Label>Teacher name</Label><Input value={form.teacher_name} onChange={(e) => setForm({ ...form, teacher_name: e.target.value })} placeholder="Mr. / Mrs. / Ms. / Miss Adaeze Okoro" autoCapitalize="words" autoComplete="name" spellCheck={false} maxLength={100} /></div>
-                <div className="space-y-1"><Label>Description</Label><Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
-                <div className="space-y-1">
-                  <Label>Thumbnail image</Label>
-                  <Input type="file" accept="image/*" onChange={(e) => setThumbFile(e.target.files?.[0] ?? null)} />
-                  <p className="text-xs text-muted-foreground">Shown as the card background. JPG/PNG, under 5 MB.{editingId ? " Leave empty to keep the current image." : ""}</p>
-                </div>
-                <div className="space-y-1">
-                  <Label>Course materials</Label>
-                  <Input
-                    type="file"
-                    multiple
-                    accept="video/*,audio/*,application/pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                    onChange={(e) => setMaterialFiles(Array.from(e.target.files ?? []))}
-                  />
-                  <p className="text-xs text-muted-foreground">Optional. Upload videos, audio, PDFs, or Word docs (max 100 MB each). You can add more later.</p>
-                  {materialFiles.length > 0 && (
-                    <ul className="mt-1 list-disc pl-5 text-xs text-muted-foreground">
-                      {materialFiles.map((f) => <li key={f.name}>{f.name}</li>)}
-                    </ul>
-                  )}
-                </div>
-                <div className="flex items-center justify-between rounded-md border px-3 py-2">
-                  <div><Label>Active</Label><p className="text-xs text-muted-foreground">Visible to learners in the Course Library</p></div>
-                  <Switch checked={form.is_active} onCheckedChange={(v) => setForm({ ...form, is_active: v })} />
-                </div>
-                <DialogFooter><Button type="submit" disabled={saving}>{editingId ? "Save changes" : "Publish"}</Button></DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog>
-          </div>
-        }
       />
+
 
       <section>
         <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
@@ -305,7 +234,7 @@ export function TeacherDashboard() {
         {courses.length === 0 ? (
           <Card><CardContent className="flex flex-col items-center gap-3 py-12 text-center text-base text-muted-foreground">
             <BookOpen className="h-10 w-10" />
-            <p>No courses yet — click "Create New Course" to get started.</p>
+            <p>No courses assigned to you yet. Courses created by admins will appear here for preview.</p>
           </CardContent></Card>
         ) : filteredCourses.length === 0 ? (
           <Card><CardContent className="py-12 text-center text-base text-muted-foreground">
@@ -337,25 +266,9 @@ export function TeacherDashboard() {
                   )}
                   <p className="text-base text-muted-foreground line-clamp-3">{c.description}</p>
                   <div className="flex flex-wrap justify-end gap-2">
-                    <MaterialUploader courseId={c.id} />
-                    <AssignClassButton courseId={c.id} defaultClass={c.class_level} />
-                    <Button size="sm" variant="outline" asChild><Link to="/courses/builder/edit" search={{ id: c.id }}><Wand2 className="mr-1 h-3.5 w-3.5" />Builder</Link></Button>
-                    <Button size="sm" variant="outline" onClick={() => openEdit(c)}><Pencil className="mr-1 h-3.5 w-3.5" />Edit</Button>
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button size="sm" variant="destructive"><Trash2 className="mr-1 h-3.5 w-3.5" />Delete</Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Delete "{c.title}"?</AlertDialogTitle>
-                          <AlertDialogDescription>This will permanently remove the course and all its modules, lessons, quizzes, and enrollments.</AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction onClick={() => remove(c.id)}>Delete</AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+                    <Button size="sm" variant="outline" asChild>
+                      <Link to="/courses/$courseId" params={{ courseId: c.id }}><BookOpen className="mr-1 h-3.5 w-3.5" />Preview</Link>
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
