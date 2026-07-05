@@ -248,6 +248,7 @@ function BulkUploadCard({
                   <TableHead>Name</TableHead>
                   <TableHead>Class</TableHead>
                   {role === "teacher" && <TableHead>Phone</TableHead>}
+                  {role === "teacher" && <TableHead>Oracle ID</TableHead>}
                   {role === "teacher" && <TableHead>School</TableHead>}
                   <TableHead>LGA</TableHead>
                   <TableHead>Status</TableHead>
@@ -261,7 +262,8 @@ function BulkUploadCard({
                       <TableCell>{r.full_name}</TableCell>
                       <TableCell>{r.class_level ?? "—"}</TableCell>
                       {role === "teacher" && <TableCell>{r.parent_phone ?? "—"}</TableCell>}
-                      {role === "teacher" && <TableCell>{r.school_id ? r.school_id.slice(0, 8) + "…" : "—"}</TableCell>}
+                      {role === "teacher" && <TableCell className="font-mono text-xs">{r.oracle_id ?? "—"}</TableCell>}
+                      {role === "teacher" && <TableCell>{r.school_name ?? "—"}</TableCell>}
                       <TableCell>{r.lga ?? "—"}</TableCell>
                       <TableCell>
                         {r._error
