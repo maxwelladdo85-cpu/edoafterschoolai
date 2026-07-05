@@ -181,15 +181,27 @@ export function AdminDashboard() {
     URL.revokeObjectURL(url);
   };
 
+  const downloadXlsx = (filename: string, rows: Record<string, any>[], sheetName = "Sheet1") => {
+    if (!rows.length) return toast.error("No data to export");
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, sheetName);
+    XLSX.writeFile(wb, filename);
+  };
+
+  const usersRows = () => users.map((u) => ({
+    full_name: u.full_name ?? "", email: u.email ?? "",
+    roles: u.roles.join("|"), status: u.status, joined_at: u.created_at,
+  }));
+
   const exportUsers = () => {
-    const rows = users.map((u) => ({
-      full_name: u.full_name ?? "",
-      email: u.email ?? "",
-      roles: u.roles.join("|"),
-      status: u.status,
-      joined_at: u.created_at,
-    }));
+    const rows = usersRows();
     downloadCsv(`users-${new Date().toISOString().slice(0,10)}.csv`, rows);
+    toast.success(`Exported ${rows.length} users`);
+  };
+  const exportUsersXlsx = () => {
+    const rows = usersRows();
+    downloadXlsx(`users-${new Date().toISOString().slice(0,10)}.xlsx`, rows, "Users");
     toast.success(`Exported ${rows.length} users`);
   };
 
@@ -199,6 +211,12 @@ export function AdminDashboard() {
     downloadCsv(`activity-${new Date().toISOString().slice(0,10)}.csv`, (data ?? []) as any[]);
     toast.success(`Exported ${(data ?? []).length} activity events`);
   };
+  const exportActivityXlsx = async () => {
+    const { data, error } = await supabase.rpc("admin_user_activity_log", { p_limit: 10000 });
+    if (error) return toast.error(error.message);
+    downloadXlsx(`activity-${new Date().toISOString().slice(0,10)}.xlsx`, (data ?? []) as any[], "Activity");
+    toast.success(`Exported ${(data ?? []).length} activity events`);
+  };
 
   const exportLogins = async () => {
     const { data, error } = await supabase.rpc("admin_user_last_seen");
@@ -206,6 +224,13 @@ export function AdminDashboard() {
     downloadCsv(`active-users-${new Date().toISOString().slice(0,10)}.csv`, (data ?? []) as any[]);
     toast.success(`Exported ${(data ?? []).length} user activity records`);
   };
+  const exportLoginsXlsx = async () => {
+    const { data, error } = await supabase.rpc("admin_user_last_seen");
+    if (error) return toast.error(error.message);
+    downloadXlsx(`active-users-${new Date().toISOString().slice(0,10)}.xlsx`, (data ?? []) as any[], "ActiveUsers");
+    toast.success(`Exported ${(data ?? []).length} user activity records`);
+  };
+
 
   return (
     <div className="space-y-8">
