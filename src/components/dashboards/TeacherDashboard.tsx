@@ -100,7 +100,7 @@ export function TeacherDashboard() {
 
   const load = async () => {
     if (!user) return;
-    const { data } = await supabase.from("courses").select("*").eq("teacher_id", user.id).order("created_at", { ascending: false });
+    const { data } = await supabase.from("courses").select("*").order("created_at", { ascending: false });
     setCourses(data ?? []);
   };
   useEffect(() => { load(); }, [user]);
