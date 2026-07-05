@@ -70,8 +70,10 @@ function parseRoleCSV(text: string, role: "learner" | "teacher"): { rows: Parsed
     errors.push(`CSV must have headers: email, full_name${role === "learner" ? ", class_level" : ""} (optional: lga, password)`);
     return { rows: [], errors };
   }
-  const iClass = idx("class_level"), iLga = idx("lga"), iPwd = idx("password");
+  const iClass = idx("class_level"), iClassTaught = idx("class_taught"), iLga = idx("lga"), iPwd = idx("password");
   const iPhone = idx("phone_number"), iSchoolId = idx("school_id"), iSchoolType = idx("school_type"), iDob = idx("date_of_birth");
+  const iOracle = idx("oracle_id"), iSchoolName = idx("school_name");
+  const iClassAny = role === "teacher" && iClassTaught >= 0 ? iClassTaught : iClass;
 
   const rows: ParsedRow[] = [];
   for (let i = 1; i < lines.length; i++) {
@@ -80,21 +82,25 @@ function parseRoleCSV(text: string, role: "learner" | "teacher"): { rows: Parsed
       email: cells[iEmail] ?? "",
       full_name: cells[iName] ?? "",
       role,
-      class_level: iClass >= 0 ? cells[iClass] : undefined,
+      class_level: iClassAny >= 0 ? cells[iClassAny] : undefined,
       lga: iLga >= 0 ? cells[iLga] : undefined,
       password: iPwd >= 0 ? cells[iPwd] : undefined,
       parent_phone: iPhone >= 0 ? cells[iPhone] : undefined,
       school_id: iSchoolId >= 0 ? cells[iSchoolId] : undefined,
       school_type: iSchoolType >= 0 ? cells[iSchoolType] : undefined,
       date_of_birth: iDob >= 0 ? cells[iDob] : undefined,
+      oracle_id: iOracle >= 0 ? cells[iOracle] : undefined,
+      school_name: iSchoolName >= 0 ? cells[iSchoolName] : undefined,
     };
     if (!row.email || /^\S+@\S+\.\S+$/.test(row.email) === false) row._error = "Invalid email";
     else if (!row.full_name) row._error = "Missing name";
     else if (role === "learner" && iClass >= 0 && !row.class_level) row._error = "Missing class_level";
+    else if (role === "teacher" && !row.oracle_id) row._error = "Missing oracle_id";
     rows.push(row);
   }
   return { rows, errors };
 }
+
 
 function downloadCsv(filename: string, text: string) {
   const blob = new Blob([`\ufeff${text}`], { type: "text/csv;charset=utf-8;" });
