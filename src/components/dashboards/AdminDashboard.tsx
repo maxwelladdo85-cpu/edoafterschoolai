@@ -258,14 +258,23 @@ export function AdminDashboard() {
             <Button variant="outline" size="sm" onClick={exportUsers}>
               <Download className="h-4 w-4 mr-2" /> Users (CSV)
             </Button>
+            <Button variant="outline" size="sm" onClick={exportUsersXlsx}>
+              <FileSpreadsheet className="h-4 w-4 mr-2" /> Users (Excel)
+            </Button>
             <Button variant="outline" size="sm" onClick={exportActivity}>
               <Download className="h-4 w-4 mr-2" /> User activity (CSV)
+            </Button>
+            <Button variant="outline" size="sm" onClick={exportActivityXlsx}>
+              <FileSpreadsheet className="h-4 w-4 mr-2" /> User activity (Excel)
             </Button>
             <Button variant="outline" size="sm" onClick={exportLogins}>
               <Download className="h-4 w-4 mr-2" /> Active users / last seen (CSV)
             </Button>
+            <Button variant="outline" size="sm" onClick={exportLoginsXlsx}>
+              <FileSpreadsheet className="h-4 w-4 mr-2" /> Active users / last seen (Excel)
+            </Button>
             <p className="w-full text-xs text-muted-foreground mt-1">
-              CSV files open directly in Excel and Google Sheets.
+              Download in CSV or Excel format.
             </p>
           </CardContent>
         </Card>
