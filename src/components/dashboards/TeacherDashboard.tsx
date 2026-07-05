@@ -234,7 +234,7 @@ export function TeacherDashboard() {
         {courses.length === 0 ? (
           <Card><CardContent className="flex flex-col items-center gap-3 py-12 text-center text-base text-muted-foreground">
             <BookOpen className="h-10 w-10" />
-            <p>No courses yet — click "Create New Course" to get started.</p>
+            <p>No courses assigned to you yet. Courses created by admins will appear here for preview.</p>
           </CardContent></Card>
         ) : filteredCourses.length === 0 ? (
           <Card><CardContent className="py-12 text-center text-base text-muted-foreground">
