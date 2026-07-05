@@ -471,6 +471,34 @@ export function AdminDashboard() {
         </Card>
       </section>
 
+      <Dialog open={!!assignTarget} onOpenChange={(o) => !o && setAssignTarget(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Assign teacher to a school</DialogTitle>
+            <DialogDescription>
+              {assignTarget?.full_name ?? assignTarget?.email} will be notified in the app once assigned.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Label>School</Label>
+            <Select value={assignSchoolId} onValueChange={setAssignSchoolId}>
+              <SelectTrigger><SelectValue placeholder="Select school" /></SelectTrigger>
+              <SelectContent>
+                {schools.map((s) => (
+                  <SelectItem key={s.id} value={s.id}>{s.name} — {s.lga} ({s.school_type})</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setAssignTarget(null)} disabled={assigning}>Cancel</Button>
+            <Button onClick={confirmAssignSchool} disabled={assigning || !assignSchoolId}>
+              {assigning ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Assigning…</> : "Assign & notify"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <AlertDialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
