@@ -52,6 +52,41 @@ export function AdminDashboard() {
   const [deleteReason, setDeleteReason] = useState("");
   const [deleting, setDeleting] = useState(false);
   const deleteUserFn = useServerFn(deleteUserAsAdmin);
+  const [schools, setSchools] = useState<SchoolRow[]>([]);
+  const [assignTarget, setAssignTarget] = useState<UserRow | null>(null);
+  const [assignSchoolId, setAssignSchoolId] = useState<string>("");
+  const [assigning, setAssigning] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase.from("schools").select("id,name,lga,school_type").eq("is_active", true).order("name");
+      setSchools((data ?? []) as SchoolRow[]);
+    })();
+  }, []);
+
+  const openAssignSchool = (u: UserRow) => { setAssignTarget(u); setAssignSchoolId(""); };
+  const confirmAssignSchool = async () => {
+    if (!assignTarget || !assignSchoolId) return toast.error("Select a school");
+    setAssigning(true);
+    try {
+      const { error } = await (supabase.from("profiles") as any)
+        .update({ school_id: assignSchoolId }).eq("id", assignTarget.id);
+      if (error) throw error;
+      const school = schools.find((s) => s.id === assignSchoolId);
+      await supabase.from("notifications").insert({
+        user_id: assignTarget.id,
+        title: "You have been assigned to a school",
+        message: `You have been assigned to ${school?.name ?? "a new school"}${school?.lga ? ` (${school.lga})` : ""}. Please review your profile.`,
+      } as any);
+      toast.success(`${assignTarget.full_name ?? "Teacher"} assigned to ${school?.name ?? "school"}`);
+      setAssignTarget(null);
+    } catch (e: any) {
+      toast.error(e?.message ?? "Failed to assign school");
+    } finally {
+      setAssigning(false);
+    }
+  };
+
 
   const loadAll = async () => {
     const [ov, wk, tc, cr, da, pt, profiles, roles] = await Promise.all([
