@@ -123,7 +123,7 @@ function AssessmentsPage() {
           backgroundImage={heroAssessments}
         />
 
-        {isTeacher && (
+        {canManage && (
           <Card className="border-border/60">
             <CardHeader><CardTitle className="text-base">Create new assessment</CardTitle></CardHeader>
             <CardContent>
