@@ -97,11 +97,20 @@ function CoursesLibrary() {
     <DashboardShell title="Course Library">
       <div className="space-y-8">
         <PageHero
-          eyebrow={isTeacher ? "Your courses" : "Browse & enroll"}
+          eyebrow={canEditAll ? "Manage all courses" : isTeacher ? "Your courses" : "Browse & enroll"}
           EyebrowIcon={GraduationCap}
           title="Course Library"
-          description={isTeacher ? "Courses you have created for your learners." : "Discover and enroll in courses created by Edo SUBEB teachers."}
+          description={canEditAll
+            ? "Every course in the library — edit any course or create a new one."
+            : isTeacher
+              ? "Courses you have created for your learners."
+              : "Discover and enroll in courses created by Edo SUBEB teachers."}
           backgroundImage={heroLibrary}
+          actions={canEditAll ? (
+            <Button asChild variant="secondary" className="bg-white/10 text-white hover:bg-white/20 border-white/20 border">
+              <Link to="/courses/builder"><Plus className="mr-2 h-4 w-4" />New course</Link>
+            </Button>
+          ) : undefined}
         />
 
 
