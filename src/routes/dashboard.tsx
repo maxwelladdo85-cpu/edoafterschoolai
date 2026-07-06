@@ -49,7 +49,7 @@ function DashboardPage() {
             <div className="ml-auto"><NotificationBell /></div>
           </header>
           <main className="app-main-scroll p-4 sm:p-6 md:p-8">
-            {role === "admin" ? <AdminDashboard /> : role === "teacher" ? <TeacherSummary /> : <LearnerDashboard />}
+            {role === "admin" ? <AdminDashboard /> : role === "scripter" || role === "teacher" ? <TeacherSummary /> : <LearnerDashboard />}
           </main>
         </div>
       </div>

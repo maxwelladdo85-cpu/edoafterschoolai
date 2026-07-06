@@ -108,6 +108,37 @@ const NAV: Record<AppRole, NavSection[]> = {
       ],
     },
   ],
+  scripter: [
+    {
+      label: "Overview",
+      items: [
+        { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
+      ],
+    },
+    {
+      label: "Content",
+      items: [
+        { title: "Course Builder", url: "/courses/builder", icon: Wand2 },
+        { title: "Course Library", url: "/courses", icon: BookOpen },
+        { title: "Assessments", url: "/assessments", icon: ClipboardCheck },
+        { title: "Virtual Classes", url: "/virtual-classes", icon: Video },
+      ],
+    },
+    {
+      label: "Communication",
+      items: [
+        { title: "Messages", url: "/messages", icon: MessageCircle },
+        { title: "Announcements", url: "/announcements", icon: Megaphone },
+      ],
+    },
+    {
+      label: "Account",
+      items: [
+        { title: "User Summary", url: "/user-summary", icon: UserCircle },
+        { title: "Settings", url: "/settings", icon: Settings },
+      ],
+    },
+  ],
 };
 
 export function AppSidebar() {

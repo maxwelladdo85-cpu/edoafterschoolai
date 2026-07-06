@@ -63,7 +63,7 @@ function buildCertificateSvg(c: Cert): string {
   <text x="260" y="812" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#555555">Edo SUBEB</text>
 
   <line x1="790" y1="770" x2="1090" y2="770" stroke="#C62828" stroke-width="1.5"/>
-  <text x="940" y="792" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="bold" fill="#111111">Director, EdoSUBEB</text>
+  <text x="940" y="792" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="bold" fill="#111111">Director, School Support Services</text>
   <text x="940" y="812" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#555555">Digital Learning Division</text>
 
   <!-- Issued + ID -->

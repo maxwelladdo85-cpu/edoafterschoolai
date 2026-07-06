@@ -1176,6 +1176,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_content_manager: { Args: { _user_id: string }; Returns: boolean }
       list_learner_classes: {
         Args: never
         Returns: {
@@ -1261,7 +1262,7 @@ export type Database = {
       ussd_expire_old_sessions: { Args: never; Returns: undefined }
     }
     Enums: {
-      app_role: "admin" | "teacher" | "learner"
+      app_role: "admin" | "teacher" | "learner" | "scripter"
       lesson_content_type: "video" | "pdf" | "audio" | "text" | "doc"
       question_type: "mcq" | "true_false" | "short_answer"
     }
@@ -1391,7 +1392,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "teacher", "learner"],
+      app_role: ["admin", "teacher", "learner", "scripter"],
       lesson_content_type: ["video", "pdf", "audio", "text", "doc"],
       question_type: ["mcq", "true_false", "short_answer"],
     },
