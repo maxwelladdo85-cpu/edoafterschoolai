@@ -74,7 +74,12 @@ export function TeacherSummary() {
     { label: "Assessments", value: assessments, icon: ClipboardCheck, tint: "from-sky-500/15 to-sky-500/5", iconClass: "bg-sky-500/10 text-sky-600" },
   ];
 
-  const firstName = (user?.user_metadata?.full_name as string | undefined)?.split(" ")[0] ?? "Teacher";
+  const firstName = (user?.user_metadata?.full_name as string | undefined)?.split(" ")[0] ?? (isScripter ? "Scripter" : "Teacher");
+  const eyebrowLabel = isScripter ? "Sub Admin - Scripter" : "Teacher workspace";
+  const heroTitle = isScripter ? "Sub Admin - Scripter" : "Teacher Workspace";
+  const heroDesc = isScripter
+    ? "Create and upload courses, schedule Zoom classes, and share them with teachers."
+    : "A snapshot of everything you've created — courses, lessons and learners — in one elegant view.";
 
   return (
     <div className="space-y-8">
@@ -89,16 +94,21 @@ export function TeacherSummary() {
         <div className="relative flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between sm:gap-6">
           <div className="min-w-0 max-w-2xl">
             <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium backdrop-blur">
-              <Sparkles className="h-3.5 w-3.5" /> Teacher workspace
+              <Sparkles className="h-3.5 w-3.5" /> {eyebrowLabel}
             </span>
             <h1 className="mt-3 text-2xl font-bold tracking-tight sm:mt-4 sm:text-3xl md:text-5xl">
-              Welcome back, {firstName}.
+              {isScripter ? `Welcome, ${firstName}.` : `Welcome back, ${firstName}.`}
             </h1>
             <p className="mt-2 text-sm sm:mt-3 sm:text-base md:text-lg text-white/85">
-              A snapshot of everything you've created — courses, lessons and learners — in one elegant view.
+              {heroDesc}
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
+            {isScripter && (
+              <Button asChild variant="secondary" className="bg-white/10 text-white hover:bg-white/20 border-white/20 border">
+                <Link to="/courses/builder"><Wand2 className="mr-2 h-4 w-4" />Create course</Link>
+              </Button>
+            )}
             <Button asChild variant="secondary" className="bg-white/10 text-white hover:bg-white/20 border-white/20 border">
               <Link to="/my-courses"><GraduationCap className="mr-2 h-4 w-4" />Manage</Link>
             </Button>
