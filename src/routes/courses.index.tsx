@@ -163,6 +163,21 @@ function CoursesLibrary() {
                       <Button asChild className="w-full" variant="secondary">
                         <Link to="/courses/$courseId" params={{ courseId: c.id }}>Preview</Link>
                       </Button>
+                    {canEditAll ? (
+                      <div className="flex gap-2">
+                        <Button asChild className="flex-1" variant="secondary">
+                          <Link to="/courses/$courseId" params={{ courseId: c.id }}>Preview</Link>
+                        </Button>
+                        <Button asChild className="flex-1">
+                          <Link to="/courses/builder/edit" search={{ id: c.id }}>
+                            <Pencil className="mr-1 h-3.5 w-3.5" />Edit
+                          </Link>
+                        </Button>
+                      </div>
+                    ) : isTeacher ? (
+                      <Button asChild className="w-full" variant="secondary">
+                        <Link to="/courses/$courseId" params={{ courseId: c.id }}>Preview</Link>
+                      </Button>
                     ) : isComplete ? (
                       <Button asChild className="w-full font-semibold shadow-md hover:shadow-lg transition-shadow">
                         <Link to="/courses/$courseId" params={{ courseId: c.id }}>
