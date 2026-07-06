@@ -20,7 +20,8 @@ interface CourseRow {
 }
 
 export function TeacherSummary() {
-  const { user } = useAuth();
+  const { user, role } = useAuth();
+  const isScripter = role === "scripter";
   const [courses, setCourses] = useState<CourseRow[]>([]);
   const [enrollments, setEnrollments] = useState(0);
   const [lessons, setLessons] = useState(0);
