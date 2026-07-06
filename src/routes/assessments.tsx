@@ -39,6 +39,7 @@ function AssessmentsPage() {
   useEffect(() => { if (!authLoading && !user) nav({ to: "/login" }); }, [authLoading, user, nav]);
 
   const isTeacher = role === "teacher" || role === "admin";
+  const canManage = role === "admin";
 
   const load = async () => {
     if (!user) return;
