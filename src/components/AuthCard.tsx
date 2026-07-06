@@ -324,9 +324,15 @@ export function AuthCard() {
             </TabsContent>
             <TabsContent value="signup">
               <form onSubmit={handleSignUp} className="space-y-3 pt-3">
-                <div className="space-y-1">
-                  <Label htmlFor="n2">Full Name</Label>
-                  <Input id="n2" required value={name} onChange={(e) => setName(e.target.value)} />
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="space-y-1">
+                    <Label htmlFor="fn2">First name</Label>
+                    <Input id="fn2" required value={firstName} onChange={(e) => setFirstName(e.target.value)} maxLength={50} />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="ln2">Last name</Label>
+                    <Input id="ln2" required value={lastName} onChange={(e) => setLastName(e.target.value)} maxLength={50} />
+                  </div>
                 </div>
                 <div className="space-y-1">
                   <Label htmlFor="e2">Email</Label>
@@ -337,12 +343,65 @@ export function AuthCard() {
                   <PasswordInput id="p2" value={password} onChange={setPassword} minLength={6} />
                 </div>
                 <div className="space-y-1">
+                  <Label htmlFor="dob2">Date of birth</Label>
+                  <Input id="dob2" type="date" required value={dob} onChange={(e) => setDob(e.target.value)} max={new Date().toISOString().slice(0, 10)} />
+                </div>
+                <div className="space-y-1">
                   <Label>I am a</Label>
                   <Select value={role} onValueChange={(v) => setRole(v as any)}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="learner">Learner</SelectItem>
                       <SelectItem value="teacher">Teacher (requires admin approval)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                {role === "learner" && (
+                  <div className="space-y-1">
+                    <Label>Class</Label>
+                    <Select value={classLevel} onValueChange={setClassLevel}>
+                      <SelectTrigger><SelectValue placeholder="Select your class" /></SelectTrigger>
+                      <SelectContent>
+                        {CLASS_GROUPS.map((g) => (
+                          <SelectGroup key={g.label}>
+                            <SelectLabel>{g.label}</SelectLabel>
+                            {g.classes.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                          </SelectGroup>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+                <div className="space-y-1">
+                  <Label>Local government</Label>
+                  <Select value={lga} onValueChange={(v) => { setLga(v); setSchoolId(""); }}>
+                    <SelectTrigger><SelectValue placeholder="Select your LGA" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectLabel>Edo State LGAs</SelectLabel>
+                        {EDO_LGAS.map((l) => <SelectItem key={l} value={l}>{l}</SelectItem>)}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1">
+                  <Label>School type</Label>
+                  <Select value={schoolType} onValueChange={(v) => { setSchoolType(v); setSchoolId(""); }}>
+                    <SelectTrigger><SelectValue placeholder="Select school type" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="public">Public</SelectItem>
+                      <SelectItem value="private">Private</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1">
+                  <Label>School</Label>
+                  <Select value={schoolId} onValueChange={setSchoolId} disabled={!lga || !schoolType}>
+                    <SelectTrigger><SelectValue placeholder={!lga || !schoolType ? "Pick LGA and type first" : "Select your school"} /></SelectTrigger>
+                    <SelectContent>
+                      {schools
+                        .filter((s) => (!lga || s.lga === lga) && (!schoolType || s.school_type === schoolType))
+                        .map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 </div>
