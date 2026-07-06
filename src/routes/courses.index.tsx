@@ -159,10 +159,6 @@ function CoursesLibrary() {
                     <p className="text-xs text-muted-foreground">
                       Scripter: <span className="font-medium text-foreground">{c.teacher_name ?? c.teacher?.full_name ?? "—"}</span>
                     </p>
-                    {isTeacher ? (
-                      <Button asChild className="w-full" variant="secondary">
-                        <Link to="/courses/$courseId" params={{ courseId: c.id }}>Preview</Link>
-                      </Button>
                     {canEditAll ? (
                       <div className="flex gap-2">
                         <Button asChild className="flex-1" variant="secondary">
