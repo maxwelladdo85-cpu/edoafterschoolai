@@ -186,7 +186,7 @@ export function AuthCard() {
           baseUpdate.nin = learnerNin.trim();
           baseUpdate.parent_phone = learnerPhone.trim();
         }
-        const { error: updErr } = await supabase.from("profiles").update(baseUpdate).eq("id", data.user.id);
+        const { error: updErr } = await supabase.from("profiles").update(baseUpdate as any).eq("id", data.user.id);
         if (updErr) {
           if (/nin/i.test(updErr.message) || /unique/i.test(updErr.message)) {
             await supabase.auth.signOut();
