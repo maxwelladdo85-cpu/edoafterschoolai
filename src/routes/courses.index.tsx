@@ -6,7 +6,7 @@ import { DashboardShell } from "@/components/DashboardShell";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, GraduationCap, Loader2, PlayCircle, RefreshCw } from "lucide-react";
+import { BookOpen, GraduationCap, Loader2, PlayCircle, RefreshCw, Pencil, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { PageHero } from "@/components/PageHero";
 import heroLibrary from "@/assets/hero-library.jpg";
@@ -35,6 +35,9 @@ function CoursesLibrary() {
   const [loading, setLoading] = useState(true);
   const [enrollingId, setEnrollingId] = useState<string | null>(null);
   const isTeacher = role === "teacher";
+  const isScripter = role === "scripter";
+  const isAdmin = role === "admin";
+  const canEditAll = isScripter || isAdmin;
 
   useEffect(() => {
     if (!authLoading && !user) nav({ to: "/login" });
@@ -53,7 +56,7 @@ function CoursesLibrary() {
       }
       const [{ data: cs }, { data: es }] = await Promise.all([
         coursesQuery,
-        isTeacher
+        isTeacher || canEditAll
           ? Promise.resolve({ data: [] as { course_id: string; progress: number }[] })
           : supabase.from("enrollments").select("course_id, progress").eq("learner_id", user.id),
       ]);
@@ -70,7 +73,7 @@ function CoursesLibrary() {
       setEnrolledMap(em);
       setLoading(false);
     })();
-  }, [user, role, isTeacher]);
+  }, [user, role, isTeacher, canEditAll]);
 
   const enroll = async (courseId: string) => {
     if (!user) return;
@@ -94,11 +97,20 @@ function CoursesLibrary() {
     <DashboardShell title="Course Library">
       <div className="space-y-8">
         <PageHero
-          eyebrow={isTeacher ? "Your courses" : "Browse & enroll"}
+          eyebrow={canEditAll ? "Manage all courses" : isTeacher ? "Your courses" : "Browse & enroll"}
           EyebrowIcon={GraduationCap}
           title="Course Library"
-          description={isTeacher ? "Courses you have created for your learners." : "Discover and enroll in courses created by Edo SUBEB teachers."}
+          description={canEditAll
+            ? "Every course in the library — edit any course or create a new one."
+            : isTeacher
+              ? "Courses you have created for your learners."
+              : "Discover and enroll in courses created by Edo SUBEB teachers."}
           backgroundImage={heroLibrary}
+          actions={canEditAll ? (
+            <Button asChild variant="secondary" className="bg-white/10 text-white hover:bg-white/20 border-white/20 border">
+              <Link to="/courses/builder"><Plus className="mr-2 h-4 w-4" />New course</Link>
+            </Button>
+          ) : undefined}
         />
 
 
@@ -147,7 +159,18 @@ function CoursesLibrary() {
                     <p className="text-xs text-muted-foreground">
                       Scripter: <span className="font-medium text-foreground">{c.teacher_name ?? c.teacher?.full_name ?? "—"}</span>
                     </p>
-                    {isTeacher ? (
+                    {canEditAll ? (
+                      <div className="flex gap-2">
+                        <Button asChild className="flex-1" variant="secondary">
+                          <Link to="/courses/$courseId" params={{ courseId: c.id }}>Preview</Link>
+                        </Button>
+                        <Button asChild className="flex-1">
+                          <Link to="/courses/builder/edit" search={{ id: c.id }}>
+                            <Pencil className="mr-1 h-3.5 w-3.5" />Edit
+                          </Link>
+                        </Button>
+                      </div>
+                    ) : isTeacher ? (
                       <Button asChild className="w-full" variant="secondary">
                         <Link to="/courses/$courseId" params={{ courseId: c.id }}>Preview</Link>
                       </Button>
