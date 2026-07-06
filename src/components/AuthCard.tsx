@@ -411,39 +411,43 @@ export function AuthCard() {
                     </Select>
                   </div>
                 )}
-                <div className="space-y-1">
-                  <Label>Local government</Label>
-                  <Select value={lga} onValueChange={(v) => { setLga(v); setSchoolId(""); }}>
-                    <SelectTrigger><SelectValue placeholder="Select your LGA" /></SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectLabel>Edo State LGAs</SelectLabel>
-                        {EDO_LGAS.map((l) => <SelectItem key={l} value={l}>{l}</SelectItem>)}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-1">
-                  <Label>School type</Label>
-                  <Select value={schoolType} onValueChange={(v) => { setSchoolType(v); setSchoolId(""); }}>
-                    <SelectTrigger><SelectValue placeholder="Select school type" /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="public">Public</SelectItem>
-                      <SelectItem value="private">Private</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-1">
-                  <Label>School</Label>
-                  <Select value={schoolId} onValueChange={setSchoolId} disabled={!lga || !schoolType}>
-                    <SelectTrigger><SelectValue placeholder={!lga || !schoolType ? "Pick LGA and type first" : "Select your school"} /></SelectTrigger>
-                    <SelectContent>
-                      {schools
-                        .filter((s) => (!lga || s.lga === lga) && (!schoolType || s.school_type === schoolType))
-                        .map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                </div>
+                {role !== "scripter" && (
+                  <>
+                    <div className="space-y-1">
+                      <Label>Local government</Label>
+                      <Select value={lga} onValueChange={(v) => { setLga(v); setSchoolId(""); }}>
+                        <SelectTrigger><SelectValue placeholder="Select your LGA" /></SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectLabel>Edo State LGAs</SelectLabel>
+                            {EDO_LGAS.map((l) => <SelectItem key={l} value={l}>{l}</SelectItem>)}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-1">
+                      <Label>School type</Label>
+                      <Select value={schoolType} onValueChange={(v) => { setSchoolType(v); setSchoolId(""); }}>
+                        <SelectTrigger><SelectValue placeholder="Select school type" /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="public">Public</SelectItem>
+                          <SelectItem value="private">Private</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-1">
+                      <Label>School</Label>
+                      <Select value={schoolId} onValueChange={setSchoolId} disabled={!lga || !schoolType}>
+                        <SelectTrigger><SelectValue placeholder={!lga || !schoolType ? "Pick LGA and type first" : "Select your school"} /></SelectTrigger>
+                        <SelectContent>
+                          {schools
+                            .filter((s) => (!lga || s.lga === lga) && (!schoolType || s.school_type === schoolType))
+                            .map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </>
+                )}
                 {role === "learner" && (
                   <>
                     <div className="space-y-1">
