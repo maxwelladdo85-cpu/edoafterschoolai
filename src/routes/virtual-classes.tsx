@@ -58,21 +58,21 @@ function VirtualClassesPage() {
     );
   }
 
+  const canManageAll = role === "scripter" || role === "admin";
+
   const refresh = async () => {
     if (!user) return;
     setLoading(true);
-    const [{ data: cs }, { data: vcs }] = await Promise.all([
-      supabase.from("courses").select("id,title,subject").eq("teacher_id", user.id).order("created_at", { ascending: false }),
-      (supabase as any)
-        .from("virtual_classes")
-        .select("*")
-        .eq("teacher_id", user.id)
-        .order("scheduled_at", { ascending: false }),
-    ]);
+    const coursesQuery = canManageAll
+      ? supabase.from("courses").select("id,title,subject").order("created_at", { ascending: false })
+      : supabase.from("courses").select("id,title,subject").eq("teacher_id", user.id).order("created_at", { ascending: false });
+    const vcQuery = canManageAll
+      ? (supabase as any).from("virtual_classes").select("*").order("scheduled_at", { ascending: false })
+      : (supabase as any).from("virtual_classes").select("*").order("scheduled_at", { ascending: false }); // RLS returns own + scripter-scheduled for teachers
+    const [{ data: cs }, { data: vcs }] = await Promise.all([coursesQuery, vcQuery]);
     const courseList = (cs as CourseRow[]) ?? [];
     setCourses(courseList);
     const titleMap = new Map(courseList.map((c) => [c.id, c.title]));
-    // Also fetch any additional course titles not in the teacher's own list (e.g. admin scheduling)
     const rows = ((vcs as any[]) ?? []).map((r) => ({ ...r, course: { title: titleMap.get(r.course_id) ?? "" } })) as ClassRow[];
     const missing = Array.from(new Set(rows.filter((r) => !r.course?.title).map((r) => r.course_id)));
     if (missing.length) {
