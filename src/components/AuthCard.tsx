@@ -378,10 +378,12 @@ export function AuthCard() {
                   <Label htmlFor="p2">Password</Label>
                   <PasswordInput id="p2" value={password} onChange={setPassword} minLength={6} />
                 </div>
-                <div className="space-y-1">
-                  <Label htmlFor="dob2">Date of birth</Label>
-                  <Input id="dob2" type="date" required value={dob} onChange={(e) => setDob(e.target.value)} max={new Date().toISOString().slice(0, 10)} />
-                </div>
+                {role !== "scripter" && (
+                  <div className="space-y-1">
+                    <Label htmlFor="dob2">Date of birth</Label>
+                    <Input id="dob2" type="date" required value={dob} onChange={(e) => setDob(e.target.value)} max={new Date().toISOString().slice(0, 10)} />
+                  </div>
+                )}
                 <div className="space-y-1">
                   <Label>I am a</Label>
                   <Select value={role} onValueChange={(v) => setRole(v as any)}>
