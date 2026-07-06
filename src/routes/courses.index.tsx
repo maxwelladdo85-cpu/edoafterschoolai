@@ -149,7 +149,7 @@ function CoursesLibrary() {
                     </p>
                     {isTeacher ? (
                       <Button asChild className="w-full" variant="secondary">
-                        <Link to="/courses/$courseId" params={{ courseId: c.id }}>Open course</Link>
+                        <Link to="/courses/$courseId" params={{ courseId: c.id }}>Preview</Link>
                       </Button>
                     ) : isComplete ? (
                       <Button asChild className="w-full font-semibold shadow-md hover:shadow-lg transition-shadow">

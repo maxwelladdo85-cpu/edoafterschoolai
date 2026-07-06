@@ -39,6 +39,7 @@ function AssessmentsPage() {
   useEffect(() => { if (!authLoading && !user) nav({ to: "/login" }); }, [authLoading, user, nav]);
 
   const isTeacher = role === "teacher" || role === "admin";
+  const canManage = role === "admin";
 
   const load = async () => {
     if (!user) return;
@@ -114,13 +115,15 @@ function AssessmentsPage() {
           eyebrow="Quizzes & evaluations"
           EyebrowIcon={ClipboardCheck}
           title="Assessments"
-          description={isTeacher
+          description={canManage
             ? "Create quizzes attached to your courses with multiple choice, true/false, and short answer questions."
+            : isTeacher
+            ? "View assessments attached to your courses."
             : "Browse and take assessments from your enrolled courses."}
           backgroundImage={heroAssessments}
         />
 
-        {isTeacher && (
+        {canManage && (
           <Card className="border-border/60">
             <CardHeader><CardTitle className="text-base">Create new assessment</CardTitle></CardHeader>
             <CardContent>
@@ -197,7 +200,7 @@ function AssessmentsPage() {
         {visibleQuizzes.length === 0 ? (
           <Card className="border-border/60">
             <CardContent className="py-16 text-center text-muted-foreground">
-              {selectedClass ? `No assessments for ${selectedClass} yet` : "No assessments yet"}{isTeacher ? " — create one above" : ""}.
+              {selectedClass ? `No assessments for ${selectedClass} yet` : "No assessments yet"}{canManage ? " — create one above" : ""}.
             </CardContent>
           </Card>
         ) : (
@@ -219,7 +222,7 @@ function AssessmentsPage() {
                     {q.questionCount} question{q.questionCount === 1 ? "" : "s"}
                   </div>
                   <div className="flex gap-2">
-                    {isTeacher && (
+                    {canManage && (
                       <Button size="sm" variant="outline" asChild>
                         <Link to="/quizzes/$quizId/edit" params={{ quizId: q.id }}>
                           <Pencil className="mr-1 h-4 w-4" />Edit
