@@ -145,7 +145,7 @@ function CoursesLibrary() {
                   </CardHeader>
                   <CardContent className="mt-auto space-y-3">
                     <p className="text-xs text-muted-foreground">
-                      Teacher: <span className="font-medium text-foreground">{c.teacher_name ?? c.teacher?.full_name ?? "—"}</span>
+                      Scripter: <span className="font-medium text-foreground">{c.teacher_name ?? c.teacher?.full_name ?? "—"}</span>
                     </p>
                     {isTeacher ? (
                       <Button asChild className="w-full" variant="secondary">

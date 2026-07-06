@@ -38,14 +38,14 @@ function AssessmentsPage() {
 
   useEffect(() => { if (!authLoading && !user) nav({ to: "/login" }); }, [authLoading, user, nav]);
 
-  const isTeacher = role === "teacher" || role === "admin";
-  const canManage = role === "admin";
+  const isTeacher = role === "teacher" || role === "admin" || role === "scripter";
+  const canManage = role === "admin" || role === "scripter";
 
   const load = async () => {
     if (!user) return;
     setLoading(true);
     const courseQuery = supabase.from("courses").select("id, title, class_level").order("created_at", { ascending: false });
-    const { data: cs } = role === "admin" ? await courseQuery : await courseQuery.eq("teacher_id", user.id);
+    const { data: cs } = canManage ? await courseQuery : await courseQuery.eq("teacher_id", user.id);
     const courseList = (cs as Course[]) ?? [];
     setCourses(courseList);
 

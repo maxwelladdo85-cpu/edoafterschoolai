@@ -45,7 +45,7 @@ export function AuthCard() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   // name derived from firstName + lastName in signup
-  const [role, setRole] = useState<"learner" | "teacher" | "admin">("learner");
+  const [role, setRole] = useState<"learner" | "teacher" | "admin" | "scripter">("learner");
   const [forgotOpen, setForgotOpen] = useState(false);
   const [forgotEmail, setForgotEmail] = useState("");
   const [learnerNin, setLearnerNin] = useState("");
@@ -145,6 +145,25 @@ export function AuthCard() {
     try {
       const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
       if (!firstName.trim() || !lastName.trim()) throw new Error("Enter your first and last name");
+
+      // Scripter: lightweight signup (email + password + name only) — no DOB/school required.
+      if (role === "scripter") {
+        const redirectUrl = `${window.location.origin}/dashboard`;
+        const { data, error } = await supabase.auth.signUp({
+          email, password,
+          options: { emailRedirectTo: redirectUrl, data: { full_name: fullName } },
+        });
+        if (error) throw error;
+        if (data.user) {
+          await supabase.from("profiles").update({ full_name: fullName, status: "active" } as any).eq("id", data.user.id);
+          // Grant scripter role (in addition to the default learner row created by handle_new_user trigger).
+          await (supabase as any).from("user_roles").insert({ user_id: data.user.id, role: "scripter" });
+        }
+        toast.success("Scripter account created");
+        nav({ to: "/dashboard" });
+        return;
+      }
+
       if (!dob) throw new Error("Select your date of birth");
       if (!lga) throw new Error("Select your local government");
       if (!schoolType) throw new Error("Select your school type");
@@ -237,6 +256,7 @@ export function AuthCard() {
                     <SelectContent>
                       <SelectItem value="learner">Learner</SelectItem>
                       <SelectItem value="teacher">Teacher</SelectItem>
+                      <SelectItem value="scripter">Sub Admin – Scripter</SelectItem>
                       <SelectItem value="admin">Admin</SelectItem>
                     </SelectContent>
                   </Select>
@@ -369,6 +389,7 @@ export function AuthCard() {
                     <SelectContent>
                       <SelectItem value="learner">Learner</SelectItem>
                       <SelectItem value="teacher">Teacher (requires admin approval)</SelectItem>
+                      <SelectItem value="scripter">Sub Admin – Scripter</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

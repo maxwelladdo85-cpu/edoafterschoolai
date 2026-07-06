@@ -31,8 +31,8 @@ function BuilderLandingPage() {
 
   useEffect(() => {
     if (!authLoading && !user) nav({ to: "/login" });
-    if (!authLoading && user && role && role !== "admin") {
-      toast.error("Only admins can build courses");
+    if (!authLoading && user && role && role !== "admin" && role !== "scripter") {
+      toast.error("Only admins and scripters can build courses");
       nav({ to: "/dashboard" });
     }
   }, [authLoading, user, role, nav]);
