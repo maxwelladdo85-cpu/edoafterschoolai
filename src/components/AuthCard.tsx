@@ -1,10 +1,10 @@
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
@@ -13,6 +13,8 @@ import { Logo } from "@/components/Logo";
 import { Eye, EyeOff, Smartphone } from "lucide-react";
 import { lookupLearnerEmail, checkLearnerNinAvailable } from "@/lib/learner-auth.functions";
 import { lookupTeacherEmail } from "@/lib/teacher-auth.functions";
+import { CLASS_GROUPS } from "@/lib/classes";
+import { EDO_LGAS } from "@/lib/lgas";
 import edolearnApk from "@/assets/edolearn-apk.asset.json";
 
 const ForgotPasswordDialog = lazy(() =>
@@ -42,7 +44,7 @@ export function AuthCard() {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
+  // name derived from firstName + lastName in signup
   const [role, setRole] = useState<"learner" | "teacher" | "admin">("learner");
   const [forgotOpen, setForgotOpen] = useState(false);
   const [forgotEmail, setForgotEmail] = useState("");
@@ -51,9 +53,25 @@ export function AuthCard() {
   const [learnerEmail, setLearnerEmail] = useState("");
   const [teacherOracle, setTeacherOracle] = useState("");
   const [teacherEmail, setTeacherEmail] = useState("");
+  // Extra sign-up fields (match Settings page)
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [dob, setDob] = useState("");
+  const [classLevel, setClassLevel] = useState("");
+  const [lga, setLga] = useState("");
+  const [schoolType, setSchoolType] = useState("");
+  const [schoolId, setSchoolId] = useState("");
+  const [schools, setSchools] = useState<{ id: string; name: string; lga: string; school_type: string }[]>([]);
   const lookupEmail = useServerFn(lookupLearnerEmail);
   const lookupTeacher = useServerFn(lookupTeacherEmail);
   const checkNin = useServerFn(checkLearnerNinAvailable);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase.from("schools").select("id,name,lga,school_type").eq("is_active", true).order("name");
+      setSchools((data ?? []) as any);
+    })();
+  }, []);
 
 
   const handleSignIn = async (e: React.FormEvent) => {
@@ -125,7 +143,15 @@ export function AuthCard() {
     e.preventDefault();
     setLoading(true);
     try {
+      const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
+      if (!firstName.trim() || !lastName.trim()) throw new Error("Enter your first and last name");
+      if (!dob) throw new Error("Select your date of birth");
+      if (!lga) throw new Error("Select your local government");
+      if (!schoolType) throw new Error("Select your school type");
+      if (!schoolId) throw new Error("Select your school");
+
       if (role === "learner") {
+        if (!classLevel) throw new Error("Select your class");
         if (!/^[0-9]{11}$/.test(learnerNin.trim())) {
           throw new Error("Enter the learner's 11-digit NIN");
         }
@@ -142,9 +168,33 @@ export function AuthCard() {
       const redirectUrl = `${window.location.origin}/dashboard`;
       const { data, error } = await supabase.auth.signUp({
         email, password,
-        options: { emailRedirectTo: redirectUrl, data: { full_name: name } },
+        options: { emailRedirectTo: redirectUrl, data: { full_name: fullName } },
       });
       if (error) throw error;
+
+      // Common profile fields for both roles
+      if (data.user) {
+        const baseUpdate: Record<string, any> = {
+          full_name: fullName,
+          date_of_birth: dob,
+          lga,
+          school_type: schoolType,
+          school_id: schoolId,
+        };
+        if (role === "learner") {
+          baseUpdate.class_level = classLevel;
+          baseUpdate.nin = learnerNin.trim();
+          baseUpdate.parent_phone = learnerPhone.trim();
+        }
+        const { error: updErr } = await supabase.from("profiles").update(baseUpdate as any).eq("id", data.user.id);
+        if (updErr) {
+          if (/nin/i.test(updErr.message) || /unique/i.test(updErr.message)) {
+            await supabase.auth.signOut();
+            throw new Error("A learner with this NIN already has an account.");
+          }
+          throw updErr;
+        }
+      }
 
       // Teacher signup -> mark profile pending; admin must approve before role granted.
       if (data.user && role === "teacher") {
@@ -153,22 +203,6 @@ export function AuthCard() {
         toast.success("Account created. An admin must approve your teacher account before you can sign in.");
         setTab("signin");
         return;
-      }
-
-      // Learner signup -> persist NIN + parent phone on the freshly created profile.
-      if (data.user && role === "learner") {
-        const { error: updErr } = await supabase
-          .from("profiles")
-          .update({ nin: learnerNin.trim(), parent_phone: learnerPhone.trim() })
-          .eq("id", data.user.id);
-        if (updErr) {
-          // Likely the NIN unique-index race; surface a friendly message.
-          if (/nin/i.test(updErr.message) || /unique/i.test(updErr.message)) {
-            await supabase.auth.signOut();
-            throw new Error("A learner with this NIN already has an account.");
-          }
-          throw updErr;
-        }
       }
 
       toast.success("Welcome to Digital Learning @ Home");
@@ -306,9 +340,15 @@ export function AuthCard() {
             </TabsContent>
             <TabsContent value="signup">
               <form onSubmit={handleSignUp} className="space-y-3 pt-3">
-                <div className="space-y-1">
-                  <Label htmlFor="n2">Full Name</Label>
-                  <Input id="n2" required value={name} onChange={(e) => setName(e.target.value)} />
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="space-y-1">
+                    <Label htmlFor="fn2">First name</Label>
+                    <Input id="fn2" required value={firstName} onChange={(e) => setFirstName(e.target.value)} maxLength={50} />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="ln2">Last name</Label>
+                    <Input id="ln2" required value={lastName} onChange={(e) => setLastName(e.target.value)} maxLength={50} />
+                  </div>
                 </div>
                 <div className="space-y-1">
                   <Label htmlFor="e2">Email</Label>
@@ -319,12 +359,65 @@ export function AuthCard() {
                   <PasswordInput id="p2" value={password} onChange={setPassword} minLength={6} />
                 </div>
                 <div className="space-y-1">
+                  <Label htmlFor="dob2">Date of birth</Label>
+                  <Input id="dob2" type="date" required value={dob} onChange={(e) => setDob(e.target.value)} max={new Date().toISOString().slice(0, 10)} />
+                </div>
+                <div className="space-y-1">
                   <Label>I am a</Label>
                   <Select value={role} onValueChange={(v) => setRole(v as any)}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="learner">Learner</SelectItem>
                       <SelectItem value="teacher">Teacher (requires admin approval)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                {role === "learner" && (
+                  <div className="space-y-1">
+                    <Label>Class</Label>
+                    <Select value={classLevel} onValueChange={setClassLevel}>
+                      <SelectTrigger><SelectValue placeholder="Select your class" /></SelectTrigger>
+                      <SelectContent>
+                        {CLASS_GROUPS.map((g) => (
+                          <SelectGroup key={g.label}>
+                            <SelectLabel>{g.label}</SelectLabel>
+                            {g.classes.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                          </SelectGroup>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+                <div className="space-y-1">
+                  <Label>Local government</Label>
+                  <Select value={lga} onValueChange={(v) => { setLga(v); setSchoolId(""); }}>
+                    <SelectTrigger><SelectValue placeholder="Select your LGA" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectLabel>Edo State LGAs</SelectLabel>
+                        {EDO_LGAS.map((l) => <SelectItem key={l} value={l}>{l}</SelectItem>)}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1">
+                  <Label>School type</Label>
+                  <Select value={schoolType} onValueChange={(v) => { setSchoolType(v); setSchoolId(""); }}>
+                    <SelectTrigger><SelectValue placeholder="Select school type" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="public">Public</SelectItem>
+                      <SelectItem value="private">Private</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1">
+                  <Label>School</Label>
+                  <Select value={schoolId} onValueChange={setSchoolId} disabled={!lga || !schoolType}>
+                    <SelectTrigger><SelectValue placeholder={!lga || !schoolType ? "Pick LGA and type first" : "Select your school"} /></SelectTrigger>
+                    <SelectContent>
+                      {schools
+                        .filter((s) => (!lga || s.lga === lga) && (!schoolType || s.school_type === schoolType))
+                        .map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 </div>
