@@ -44,7 +44,7 @@ export function AuthCard() {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
+  // name derived from firstName + lastName in signup
   const [role, setRole] = useState<"learner" | "teacher" | "admin">("learner");
   const [forgotOpen, setForgotOpen] = useState(false);
   const [forgotEmail, setForgotEmail] = useState("");
