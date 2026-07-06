@@ -115,8 +115,10 @@ function AssessmentsPage() {
           eyebrow="Quizzes & evaluations"
           EyebrowIcon={ClipboardCheck}
           title="Assessments"
-          description={isTeacher
+          description={canManage
             ? "Create quizzes attached to your courses with multiple choice, true/false, and short answer questions."
+            : isTeacher
+            ? "View assessments attached to your courses."
             : "Browse and take assessments from your enrolled courses."}
           backgroundImage={heroAssessments}
         />
