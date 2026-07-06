@@ -143,7 +143,15 @@ export function AuthCard() {
     e.preventDefault();
     setLoading(true);
     try {
+      const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
+      if (!firstName.trim() || !lastName.trim()) throw new Error("Enter your first and last name");
+      if (!dob) throw new Error("Select your date of birth");
+      if (!lga) throw new Error("Select your local government");
+      if (!schoolType) throw new Error("Select your school type");
+      if (!schoolId) throw new Error("Select your school");
+
       if (role === "learner") {
+        if (!classLevel) throw new Error("Select your class");
         if (!/^[0-9]{11}$/.test(learnerNin.trim())) {
           throw new Error("Enter the learner's 11-digit NIN");
         }
@@ -160,9 +168,33 @@ export function AuthCard() {
       const redirectUrl = `${window.location.origin}/dashboard`;
       const { data, error } = await supabase.auth.signUp({
         email, password,
-        options: { emailRedirectTo: redirectUrl, data: { full_name: name } },
+        options: { emailRedirectTo: redirectUrl, data: { full_name: fullName } },
       });
       if (error) throw error;
+
+      // Common profile fields for both roles
+      if (data.user) {
+        const baseUpdate: Record<string, any> = {
+          full_name: fullName,
+          date_of_birth: dob,
+          lga,
+          school_type: schoolType,
+          school_id: schoolId,
+        };
+        if (role === "learner") {
+          baseUpdate.class_level = classLevel;
+          baseUpdate.nin = learnerNin.trim();
+          baseUpdate.parent_phone = learnerPhone.trim();
+        }
+        const { error: updErr } = await supabase.from("profiles").update(baseUpdate).eq("id", data.user.id);
+        if (updErr) {
+          if (/nin/i.test(updErr.message) || /unique/i.test(updErr.message)) {
+            await supabase.auth.signOut();
+            throw new Error("A learner with this NIN already has an account.");
+          }
+          throw updErr;
+        }
+      }
 
       // Teacher signup -> mark profile pending; admin must approve before role granted.
       if (data.user && role === "teacher") {
@@ -171,22 +203,6 @@ export function AuthCard() {
         toast.success("Account created. An admin must approve your teacher account before you can sign in.");
         setTab("signin");
         return;
-      }
-
-      // Learner signup -> persist NIN + parent phone on the freshly created profile.
-      if (data.user && role === "learner") {
-        const { error: updErr } = await supabase
-          .from("profiles")
-          .update({ nin: learnerNin.trim(), parent_phone: learnerPhone.trim() })
-          .eq("id", data.user.id);
-        if (updErr) {
-          // Likely the NIN unique-index race; surface a friendly message.
-          if (/nin/i.test(updErr.message) || /unique/i.test(updErr.message)) {
-            await supabase.auth.signOut();
-            throw new Error("A learner with this NIN already has an account.");
-          }
-          throw updErr;
-        }
       }
 
       toast.success("Welcome to Digital Learning @ Home");
