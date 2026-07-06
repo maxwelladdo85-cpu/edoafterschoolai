@@ -151,13 +151,11 @@ export function AuthCard() {
         const redirectUrl = `${window.location.origin}/dashboard`;
         const { data, error } = await supabase.auth.signUp({
           email, password,
-          options: { emailRedirectTo: redirectUrl, data: { full_name: fullName } },
+          options: { emailRedirectTo: redirectUrl, data: { full_name: fullName, signup_role: "scripter" } },
         });
         if (error) throw error;
         if (data.user) {
           await supabase.from("profiles").update({ full_name: fullName, status: "active" } as any).eq("id", data.user.id);
-          // Grant scripter role (in addition to the default learner row created by handle_new_user trigger).
-          await (supabase as any).from("user_roles").insert({ user_id: data.user.id, role: "scripter" });
         }
         toast.success("Scripter account created");
         nav({ to: "/dashboard" });
