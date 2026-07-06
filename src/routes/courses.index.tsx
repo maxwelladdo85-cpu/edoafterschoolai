@@ -35,6 +35,9 @@ function CoursesLibrary() {
   const [loading, setLoading] = useState(true);
   const [enrollingId, setEnrollingId] = useState<string | null>(null);
   const isTeacher = role === "teacher";
+  const isScripter = role === "scripter";
+  const isAdmin = role === "admin";
+  const canEditAll = isScripter || isAdmin;
 
   useEffect(() => {
     if (!authLoading && !user) nav({ to: "/login" });
@@ -53,7 +56,7 @@ function CoursesLibrary() {
       }
       const [{ data: cs }, { data: es }] = await Promise.all([
         coursesQuery,
-        isTeacher
+        isTeacher || canEditAll
           ? Promise.resolve({ data: [] as { course_id: string; progress: number }[] })
           : supabase.from("enrollments").select("course_id, progress").eq("learner_id", user.id),
       ]);
@@ -70,7 +73,7 @@ function CoursesLibrary() {
       setEnrolledMap(em);
       setLoading(false);
     })();
-  }, [user, role, isTeacher]);
+  }, [user, role, isTeacher, canEditAll]);
 
   const enroll = async (courseId: string) => {
     if (!user) return;
