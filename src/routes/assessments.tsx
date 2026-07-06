@@ -200,7 +200,7 @@ function AssessmentsPage() {
         {visibleQuizzes.length === 0 ? (
           <Card className="border-border/60">
             <CardContent className="py-16 text-center text-muted-foreground">
-              {selectedClass ? `No assessments for ${selectedClass} yet` : "No assessments yet"}{isTeacher ? " — create one above" : ""}.
+              {selectedClass ? `No assessments for ${selectedClass} yet` : "No assessments yet"}{canManage ? " — create one above" : ""}.
             </CardContent>
           </Card>
         ) : (
