@@ -222,7 +222,7 @@ function AssessmentsPage() {
                     {q.questionCount} question{q.questionCount === 1 ? "" : "s"}
                   </div>
                   <div className="flex gap-2">
-                    {isTeacher && (
+                    {canManage && (
                       <Button size="sm" variant="outline" asChild>
                         <Link to="/quizzes/$quizId/edit" params={{ quizId: q.id }}>
                           <Pencil className="mr-1 h-4 w-4" />Edit
