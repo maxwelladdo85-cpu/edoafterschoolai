@@ -190,7 +190,7 @@ function VirtualClassesPage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold flex items-center gap-2"><Video className="h-6 w-6 text-primary" /> Virtual Classes</h1>
-            <p className="text-sm text-muted-foreground">Schedule live Zoom sessions for your courses.</p>
+            <p className="text-sm text-muted-foreground">{canManageAll ? "Schedule live Zoom sessions — teachers are automatically notified." : "Schedule live Zoom sessions for your courses."}</p>
           </div>
           <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) setEditing(null); }}>
             <DialogTrigger asChild>
