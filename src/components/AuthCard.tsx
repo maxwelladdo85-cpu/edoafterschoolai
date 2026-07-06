@@ -53,9 +53,25 @@ export function AuthCard() {
   const [learnerEmail, setLearnerEmail] = useState("");
   const [teacherOracle, setTeacherOracle] = useState("");
   const [teacherEmail, setTeacherEmail] = useState("");
+  // Extra sign-up fields (match Settings page)
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [dob, setDob] = useState("");
+  const [classLevel, setClassLevel] = useState("");
+  const [lga, setLga] = useState("");
+  const [schoolType, setSchoolType] = useState("");
+  const [schoolId, setSchoolId] = useState("");
+  const [schools, setSchools] = useState<{ id: string; name: string; lga: string; school_type: string }[]>([]);
   const lookupEmail = useServerFn(lookupLearnerEmail);
   const lookupTeacher = useServerFn(lookupTeacherEmail);
   const checkNin = useServerFn(checkLearnerNinAvailable);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase.from("schools").select("id,name,lga,school_type").eq("is_active", true).order("name");
+      setSchools((data ?? []) as any);
+    })();
+  }, []);
 
 
   const handleSignIn = async (e: React.FormEvent) => {
