@@ -253,7 +253,7 @@ export function AuthCard() {
   };
 
   return (
-    <div className="min-h-[100dvh] w-full flex items-start sm:items-center justify-center p-4 pb-[calc(env(safe-area-inset-bottom,0px)+2rem)] overflow-y-auto bg-gradient-to-br from-primary/10 via-background to-gold/10">
+    <div ref={scrollRef} className="min-h-[100dvh] w-full flex items-start sm:items-center justify-center p-4 pb-[calc(env(safe-area-inset-bottom,0px)+2rem)] overflow-y-auto bg-gradient-to-br from-primary/10 via-background to-gold/10">
       <Card className="w-full max-w-md shadow-xl border-2">
         <CardHeader className="space-y-3 text-center">
           <div className="flex justify-center"><Logo /></div>
