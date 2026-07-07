@@ -65,6 +65,18 @@ export function AuthCard() {
   const lookupEmail = useServerFn(lookupLearnerEmail);
   const lookupTeacher = useServerFn(lookupTeacherEmail);
   const checkNin = useServerFn(checkLearnerNinAvailable);
+  const [showScrollButtons, setShowScrollButtons] = useState(false);
+
+  useEffect(() => {
+    const container = document.documentElement;
+    const onScroll = () => {
+      const scrollable = container.scrollHeight > container.clientHeight + 16;
+      setShowScrollButtons(scrollable);
+    };
+    onScroll();
+    window.addEventListener("resize", onScroll);
+    return () => window.removeEventListener("resize", onScroll);
+  }, []);
 
   useEffect(() => {
     (async () => {
