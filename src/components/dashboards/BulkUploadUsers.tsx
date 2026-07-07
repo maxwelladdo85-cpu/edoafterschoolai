@@ -349,8 +349,8 @@ export function BulkUploadUsers({ onDone }: { onDone?: () => void }) {
         icon={<GraduationCap className="h-4 w-4" />}
         templateCSV={LEARNER_TEMPLATE_CSV}
         templateFilename="bulk-learners-template.csv"
-        description="Upload a CSV to onboard multiple learners at once."
-        headersLabel="email, full_name, class_level"
+        description="Upload a CSV to onboard up to 1000 learners per batch."
+        headersLabel="email, full_name, class_level, lga, password, school_name, phone_number, nin"
         onDone={onDone}
       />
     </div>
