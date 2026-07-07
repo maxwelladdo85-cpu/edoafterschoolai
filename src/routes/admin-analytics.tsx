@@ -270,7 +270,9 @@ function AdminAnalyticsPage() {
               <XAxis dataKey="lga" stroke="hsl(var(--muted-foreground))" fontSize={11} angle={-25} textAnchor="end" interval={0} height={60} />
               <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} allowDecimals={false} />
               <Tooltip contentStyle={tooltipStyle} />
-              <Bar dataKey="learners" fill="hsl(var(--primary))" radius={[6, 6, 0, 0]} />
+              <Bar dataKey="learners" fill="hsl(var(--primary))" radius={[6, 6, 0, 0]}>
+                <LabelList dataKey="learners" position="top" style={{ fontSize: 11, fill: "hsl(var(--foreground))" }} />
+              </Bar>
             </BarChart>
           )}
         </ChartCard>
