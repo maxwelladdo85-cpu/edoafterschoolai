@@ -40,6 +40,7 @@ function PasswordInput({ id, value, onChange, minLength }: { id: string; value: 
 
 export function AuthCard() {
   const nav = useNavigate();
+  const scrollRef = React.useRef<HTMLDivElement>(null);
   const [tab, setTab] = useState<"signin" | "signup">("signin");
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
