@@ -41,7 +41,8 @@ function AnnouncementsPage() {
   const [history, setHistory] = useState<HistoryRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
-  const [audience, setAudience] = useState<"learners" | "teachers">("learners");
+  const isScripter = role === "scripter";
+  const [audience, setAudience] = useState<"learners" | "teachers">(isScripter ? "teachers" : "learners");
   const [form, setForm] = useState({ class_level: "", title: "", message: "" });
   const [recipientCount, setRecipientCount] = useState<number | null>(null);
   const [open, setOpen] = useState(false);
@@ -50,11 +51,15 @@ function AnnouncementsPage() {
 
   useEffect(() => { if (!authLoading && !user) nav({ to: "/login" }); }, [authLoading, user, nav]);
 
-  const isStaff = role === "teacher" || role === "admin";
+  const isStaff = role === "teacher" || role === "admin" || role === "scripter";
 
   useEffect(() => {
     if (!authLoading && user && !isStaff) nav({ to: "/dashboard" });
   }, [authLoading, user, isStaff, nav]);
+
+  useEffect(() => {
+    if (isScripter) setAudience("teachers");
+  }, [isScripter]);
 
   const load = async () => {
     if (!user || !isStaff) return;
@@ -191,11 +196,11 @@ function AnnouncementsPage() {
                   <div className="space-y-4">
                     <div>
                       <Label>Audience</Label>
-                      <Select value={audience} onValueChange={(v) => setAudience(v as "learners" | "teachers")}>
+                      <Select value={audience} onValueChange={(v) => setAudience(v as "learners" | "teachers")} disabled={isScripter}>
                         <SelectTrigger><SelectValue /></SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="learners">Learners in a class</SelectItem>
-                          <SelectItem value="teachers">Teachers{role === "admin" ? "" : " of a class"}</SelectItem>
+                          {!isScripter && <SelectItem value="learners">Learners in a class</SelectItem>}
+                          <SelectItem value="teachers">Teachers{role === "admin" || isScripter ? "" : " of a class"}</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
