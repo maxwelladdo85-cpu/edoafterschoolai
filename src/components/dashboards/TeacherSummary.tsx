@@ -174,9 +174,9 @@ export function TeacherSummary() {
                 className="group overflow-hidden border-border/60 transition-all hover:-translate-y-0.5"
                 style={{ boxShadow: "var(--shadow-card)" }}
               >
-                <CardContent className="flex items-center gap-4 p-4">
+                <CardContent className="flex items-center gap-3 p-3 sm:gap-4 sm:p-4">
                   <div
-                    className="relative h-16 w-28 flex-none overflow-hidden rounded-lg bg-muted bg-cover bg-center ring-1 ring-border"
+                    className="relative h-14 w-20 flex-none overflow-hidden rounded-lg bg-muted bg-cover bg-center ring-1 ring-border sm:h-16 sm:w-28"
                     style={c.thumbnail_url
                       ? { backgroundImage: `url(${c.thumbnail_url})` }
                       : { backgroundImage: "var(--gradient-hero)" }}
@@ -188,8 +188,8 @@ export function TeacherSummary() {
                     )}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <h3 className="truncate font-semibold">{c.title}</h3>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="min-w-0 break-words font-semibold sm:truncate">{c.title}</h3>
                       <Badge
                         variant={c.is_active ? "default" : "secondary"}
                         className={c.is_active ? "" : "bg-gold/20 text-gold-foreground hover:bg-gold/30"}
@@ -204,7 +204,7 @@ export function TeacherSummary() {
                   <div className="hidden text-right text-xs text-muted-foreground sm:block">
                     {new Date(c.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
                   </div>
-                  <Button size="sm" variant="outline" asChild>
+                  <Button size="sm" variant="outline" asChild className="shrink-0">
                     <Link to="/courses/$courseId" params={{ courseId: c.id }}><BookOpen className="mr-1 h-3.5 w-3.5" />Preview</Link>
                   </Button>
                 </CardContent>
