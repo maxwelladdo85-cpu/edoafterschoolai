@@ -209,7 +209,7 @@ function VirtualClassesPage() {
           </div>
           <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) setEditing(null); }}>
             <DialogTrigger asChild>
-              <Button disabled={courses.length === 0}>
+              <Button disabled={!canManageAll && courses.length === 0}>
                 <Plus className="mr-1 h-4 w-4" /> Schedule class
               </Button>
             </DialogTrigger>
