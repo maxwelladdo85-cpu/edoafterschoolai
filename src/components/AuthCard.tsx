@@ -510,17 +510,6 @@ export function AuthCard() {
               </p>
             </TabsContent>
           </Tabs>
-          <div className="mt-4 flex flex-col items-center gap-3">
-            <a
-              href={edolearnApk.url}
-              download="EdoLearn-v1.3.apk"
-              className="inline-flex items-center gap-2 rounded-md border border-primary/30 bg-primary/10 px-3 py-2 text-sm font-medium text-primary hover:bg-primary/20 transition-colors"
-            >
-              <Smartphone className="h-4 w-4" />
-              Download Android app (APK)
-            </a>
-            <Link to="/" className="text-xs text-muted-foreground hover:underline">← Back to home</Link>
-          </div>
         </CardContent>
       </Card>
 
