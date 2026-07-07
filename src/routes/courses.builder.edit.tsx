@@ -126,12 +126,21 @@ function BuilderPage() {
   }, [authLoading, user, role, nav]);
 
   useEffect(() => {
-    if (!editId || !user) return;
+    if (!user) return;
+    if (!editId) {
+      // Prefill scripter name from profile for new courses
+      (async () => {
+        const { data: prof } = await supabase.from("profiles").select("full_name").eq("id", user.id).maybeSingle();
+        if (prof?.full_name) setScripterName((s) => s || prof.full_name);
+      })();
+      return;
+    }
     (async () => {
       setLoading(true);
       const { data: c } = await supabase.from("courses").select("*").eq("id", editId).maybeSingle();
       if (c) {
         setTitle(c.title ?? "");
+        setScripterName((c as any).teacher_name ?? "");
         setClassLevel(c.class_level ?? "");
         setSubject(c.subject ?? "");
         setDescription(c.description ?? "");
@@ -153,7 +162,7 @@ function BuilderPage() {
           id: tmpId(),
           remoteId: l.id,
           title: l.title,
-          content_type: (l.content_type === "doc" ? "text" : l.content_type) as ContentType,
+          content_type: l.content_type as ContentType,
           content_url: l.content_url,
           content_text: l.content_text,
           notes: l.notes,
