@@ -105,14 +105,9 @@ export function TeacherSummary() {
           </div>
           <div className="flex flex-wrap gap-2">
             {isScripter && (
-              <>
-                <Button asChild variant="secondary" className="bg-white/10 text-white hover:bg-white/20 border-white/20 border">
-                  <Link to="/courses/builder"><Wand2 className="mr-2 h-4 w-4" />Create course</Link>
-                </Button>
-                <Button asChild variant="secondary" className="bg-white/10 text-white hover:bg-white/20 border-white/20 border">
-                  <Link to="/my-courses"><GraduationCap className="mr-2 h-4 w-4" />Manage</Link>
-                </Button>
-              </>
+              <Button asChild variant="secondary" className="bg-white/10 text-white hover:bg-white/20 border-white/20 border">
+                <Link to="/courses/builder"><Wand2 className="mr-2 h-4 w-4" />Create course</Link>
+              </Button>
             )}
           </div>
         </div>
