@@ -16,6 +16,16 @@ import { toast } from "sonner";
 import { Calendar, Plus, Video, ExternalLink, PlayCircle, Trash2, Pencil } from "lucide-react";
 import { formatWhen, getStatus, type VirtualClass } from "@/lib/virtual-classes";
 import { LearnerVirtualClasses } from "@/components/LearnerVirtualClasses";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/virtual-classes")({
   component: VirtualClassesPage,
@@ -44,6 +54,7 @@ function VirtualClassesPage() {
   const [editing, setEditing] = useState<ClassRow | null>(null);
   const [recordingFor, setRecordingFor] = useState<ClassRow | null>(null);
   const [recordingUrl, setRecordingUrl] = useState("");
+  const [deleting, setDeleting] = useState<ClassRow | null>(null);
 
   useEffect(() => {
     if (!authLoading && !user) nav({ to: "/login" });
@@ -137,10 +148,10 @@ function VirtualClassesPage() {
   };
 
   const onDelete = async (c: ClassRow) => {
-    if (!confirm(`Delete "${c.title}"?`)) return;
     const { error } = await (supabase as any).from("virtual_classes").delete().eq("id", c.id);
     if (error) return toast.error(error.message);
     toast.success("Class deleted");
+    setDeleting(null);
     refresh();
   };
 
@@ -260,8 +271,8 @@ function VirtualClassesPage() {
           </CardContent></Card>
         )}
 
-        <Section title="Upcoming & live" rows={grouped.upcoming} loading={loading} onEdit={openEdit} onDelete={onDelete} onRecording={openRecording} />
-        <Section title="Past sessions" rows={grouped.past} loading={loading} onEdit={openEdit} onDelete={onDelete} onRecording={openRecording} />
+        <Section title="Upcoming & live" rows={grouped.upcoming} loading={loading} onEdit={openEdit} onDelete={setDeleting} onRecording={openRecording} />
+        <Section title="Past sessions" rows={grouped.past} loading={loading} onEdit={openEdit} onDelete={setDeleting} onRecording={openRecording} />
       </div>
 
       <Dialog open={!!recordingFor} onOpenChange={(v) => { if (!v) { setRecordingFor(null); setRecordingUrl(""); } }}>
@@ -279,6 +290,21 @@ function VirtualClassesPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={!!deleting} onOpenChange={(v) => { if (!v) setDeleting(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this class?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete "{deleting?.title}" and its Zoom link. This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => deleting && onDelete(deleting)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </DashboardShell>
   );
 }
