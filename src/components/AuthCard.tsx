@@ -508,7 +508,7 @@ export function AuthCard() {
         </CardContent>
       </Card>
 
-      <div className="fixed right-3 bottom-[calc(env(safe-area-inset-bottom,0px)+1rem)] z-50 flex flex-col gap-2 sm:hidden">
+      <div className="fixed left-3 bottom-[calc(env(safe-area-inset-bottom,0px)+1rem)] z-50 flex flex-col gap-2 sm:hidden">
         <button
           type="button"
           onClick={scrollToTop}
