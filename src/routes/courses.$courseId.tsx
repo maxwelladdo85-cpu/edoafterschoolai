@@ -316,12 +316,12 @@ function CoursePlayer() {
           {activeLesson ? (
             <Card>
               <CardHeader>
-                <div className="flex items-start justify-between gap-3">
-                  <div>
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="min-w-0 flex-1">
                     <Badge variant="secondary" className="mb-2 capitalize">{activeLesson.content_type}</Badge>
-                    <CardTitle>{activeLesson.title}</CardTitle>
+                    <CardTitle className="break-words">{activeLesson.title}</CardTitle>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex shrink-0 gap-2 self-end sm:self-auto">
                     <Button size="icon" variant="outline" disabled={activeIdx <= 0} onClick={() => goTo(activeIdx - 1)}>
                       <ChevronLeft className="h-4 w-4" />
                     </Button>
@@ -331,6 +331,7 @@ function CoursePlayer() {
                   </div>
                 </div>
               </CardHeader>
+
               <CardContent className="space-y-6">
                 <LessonContent lesson={activeLesson} />
                 <div className="flex flex-wrap items-center justify-between gap-3 border-t pt-4">
