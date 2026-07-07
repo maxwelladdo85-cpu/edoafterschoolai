@@ -40,11 +40,11 @@ export function LearnerVirtualClasses() {
         setRows([]);
       } else {
         const list = (data as Row[]) ?? [];
-        const courseIds = Array.from(new Set(list.map((r) => r.course_id).filter(Boolean)));
+        const courseIds = Array.from(new Set(list.map((r) => r.course_id).filter((id): id is string => !!id)));
         if (courseIds.length) {
           const { data: cs } = await supabase.from("courses").select("id,title").in("id", courseIds);
           const map = new Map((cs ?? []).map((c: any) => [c.id, c.title]));
-          setRows(list.map((r) => ({ ...r, course: { title: map.get(r.course_id) ?? "" } })));
+          setRows(list.map((r) => ({ ...r, course: { title: map.get(r.course_id ?? "") ?? "" } })));
         } else {
           setRows(list);
         }
