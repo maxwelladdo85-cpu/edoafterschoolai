@@ -32,10 +32,10 @@ import { Route as AdminAnalyticsRouteImport } from './routes/admin-analytics'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CoursesIndexRouteImport } from './routes/courses.index'
 import { Route as QuizzesCourseIdRouteImport } from './routes/quizzes.$courseId'
-import { Route as CoursesBuilderRouteImport } from './routes/courses.builder'
 import { Route as CoursesCourseIdRouteImport } from './routes/courses.$courseId'
 import { Route as ApiTutorRouteImport } from './routes/api/tutor'
 import { Route as ApiTeacherAiRouteImport } from './routes/api/teacher-ai'
+import { Route as CoursesBuilderIndexRouteImport } from './routes/courses.builder.index'
 import { Route as QuizzesQuizIdTakeRouteImport } from './routes/quizzes.$quizId.take'
 import { Route as QuizzesQuizIdEditRouteImport } from './routes/quizzes.$quizId.edit'
 import { Route as CoursesBuilderEditRouteImport } from './routes/courses.builder.edit'
@@ -156,11 +156,6 @@ const QuizzesCourseIdRoute = QuizzesCourseIdRouteImport.update({
   path: '/quizzes/$courseId',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CoursesBuilderRoute = CoursesBuilderRouteImport.update({
-  id: '/builder',
-  path: '/builder',
-  getParentRoute: () => CoursesRoute,
-} as any)
 const CoursesCourseIdRoute = CoursesCourseIdRouteImport.update({
   id: '/$courseId',
   path: '/$courseId',
@@ -176,6 +171,11 @@ const ApiTeacherAiRoute = ApiTeacherAiRouteImport.update({
   path: '/api/teacher-ai',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CoursesBuilderIndexRoute = CoursesBuilderIndexRouteImport.update({
+  id: '/builder/',
+  path: '/builder/',
+  getParentRoute: () => CoursesRoute,
+} as any)
 const QuizzesQuizIdTakeRoute = QuizzesQuizIdTakeRouteImport.update({
   id: '/quizzes/$quizId/take',
   path: '/quizzes/$quizId/take',
@@ -187,9 +187,9 @@ const QuizzesQuizIdEditRoute = QuizzesQuizIdEditRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const CoursesBuilderEditRoute = CoursesBuilderEditRouteImport.update({
-  id: '/edit',
-  path: '/edit',
-  getParentRoute: () => CoursesBuilderRoute,
+  id: '/builder/edit',
+  path: '/builder/edit',
+  getParentRoute: () => CoursesRoute,
 } as any)
 const ApiPublicUssdRoute = ApiPublicUssdRouteImport.update({
   id: '/api/public/ussd',
@@ -222,13 +222,13 @@ export interface FileRoutesByFullPath {
   '/api/teacher-ai': typeof ApiTeacherAiRoute
   '/api/tutor': typeof ApiTutorRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
-  '/courses/builder': typeof CoursesBuilderRouteWithChildren
   '/quizzes/$courseId': typeof QuizzesCourseIdRoute
   '/courses/': typeof CoursesIndexRoute
   '/api/public/ussd': typeof ApiPublicUssdRoute
   '/courses/builder/edit': typeof CoursesBuilderEditRoute
   '/quizzes/$quizId/edit': typeof QuizzesQuizIdEditRoute
   '/quizzes/$quizId/take': typeof QuizzesQuizIdTakeRoute
+  '/courses/builder/': typeof CoursesBuilderIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -254,13 +254,13 @@ export interface FileRoutesByTo {
   '/api/teacher-ai': typeof ApiTeacherAiRoute
   '/api/tutor': typeof ApiTutorRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
-  '/courses/builder': typeof CoursesBuilderRouteWithChildren
   '/quizzes/$courseId': typeof QuizzesCourseIdRoute
   '/courses': typeof CoursesIndexRoute
   '/api/public/ussd': typeof ApiPublicUssdRoute
   '/courses/builder/edit': typeof CoursesBuilderEditRoute
   '/quizzes/$quizId/edit': typeof QuizzesQuizIdEditRoute
   '/quizzes/$quizId/take': typeof QuizzesQuizIdTakeRoute
+  '/courses/builder': typeof CoursesBuilderIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -288,13 +288,13 @@ export interface FileRoutesById {
   '/api/teacher-ai': typeof ApiTeacherAiRoute
   '/api/tutor': typeof ApiTutorRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
-  '/courses/builder': typeof CoursesBuilderRouteWithChildren
   '/quizzes/$courseId': typeof QuizzesCourseIdRoute
   '/courses/': typeof CoursesIndexRoute
   '/api/public/ussd': typeof ApiPublicUssdRoute
   '/courses/builder/edit': typeof CoursesBuilderEditRoute
   '/quizzes/$quizId/edit': typeof QuizzesQuizIdEditRoute
   '/quizzes/$quizId/take': typeof QuizzesQuizIdTakeRoute
+  '/courses/builder/': typeof CoursesBuilderIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -323,13 +323,13 @@ export interface FileRouteTypes {
     | '/api/teacher-ai'
     | '/api/tutor'
     | '/courses/$courseId'
-    | '/courses/builder'
     | '/quizzes/$courseId'
     | '/courses/'
     | '/api/public/ussd'
     | '/courses/builder/edit'
     | '/quizzes/$quizId/edit'
     | '/quizzes/$quizId/take'
+    | '/courses/builder/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -355,13 +355,13 @@ export interface FileRouteTypes {
     | '/api/teacher-ai'
     | '/api/tutor'
     | '/courses/$courseId'
-    | '/courses/builder'
     | '/quizzes/$courseId'
     | '/courses'
     | '/api/public/ussd'
     | '/courses/builder/edit'
     | '/quizzes/$quizId/edit'
     | '/quizzes/$quizId/take'
+    | '/courses/builder'
   id:
     | '__root__'
     | '/'
@@ -388,13 +388,13 @@ export interface FileRouteTypes {
     | '/api/teacher-ai'
     | '/api/tutor'
     | '/courses/$courseId'
-    | '/courses/builder'
     | '/quizzes/$courseId'
     | '/courses/'
     | '/api/public/ussd'
     | '/courses/builder/edit'
     | '/quizzes/$quizId/edit'
     | '/quizzes/$quizId/take'
+    | '/courses/builder/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -590,13 +590,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof QuizzesCourseIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/courses/builder': {
-      id: '/courses/builder'
-      path: '/builder'
-      fullPath: '/courses/builder'
-      preLoaderRoute: typeof CoursesBuilderRouteImport
-      parentRoute: typeof CoursesRoute
-    }
     '/courses/$courseId': {
       id: '/courses/$courseId'
       path: '/$courseId'
@@ -618,6 +611,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiTeacherAiRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/courses/builder/': {
+      id: '/courses/builder/'
+      path: '/builder'
+      fullPath: '/courses/builder/'
+      preLoaderRoute: typeof CoursesBuilderIndexRouteImport
+      parentRoute: typeof CoursesRoute
+    }
     '/quizzes/$quizId/take': {
       id: '/quizzes/$quizId/take'
       path: '/quizzes/$quizId/take'
@@ -634,10 +634,10 @@ declare module '@tanstack/react-router' {
     }
     '/courses/builder/edit': {
       id: '/courses/builder/edit'
-      path: '/edit'
+      path: '/builder/edit'
       fullPath: '/courses/builder/edit'
       preLoaderRoute: typeof CoursesBuilderEditRouteImport
-      parentRoute: typeof CoursesBuilderRoute
+      parentRoute: typeof CoursesRoute
     }
     '/api/public/ussd': {
       id: '/api/public/ussd'
@@ -649,28 +649,18 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface CoursesBuilderRouteChildren {
-  CoursesBuilderEditRoute: typeof CoursesBuilderEditRoute
-}
-
-const CoursesBuilderRouteChildren: CoursesBuilderRouteChildren = {
-  CoursesBuilderEditRoute: CoursesBuilderEditRoute,
-}
-
-const CoursesBuilderRouteWithChildren = CoursesBuilderRoute._addFileChildren(
-  CoursesBuilderRouteChildren,
-)
-
 interface CoursesRouteChildren {
   CoursesCourseIdRoute: typeof CoursesCourseIdRoute
-  CoursesBuilderRoute: typeof CoursesBuilderRouteWithChildren
   CoursesIndexRoute: typeof CoursesIndexRoute
+  CoursesBuilderEditRoute: typeof CoursesBuilderEditRoute
+  CoursesBuilderIndexRoute: typeof CoursesBuilderIndexRoute
 }
 
 const CoursesRouteChildren: CoursesRouteChildren = {
   CoursesCourseIdRoute: CoursesCourseIdRoute,
-  CoursesBuilderRoute: CoursesBuilderRouteWithChildren,
   CoursesIndexRoute: CoursesIndexRoute,
+  CoursesBuilderEditRoute: CoursesBuilderEditRoute,
+  CoursesBuilderIndexRoute: CoursesBuilderIndexRoute,
 }
 
 const CoursesRouteWithChildren =

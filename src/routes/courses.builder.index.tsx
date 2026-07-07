@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { BookOpen, Plus, Pencil, Wand2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/courses/builder")({
+export const Route = createFileRoute("/courses/builder/")({
   component: BuilderLandingPage,
 });
 
