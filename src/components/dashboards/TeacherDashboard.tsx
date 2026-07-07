@@ -203,14 +203,14 @@ export function TeacherDashboard() {
         eyebrow="Teacher workspace"
         EyebrowIcon={GraduationCap}
         title="Teacher Workspace"
-        description="Preview courses and interact with your students."
+        description="Preview lessons and interact with your students."
         backgroundImage={dashboardHero}
       />
 
 
       <section>
         <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-2xl font-semibold">Courses</h2>
+          <h2 className="text-2xl font-semibold">Lessons</h2>
           <div className="flex flex-wrap gap-2">
             <Select value={subjectFilter} onValueChange={setSubjectFilter}>
               <SelectTrigger className="w-[180px]"><SelectValue placeholder="Subject" /></SelectTrigger>
