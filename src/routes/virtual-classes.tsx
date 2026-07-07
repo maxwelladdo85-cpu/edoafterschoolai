@@ -54,6 +54,7 @@ function VirtualClassesPage() {
   const [editing, setEditing] = useState<ClassRow | null>(null);
   const [recordingFor, setRecordingFor] = useState<ClassRow | null>(null);
   const [recordingUrl, setRecordingUrl] = useState("");
+  const [deleting, setDeleting] = useState<ClassRow | null>(null);
 
   useEffect(() => {
     if (!authLoading && !user) nav({ to: "/login" });
