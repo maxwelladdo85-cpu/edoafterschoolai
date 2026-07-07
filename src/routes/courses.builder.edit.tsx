@@ -51,7 +51,9 @@ export const Route = createFileRoute("/courses/builder/edit")({
   component: BuilderPage,
 });
 
-type ContentType = "video" | "pdf" | "audio" | "text";
+type ContentType = "video" | "pdf" | "audio" | "text" | "doc";
+
+const MAX_LESSON_UPLOAD_BYTES = 100 * 1024 * 1024; // 100 MB per material
 
 interface DraftLesson {
   id: string;
