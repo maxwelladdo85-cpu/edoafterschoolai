@@ -374,7 +374,9 @@ function CoursePlayer() {
       <div className="mt-6">
         <CourseForum courseId={courseId} />
       </div>
+      </div>
       {!isStaff && <AiTutorWidget courseId={courseId} courseTitle={course.title} />}
+
 
       <Dialog open={showCongrats} onOpenChange={setShowCongrats}>
         <DialogContent className="sm:max-w-md text-center">
