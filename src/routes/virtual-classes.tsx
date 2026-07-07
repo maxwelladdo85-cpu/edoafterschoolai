@@ -218,22 +218,24 @@ function VirtualClassesPage() {
                 onSubmit={(e) => { e.preventDefault(); onSchedule(new FormData(e.currentTarget)); }}
                 className="space-y-3"
               >
+                {!canManageAll && (
+                  <div className="space-y-1">
+                    <Label>Subject</Label>
+                    <Select name="course_id" defaultValue={initial.course_id ?? undefined}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {courses.map((c) => (
+                          <SelectItem key={c.id} value={c.id}>
+                            {c.subject ? `${c.subject} — ${c.title}` : c.title}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
                 <div className="space-y-1">
-                  <Label>Subject</Label>
-                  <Select name="course_id" defaultValue={initial.course_id}>
-                    <SelectTrigger><SelectValue placeholder="Select a subject" /></SelectTrigger>
-                    <SelectContent>
-                      {courses.map((c) => (
-                        <SelectItem key={c.id} value={c.id}>
-                          {c.subject ? `${c.subject} — ${c.title}` : c.title}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-1">
-                  <Label>Topic</Label>
-                  <Input name="title" defaultValue={initial.title} placeholder="e.g. Introduction to Algebra" maxLength={150} required />
+                  <Label>Meeting Title</Label>
+                  <Input name="title" defaultValue={initial.title} maxLength={150} required />
                 </div>
                 <div className="space-y-1">
                   <Label>Description (optional)</Label>
