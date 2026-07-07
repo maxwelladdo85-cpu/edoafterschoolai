@@ -274,7 +274,7 @@ function UserSummaryPage() {
       }
 
       items.sort((a, b) => new Date(b.ts).getTime() - new Date(a.ts).getTime());
-      setActivity(items);
+      setActivity(items.slice(0, 10));
       setBusy(false);
     };
     load();
