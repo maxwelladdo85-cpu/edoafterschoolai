@@ -453,7 +453,7 @@ function LessonContent({ lesson }: { lesson: Lesson }) {
     const office = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(lesson.content_url)}`;
     return (
       <div className="space-y-2">
-        <iframe src={office} title={lesson.title} className="h-[70vh] w-full rounded-lg border" />
+        <iframe src={office} title={lesson.title} className="h-[55vh] sm:h-[70vh] w-full rounded-lg border" />
         {downloadBtn}
       </div>
     );
@@ -489,7 +489,7 @@ function PdfMaterial({ url, title }: { url: string; title: string }) {
         <iframe
           src={useFallback ? gviewSrc : directSrc}
           title={title}
-          className="h-[70vh] w-full"
+          className="h-[55vh] sm:h-[70vh] w-full"
           onError={() => setUseFallback(true)}
         />
       </div>
