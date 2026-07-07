@@ -67,7 +67,7 @@ export function TeacherSummary() {
   const drafts = courses.length - active;
 
   const stats = [
-    { label: "Total courses", value: courses.length, icon: GraduationCap, tint: "from-primary/15 to-primary/5", iconClass: "bg-primary/10 text-primary" },
+    { label: isScripter ? "Total courses" : "Total lessons", value: courses.length, icon: GraduationCap, tint: "from-primary/15 to-primary/5", iconClass: "bg-primary/10 text-primary" },
     { label: "Active", value: active, icon: BookOpen, tint: "from-emerald-500/15 to-emerald-500/5", iconClass: "bg-primary/10 text-primary" },
     { label: "Drafts", value: drafts, icon: FileText, tint: "from-gold/20 to-gold/5", iconClass: "bg-gold/15 text-gold-foreground" },
     { label: "Enrollments", value: enrollments, icon: Users, tint: "from-destructive/15 to-destructive/5", iconClass: "bg-destructive/10 text-destructive" },
@@ -79,7 +79,7 @@ export function TeacherSummary() {
   const heroTitle = isScripter ? "Sub Admin - Scripter" : "Teacher Workspace";
   const heroDesc = isScripter
     ? "Create and upload courses, schedule Zoom classes, and share them with teachers."
-    : "A snapshot of everything you've created — courses, lessons and learners — in one elegant view.";
+    : "A snapshot of everything you've created — lessons and learners — in one elegant view.";
 
   return (
     <div className="space-y-8">
