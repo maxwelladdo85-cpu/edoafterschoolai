@@ -196,11 +196,11 @@ function AnnouncementsPage() {
                   <div className="space-y-4">
                     <div>
                       <Label>Audience</Label>
-                      <Select value={audience} onValueChange={(v) => setAudience(v as "learners" | "teachers")}>
+                      <Select value={audience} onValueChange={(v) => setAudience(v as "learners" | "teachers")} disabled={isScripter}>
                         <SelectTrigger><SelectValue /></SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="learners">Learners in a class</SelectItem>
-                          <SelectItem value="teachers">Teachers{role === "admin" ? "" : " of a class"}</SelectItem>
+                          {!isScripter && <SelectItem value="learners">Learners in a class</SelectItem>}
+                          <SelectItem value="teachers">Teachers{role === "admin" || isScripter ? "" : " of a class"}</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
