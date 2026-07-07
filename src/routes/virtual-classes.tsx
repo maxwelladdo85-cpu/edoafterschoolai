@@ -16,6 +16,16 @@ import { toast } from "sonner";
 import { Calendar, Plus, Video, ExternalLink, PlayCircle, Trash2, Pencil } from "lucide-react";
 import { formatWhen, getStatus, type VirtualClass } from "@/lib/virtual-classes";
 import { LearnerVirtualClasses } from "@/components/LearnerVirtualClasses";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/virtual-classes")({
   component: VirtualClassesPage,
