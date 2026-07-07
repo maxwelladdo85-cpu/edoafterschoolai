@@ -83,8 +83,11 @@ export function AuthCard() {
 
   useEffect(() => {
     updateScrollable();
-    window.addEventListener("resize", updateScrollable);
-    return () => window.removeEventListener("resize", updateScrollable);
+    const el = scrollRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(updateScrollable);
+    ro.observe(el);
+    return () => ro.disconnect();
   }, []);
 
   useEffect(() => {
