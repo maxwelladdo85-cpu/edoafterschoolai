@@ -131,7 +131,9 @@ function VirtualClassesPage() {
     }
     const scheduled_at = new Date(`${parsed.data.date}T${parsed.data.time}`).toISOString();
     const payload = {
-      course_id: canManageAll ? parsed.data.course_id ?? null : parsed.data.course_id,
+      course_id: canManageAll
+        ? (parsed.data.course_id ?? editing?.course_id ?? null)
+        : parsed.data.course_id,
       title: parsed.data.title,
       description: parsed.data.description,
       scheduled_at,
