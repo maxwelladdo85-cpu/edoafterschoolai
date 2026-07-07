@@ -361,7 +361,8 @@ function BuilderPage() {
           <Card>
             <CardHeader><CardTitle>Course details</CardTitle></CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-1"><Label>Title *</Label><Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Introduction to Algebra" /></div>
+              <div className="space-y-1"><Label>Lesson title *</Label><Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Introduction to Algebra" /></div>
+              <div className="space-y-1"><Label>Name of scripter</Label><Input value={scripterName} onChange={(e) => setScripterName(e.target.value)} placeholder="Your full name" /></div>
               <div className="space-y-1">
                 <Label>Class *</Label>
                 <Select value={classLevel} onValueChange={(v) => { setClassLevel(v); setSubject(""); }}>
