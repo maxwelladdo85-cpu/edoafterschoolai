@@ -181,6 +181,9 @@ function BuilderPage() {
   };
 
   const uploadLessonFile = async (cid: string, file: File) => {
+    if (file.size > MAX_LESSON_UPLOAD_BYTES) {
+      throw new Error(`"${file.name}" is ${(file.size / (1024 * 1024)).toFixed(1)} MB. Each material must be 100 MB or less.`);
+    }
     const safeName = file.name.replace(/[^\w.\-]+/g, "_");
     const path = `${cid}/${Date.now()}-${safeName}`;
     const { error } = await supabase.storage.from("course-materials").upload(path, file, { contentType: file.type, upsert: false });
@@ -196,7 +199,7 @@ function BuilderPage() {
     setSaving(true);
     try {
       let cid = courseId;
-      const payload: any = { title: title.trim(), class_level: classLevel || null, subject: subject || null, description: description || null };
+      const payload: any = { title: title.trim(), teacher_name: scripterName.trim() || null, class_level: classLevel || null, subject: subject || null, description: description || null };
       if (cid) {
         const { error } = await supabase.from("courses").update(payload).eq("id", cid);
         if (error) throw error;
