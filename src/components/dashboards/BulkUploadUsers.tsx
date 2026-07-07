@@ -72,7 +72,7 @@ function parseRoleCSV(text: string, role: "learner" | "teacher"): { rows: Parsed
   }
   const iClass = idx("class_level"), iClassTaught = idx("class_taught"), iLga = idx("lga"), iPwd = idx("password");
   const iPhone = idx("phone_number"), iSchoolId = idx("school_id"), iSchoolType = idx("school_type"), iDob = idx("date_of_birth");
-  const iOracle = idx("oracle_id"), iSchoolName = idx("school_name");
+  const iOracle = idx("oracle_id"), iSchoolName = idx("school_name"), iNin = idx("nin");
   const iClassAny = role === "teacher" && iClassTaught >= 0 ? iClassTaught : iClass;
 
   const rows: ParsedRow[] = [];
@@ -91,6 +91,7 @@ function parseRoleCSV(text: string, role: "learner" | "teacher"): { rows: Parsed
       date_of_birth: iDob >= 0 ? cells[iDob] : undefined,
       oracle_id: iOracle >= 0 ? cells[iOracle] : undefined,
       school_name: iSchoolName >= 0 ? cells[iSchoolName] : undefined,
+      nin: iNin >= 0 ? cells[iNin] : undefined,
     };
     if (!row.email || /^\S+@\S+\.\S+$/.test(row.email) === false) row._error = "Invalid email";
     else if (!row.full_name) row._error = "Missing name";
