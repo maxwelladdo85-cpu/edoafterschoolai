@@ -189,25 +189,18 @@ function MessagesPage() {
                 })}
                 <div ref={endRef} />
               </div>
-              {role !== "admin" && (
-                <div className="border-t p-3 flex gap-2">
-                  <Textarea
-                    placeholder="Type a message…"
-                    value={body}
-                    onChange={(e) => setBody(e.target.value)}
-                    onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
-                    className="min-h-[44px] max-h-32"
-                  />
-                  <Button onClick={send} disabled={sending || !body.trim()}>
-                    {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                  </Button>
-                </div>
-              )}
-              {role === "admin" && (
-                <div className="border-t p-3 text-xs text-muted-foreground text-center">
-                  Read-only admin view. Messages are visible for moderation.
-                </div>
-              )}
+              <div className="border-t p-3 flex gap-2">
+                <Textarea
+                  placeholder="Type a message…"
+                  value={body}
+                  onChange={(e) => setBody(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
+                  className="min-h-[44px] max-h-32"
+                />
+                <Button onClick={send} disabled={sending || !body.trim()}>
+                  {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                </Button>
+              </div>
             </>
           )}
         </Card>
