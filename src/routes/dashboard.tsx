@@ -48,6 +48,9 @@ function DashboardPage() {
         <div className="app-shell-content">
           <header className="app-shell-header flex h-14 items-center gap-2 border-b bg-card px-4">
             <SidebarTrigger />
+            <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => router.history.back()} aria-label="Go back">
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
             <span className="text-sm font-medium capitalize text-muted-foreground">{role} dashboard</span>
             <div className="ml-auto"><NotificationBell /></div>
           </header>
