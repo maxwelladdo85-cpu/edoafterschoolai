@@ -97,7 +97,7 @@ export function TeacherSummary() {
               <Sparkles className="h-3.5 w-3.5" /> {eyebrowLabel}
             </span>
             <h1 className="mt-3 text-2xl font-bold tracking-tight sm:mt-4 sm:text-3xl md:text-5xl">
-              {isScripter ? `Welcome, ${firstName}.` : `Welcome back, ${firstName}.`}
+              {isScripter ? "Welcome Scripter" : `Welcome back, ${firstName}.`}
             </h1>
             <p className="mt-2 text-sm sm:mt-3 sm:text-base md:text-lg text-white/85">
               {heroDesc}
