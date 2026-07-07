@@ -30,7 +30,7 @@ function MyCoursesPage() {
         <div className="app-shell-content">
           <header className="app-shell-header flex h-14 items-center gap-2 border-b bg-card px-4">
             <SidebarTrigger />
-            <span className="text-sm font-medium text-muted-foreground">My Courses</span>
+            <span className="text-sm font-medium text-muted-foreground">My Lessons</span>
             <div className="ml-auto"><NotificationBell /></div>
           </header>
           <main className="app-main-scroll p-6 md:p-8">
