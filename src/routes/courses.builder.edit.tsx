@@ -89,6 +89,7 @@ function BuilderPage() {
 
   // Step 1
   const [title, setTitle] = useState("");
+  const [scripterName, setScripterName] = useState("");
   const [classLevel, setClassLevel] = useState("");
   const [subject, setSubject] = useState("");
   const [subjects, setSubjects] = useState<{ name: string; level: string | null }[]>([]);
