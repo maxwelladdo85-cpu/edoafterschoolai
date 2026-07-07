@@ -94,11 +94,6 @@ export function VirtualClassesPanel({ mode, limit = 4 }: Props) {
         <h2 className="text-xl font-semibold flex items-center gap-2">
           <Video className="h-5 w-5 text-primary" /> Virtual Classes
         </h2>
-        {mode === "teacher" && (
-          <Button asChild size="sm" variant="outline">
-            <Link to="/virtual-classes">Manage</Link>
-          </Button>
-        )}
       </div>
 
       {loading ? (
