@@ -32,7 +32,7 @@ export const Route = createFileRoute("/virtual-classes")({
 });
 
 const scheduleSchema = z.object({
-  course_id: z.string().uuid({ message: "Pick a course" }).optional().nullable(),
+  course_id: z.preprocess((val) => (val === "" ? null : val), z.string().uuid().optional().nullable()),
   title: z.string().trim().min(2, "Meeting title is required").max(150),
   description: z.string().trim().max(1000).optional().nullable(),
   date: z.string().min(1, "Date is required"),
