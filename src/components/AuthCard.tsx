@@ -66,29 +66,12 @@ export function AuthCard() {
   const lookupEmail = useServerFn(lookupLearnerEmail);
   const lookupTeacher = useServerFn(lookupTeacherEmail);
   const checkNin = useServerFn(checkLearnerNinAvailable);
-  const [showScrollButtons, setShowScrollButtons] = useState(false);
-
-  const updateScrollable = () => {
-    const el = scrollRef.current;
-    if (!el) return;
-    setShowScrollButtons(el.scrollHeight > el.clientHeight + 16);
-  };
-
   const scrollToTop = () => scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
   const scrollToBottom = () => {
     const el = scrollRef.current;
     if (!el) return;
     el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
   };
-
-  useEffect(() => {
-    updateScrollable();
-    const el = scrollRef.current;
-    if (!el) return;
-    const ro = new ResizeObserver(updateScrollable);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
 
   useEffect(() => {
     (async () => {
