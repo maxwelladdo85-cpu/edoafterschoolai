@@ -70,12 +70,14 @@ function AdminPerformancePage() {
     setRefreshedAt(new Date());
   };
 
-  const loadActivity = async () => {
-    if (!fromDate || !toDate) return toast.error("Pick a date range");
-    if (fromDate > toDate) return toast.error("From date must be on or before To date");
+  const loadActivity = async (fromArg?: string, toArg?: string) => {
+    const f = fromArg ?? fromDate;
+    const t = toArg ?? toDate;
+    if (!f || !t) return toast.error("Pick a date range");
+    if (f > t) return toast.error("From date must be on or before To date");
     setActLoading(true);
-    const fromIso = new Date(`${fromDate}T00:00:00`).toISOString();
-    const toIso = new Date(`${toDate}T23:59:59.999`).toISOString();
+    const fromIso = new Date(`${f}T00:00:00`).toISOString();
+    const toIso = new Date(`${t}T23:59:59.999`).toISOString();
     const { data, error } = await supabase.rpc("admin_activity_log_range", {
       p_from: fromIso, p_to: toIso, p_limit: 10000,
     });
@@ -118,8 +120,10 @@ function AdminPerformancePage() {
   };
 
   const setPreset = (days: number) => {
-    setFromDate(format(new Date(Date.now() - (days - 1) * 86400000), "yyyy-MM-dd"));
+    const from = format(new Date(Date.now() - (days - 1) * 86400000), "yyyy-MM-dd");
+    setFromDate(from);
     setToDate(today);
+    loadActivity(from, today);
   };
 
   useEffect(() => {
@@ -212,7 +216,7 @@ function AdminPerformancePage() {
                 <Label htmlFor="to-date" className="text-xs">To</Label>
                 <Input id="to-date" type="date" value={toDate} min={fromDate} max={today} onChange={(e) => setToDate(e.target.value)} />
               </div>
-              <Button onClick={loadActivity} disabled={actLoading}>
+              <Button onClick={() => loadActivity()} disabled={actLoading}>
                 {actLoading ? <><RefreshCw className="h-4 w-4 mr-2 animate-spin" />Loading…</> : "View activity"}
               </Button>
               <Button variant="outline" onClick={downloadActivity} disabled={filteredActivity.length === 0}>

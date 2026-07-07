@@ -23,7 +23,7 @@ import { PageHero } from "@/components/PageHero";
 import dashboardHero from "@/assets/dashboard-hero.jpg";
 import { toast } from "sonner";
 import {
-  ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, LineChart, Line, Legend,
+  ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, LineChart, Line, Legend, LabelList,
 } from "recharts";
 import { format, parseISO } from "date-fns";
 import * as XLSX from "xlsx";
@@ -291,7 +291,9 @@ export function AdminDashboard() {
                 <XAxis dataKey="day" tickFormatter={(d) => format(parseISO(d), "EEE")} stroke="var(--muted-foreground)" />
                 <YAxis allowDecimals={false} stroke="var(--muted-foreground)" />
                 <Tooltip contentStyle={{ background: "var(--card)", border: "1px solid var(--border)" }} />
-                <Bar dataKey="enrollments" fill="var(--primary)" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="enrollments" fill="var(--primary)" radius={[6, 6, 0, 0]}>
+                  <LabelList dataKey="enrollments" position="top" style={{ fontSize: 11, fill: "var(--foreground)" }} />
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -305,7 +307,9 @@ export function AdminDashboard() {
                 <XAxis type="number" allowDecimals={false} stroke="var(--muted-foreground)" />
                 <YAxis dataKey="title" type="category" width={140} stroke="var(--muted-foreground)" tick={{ fontSize: 12 }} />
                 <Tooltip contentStyle={{ background: "var(--card)", border: "1px solid var(--border)" }} />
-                <Bar dataKey="enrollments" fill="var(--gold)" radius={[0, 6, 6, 0]} />
+                <Bar dataKey="enrollments" fill="var(--gold)" radius={[0, 6, 6, 0]}>
+                  <LabelList dataKey="enrollments" position="right" style={{ fontSize: 11, fill: "var(--foreground)" }} />
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -324,7 +328,9 @@ export function AdminDashboard() {
                 <YAxis allowDecimals={false} stroke="var(--muted-foreground)" />
                 <Tooltip contentStyle={{ background: "var(--card)", border: "1px solid var(--border)" }} />
                 <Legend />
-                <Line type="monotone" dataKey="active_users" stroke="var(--primary)" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="active_users" stroke="var(--primary)" strokeWidth={2} dot={{ r: 3 }}>
+                  <LabelList dataKey="active_users" position="top" style={{ fontSize: 11, fill: "var(--foreground)" }} />
+                </Line>
               </LineChart>
             </ResponsiveContainer>
           </CardContent>

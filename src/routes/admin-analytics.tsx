@@ -17,7 +17,7 @@ import {
   AreaChart, Area,
   BarChart, Bar,
   PieChart, Pie, Cell,
-  XAxis, YAxis, CartesianGrid, Tooltip, Legend,
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend, LabelList,
 } from "recharts";
 
 export const Route = createFileRoute("/admin-analytics")({
@@ -207,7 +207,9 @@ function AdminAnalyticsPage() {
               <XAxis dataKey="day" stroke="hsl(var(--muted-foreground))" fontSize={12} />
               <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} allowDecimals={false} />
               <Tooltip contentStyle={tooltipStyle} />
-              <Area type="monotone" dataKey="active_users" stroke="hsl(var(--primary))" fill="url(#dauG)" strokeWidth={2} />
+              <Area type="monotone" dataKey="active_users" stroke="hsl(var(--primary))" fill="url(#dauG)" strokeWidth={2}>
+                <LabelList dataKey="active_users" position="top" style={{ fontSize: 11, fill: "hsl(var(--foreground))" }} />
+              </Area>
             </AreaChart>
           </ChartCard>
 
@@ -218,8 +220,12 @@ function AdminAnalyticsPage() {
               <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} allowDecimals={false} />
               <Tooltip contentStyle={tooltipStyle} />
               <Legend />
-              <Line type="monotone" dataKey="signups" stroke="hsl(var(--accent))" strokeWidth={2.5} dot={{ r: 3 }} />
-              <Line type="monotone" dataKey="enrollments" stroke="hsl(var(--primary))" strokeWidth={2.5} dot={{ r: 3 }} />
+              <Line type="monotone" dataKey="signups" stroke="hsl(var(--accent))" strokeWidth={2.5} dot={{ r: 3 }}>
+                <LabelList dataKey="signups" position="top" style={{ fontSize: 11, fill: "hsl(var(--accent))" }} />
+              </Line>
+              <Line type="monotone" dataKey="enrollments" stroke="hsl(var(--primary))" strokeWidth={2.5} dot={{ r: 3 }}>
+                <LabelList dataKey="enrollments" position="bottom" style={{ fontSize: 11, fill: "hsl(var(--primary))" }} />
+              </Line>
             </LineChart>
           </ChartCard>
 
@@ -232,7 +238,9 @@ function AdminAnalyticsPage() {
                 <XAxis type="number" stroke="hsl(var(--muted-foreground))" fontSize={12} allowDecimals={false} />
                 <YAxis type="category" dataKey="title" stroke="hsl(var(--muted-foreground))" fontSize={11} width={140} />
                 <Tooltip contentStyle={tooltipStyle} />
-                <Bar dataKey="enrollments" fill="hsl(var(--primary))" radius={[0, 6, 6, 0]} />
+                <Bar dataKey="enrollments" fill="hsl(var(--primary))" radius={[0, 6, 6, 0]}>
+                  <LabelList dataKey="enrollments" position="right" style={{ fontSize: 11, fill: "hsl(var(--foreground))" }} />
+                </Bar>
               </BarChart>
             )}
           </ChartCard>
@@ -242,7 +250,8 @@ function AdminAnalyticsPage() {
               <EmptyChart text="No learners in this scope." />
             ) : (
               <PieChart>
-                <Pie data={data!.by_school_type} dataKey="learners" nameKey="school_type" cx="50%" cy="50%" outerRadius={100} innerRadius={55} paddingAngle={3}>
+                <Pie data={data!.by_school_type} dataKey="learners" nameKey="school_type" cx="50%" cy="50%" outerRadius={100} innerRadius={55} paddingAngle={3}
+                  label={(entry: any) => `${entry.school_type}: ${entry.learners}`} labelLine={true}>
                   {data!.by_school_type.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
                 </Pie>
                 <Tooltip contentStyle={tooltipStyle} />
@@ -261,7 +270,9 @@ function AdminAnalyticsPage() {
               <XAxis dataKey="lga" stroke="hsl(var(--muted-foreground))" fontSize={11} angle={-25} textAnchor="end" interval={0} height={60} />
               <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} allowDecimals={false} />
               <Tooltip contentStyle={tooltipStyle} />
-              <Bar dataKey="learners" fill="hsl(var(--primary))" radius={[6, 6, 0, 0]} />
+              <Bar dataKey="learners" fill="hsl(var(--primary))" radius={[6, 6, 0, 0]}>
+                <LabelList dataKey="learners" position="top" style={{ fontSize: 11, fill: "hsl(var(--foreground))" }} />
+              </Bar>
             </BarChart>
           )}
         </ChartCard>
@@ -275,7 +286,9 @@ function AdminAnalyticsPage() {
               <XAxis dataKey="title" stroke="hsl(var(--muted-foreground))" fontSize={11} angle={-25} textAnchor="end" interval={0} height={70} />
               <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} unit="%" domain={[0, 100]} />
               <Tooltip formatter={(v: any) => `${v}%`} contentStyle={tooltipStyle} />
-              <Bar dataKey="completion_pct" fill="hsl(var(--accent))" radius={[6, 6, 0, 0]} />
+              <Bar dataKey="completion_pct" fill="hsl(var(--accent))" radius={[6, 6, 0, 0]}>
+                <LabelList dataKey="completion_pct" position="top" formatter={(v: any) => `${v}%`} style={{ fontSize: 11, fill: "hsl(var(--foreground))" }} />
+              </Bar>
             </BarChart>
           )}
         </ChartCard>
