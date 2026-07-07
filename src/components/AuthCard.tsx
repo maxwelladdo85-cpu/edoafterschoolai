@@ -10,7 +10,7 @@ import { useNavigate, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Logo } from "@/components/Logo";
-import { Eye, EyeOff, Smartphone } from "lucide-react";
+import { Eye, EyeOff, Smartphone, ChevronUp, ChevronDown } from "lucide-react";
 import { lookupLearnerEmail, checkLearnerNinAvailable } from "@/lib/learner-auth.functions";
 import { lookupTeacherEmail } from "@/lib/teacher-auth.functions";
 import { CLASS_GROUPS } from "@/lib/classes";
