@@ -195,6 +195,7 @@ function CoursePlayer() {
 
   return (
     <DashboardShell title={course.title}>
+      <div className="pb-28 lg:pb-6">
       <div className="mb-4">
         <Button
           variant="ghost"
@@ -209,6 +210,7 @@ function CoursePlayer() {
         </Button>
       </div>
       <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
+
         {/* Lesson sidebar */}
         <aside className="space-y-4">
           <div>
