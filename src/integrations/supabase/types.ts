@@ -997,7 +997,7 @@ export type Database = {
       }
       virtual_classes: {
         Row: {
-          course_id: string
+          course_id: string | null
           created_at: string
           description: string | null
           duration_minutes: number
@@ -1009,7 +1009,7 @@ export type Database = {
           zoom_url: string
         }
         Insert: {
-          course_id: string
+          course_id?: string | null
           created_at?: string
           description?: string | null
           duration_minutes?: number
@@ -1021,7 +1021,7 @@ export type Database = {
           zoom_url: string
         }
         Update: {
-          course_id?: string
+          course_id?: string | null
           created_at?: string
           description?: string | null
           duration_minutes?: number

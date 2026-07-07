@@ -1,0 +1,1 @@
+ALTER TABLE public.virtual_classes ALTER COLUMN course_id DROP NOT NULL;

@@ -32,8 +32,8 @@ export const Route = createFileRoute("/virtual-classes")({
 });
 
 const scheduleSchema = z.object({
-  course_id: z.string().uuid({ message: "Pick a course" }),
-  title: z.string().trim().min(2, "Title is required").max(150),
+  course_id: z.preprocess((val) => (val === "" ? null : val), z.string().uuid().optional().nullable()),
+  title: z.string().trim().min(2, "Meeting title is required").max(150),
   description: z.string().trim().max(1000).optional().nullable(),
   date: z.string().min(1, "Date is required"),
   time: z.string().min(1, "Time is required"),
@@ -75,22 +75,22 @@ function VirtualClassesPage() {
     if (!user) return;
     setLoading(true);
     const coursesQuery = canManageAll
-      ? supabase.from("courses").select("id,title,subject").order("created_at", { ascending: false })
+      ? null
       : supabase.from("courses").select("id,title,subject").eq("teacher_id", user.id).order("created_at", { ascending: false });
     const vcQuery = canManageAll
       ? (supabase as any).from("virtual_classes").select("*").order("scheduled_at", { ascending: false })
       : (supabase as any).from("virtual_classes").select("*").order("scheduled_at", { ascending: false }); // RLS returns own + scripter-scheduled for teachers
-    const [{ data: cs }, { data: vcs }] = await Promise.all([coursesQuery, vcQuery]);
+    const [{ data: cs }, { data: vcs }] = await Promise.all([coursesQuery ?? Promise.resolve({ data: [] }), vcQuery]);
     const courseList = (cs as CourseRow[]) ?? [];
     setCourses(courseList);
     const titleMap = new Map(courseList.map((c) => [c.id, c.title]));
-    const rows = ((vcs as any[]) ?? []).map((r) => ({ ...r, course: { title: titleMap.get(r.course_id) ?? "" } })) as ClassRow[];
-    const missing = Array.from(new Set(rows.filter((r) => !r.course?.title).map((r) => r.course_id)));
+    const rows = ((vcs as any[]) ?? []).map((r) => ({ ...r, course: { title: titleMap.get(r.course_id ?? "") ?? "" } })) as ClassRow[];
+    const missing = Array.from(new Set(rows.filter((r) => !r.course?.title && r.course_id).map((r) => r.course_id!)));
     if (missing.length) {
       const { data: extra } = await supabase.from("courses").select("id,title").in("id", missing);
       const extraMap = new Map((extra ?? []).map((c: any) => [c.id, c.title]));
       for (const r of rows) {
-        if (!r.course?.title) r.course = { title: extraMap.get(r.course_id) ?? "" };
+        if (!r.course?.title && r.course_id) r.course = { title: extraMap.get(r.course_id) ?? "" };
       }
     }
     setClasses(rows);
@@ -125,9 +125,15 @@ function VirtualClassesPage() {
       toast.error(parsed.error.issues[0]?.message ?? "Invalid input");
       return;
     }
+    if (!canManageAll && !parsed.data.course_id) {
+      toast.error("Pick a course");
+      return;
+    }
     const scheduled_at = new Date(`${parsed.data.date}T${parsed.data.time}`).toISOString();
     const payload = {
-      course_id: parsed.data.course_id,
+      course_id: canManageAll
+        ? (parsed.data.course_id ?? editing?.course_id ?? null)
+        : parsed.data.course_id,
       title: parsed.data.title,
       description: parsed.data.description,
       scheduled_at,
@@ -205,7 +211,7 @@ function VirtualClassesPage() {
           </div>
           <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) setEditing(null); }}>
             <DialogTrigger asChild>
-              <Button disabled={courses.length === 0}>
+              <Button disabled={!canManageAll && courses.length === 0}>
                 <Plus className="mr-1 h-4 w-4" /> Schedule class
               </Button>
             </DialogTrigger>
@@ -218,22 +224,24 @@ function VirtualClassesPage() {
                 onSubmit={(e) => { e.preventDefault(); onSchedule(new FormData(e.currentTarget)); }}
                 className="space-y-3"
               >
+                {!canManageAll && (
+                  <div className="space-y-1">
+                    <Label>Subject</Label>
+                    <Select name="course_id" defaultValue={initial.course_id ?? undefined}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {courses.map((c) => (
+                          <SelectItem key={c.id} value={c.id}>
+                            {c.subject ? `${c.subject} — ${c.title}` : c.title}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
                 <div className="space-y-1">
-                  <Label>Subject</Label>
-                  <Select name="course_id" defaultValue={initial.course_id}>
-                    <SelectTrigger><SelectValue placeholder="Select a subject" /></SelectTrigger>
-                    <SelectContent>
-                      {courses.map((c) => (
-                        <SelectItem key={c.id} value={c.id}>
-                          {c.subject ? `${c.subject} — ${c.title}` : c.title}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-1">
-                  <Label>Topic</Label>
-                  <Input name="title" defaultValue={initial.title} placeholder="e.g. Introduction to Algebra" maxLength={150} required />
+                  <Label>Meeting Title</Label>
+                  <Input name="title" defaultValue={initial.title} maxLength={150} required />
                 </div>
                 <div className="space-y-1">
                   <Label>Description (optional)</Label>
@@ -265,7 +273,7 @@ function VirtualClassesPage() {
           </Dialog>
         </div>
 
-        {courses.length === 0 && !loading && (
+        {!canManageAll && courses.length === 0 && !loading && (
           <Card className="border-dashed"><CardContent className="py-6 text-center text-sm text-muted-foreground">
             Create a course first before scheduling a virtual class.
           </CardContent></Card>
@@ -332,7 +340,9 @@ function Section({
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
                       <CardTitle className="text-base truncate">{c.title}</CardTitle>
-                      <CardDescription className="truncate">{c.course?.title} · {c.duration_minutes} min</CardDescription>
+                      <CardDescription className="truncate">
+                        {c.course?.title ? `${c.course.title} · ${c.duration_minutes} min` : `${c.duration_minutes} min`}
+                      </CardDescription>
                     </div>
                     {status === "live"
                       ? <Badge className="bg-destructive text-destructive-foreground animate-pulse">LIVE</Badge>
