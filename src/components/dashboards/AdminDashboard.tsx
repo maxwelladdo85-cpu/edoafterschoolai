@@ -328,7 +328,9 @@ export function AdminDashboard() {
                 <YAxis allowDecimals={false} stroke="var(--muted-foreground)" />
                 <Tooltip contentStyle={{ background: "var(--card)", border: "1px solid var(--border)" }} />
                 <Legend />
-                <Line type="monotone" dataKey="active_users" stroke="var(--primary)" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="active_users" stroke="var(--primary)" strokeWidth={2} dot={{ r: 3 }}>
+                  <LabelList dataKey="active_users" position="top" style={{ fontSize: 11, fill: "var(--foreground)" }} />
+                </Line>
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
