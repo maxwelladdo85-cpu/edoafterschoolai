@@ -75,22 +75,22 @@ function VirtualClassesPage() {
     if (!user) return;
     setLoading(true);
     const coursesQuery = canManageAll
-      ? supabase.from("courses").select("id,title,subject").order("created_at", { ascending: false })
+      ? null
       : supabase.from("courses").select("id,title,subject").eq("teacher_id", user.id).order("created_at", { ascending: false });
     const vcQuery = canManageAll
       ? (supabase as any).from("virtual_classes").select("*").order("scheduled_at", { ascending: false })
       : (supabase as any).from("virtual_classes").select("*").order("scheduled_at", { ascending: false }); // RLS returns own + scripter-scheduled for teachers
-    const [{ data: cs }, { data: vcs }] = await Promise.all([coursesQuery, vcQuery]);
+    const [{ data: cs }, { data: vcs }] = await Promise.all([coursesQuery ?? Promise.resolve({ data: [] }), vcQuery]);
     const courseList = (cs as CourseRow[]) ?? [];
     setCourses(courseList);
     const titleMap = new Map(courseList.map((c) => [c.id, c.title]));
-    const rows = ((vcs as any[]) ?? []).map((r) => ({ ...r, course: { title: titleMap.get(r.course_id) ?? "" } })) as ClassRow[];
-    const missing = Array.from(new Set(rows.filter((r) => !r.course?.title).map((r) => r.course_id)));
+    const rows = ((vcs as any[]) ?? []).map((r) => ({ ...r, course: { title: titleMap.get(r.course_id ?? "") ?? "" } })) as ClassRow[];
+    const missing = Array.from(new Set(rows.filter((r) => !r.course?.title && r.course_id).map((r) => r.course_id!)));
     if (missing.length) {
       const { data: extra } = await supabase.from("courses").select("id,title").in("id", missing);
       const extraMap = new Map((extra ?? []).map((c: any) => [c.id, c.title]));
       for (const r of rows) {
-        if (!r.course?.title) r.course = { title: extraMap.get(r.course_id) ?? "" };
+        if (!r.course?.title && r.course_id) r.course = { title: extraMap.get(r.course_id) ?? "" };
       }
     }
     setClasses(rows);
