@@ -271,8 +271,8 @@ function VirtualClassesPage() {
           </CardContent></Card>
         )}
 
-        <Section title="Upcoming & live" rows={grouped.upcoming} loading={loading} onEdit={openEdit} onDelete={onDelete} onRecording={openRecording} />
-        <Section title="Past sessions" rows={grouped.past} loading={loading} onEdit={openEdit} onDelete={onDelete} onRecording={openRecording} />
+        <Section title="Upcoming & live" rows={grouped.upcoming} loading={loading} onEdit={openEdit} onDelete={setDeleting} onRecording={openRecording} />
+        <Section title="Past sessions" rows={grouped.past} loading={loading} onEdit={openEdit} onDelete={setDeleting} onRecording={openRecording} />
       </div>
 
       <Dialog open={!!recordingFor} onOpenChange={(v) => { if (!v) { setRecordingFor(null); setRecordingUrl(""); } }}>
