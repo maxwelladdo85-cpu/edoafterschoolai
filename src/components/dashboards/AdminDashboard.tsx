@@ -307,7 +307,9 @@ export function AdminDashboard() {
                 <XAxis type="number" allowDecimals={false} stroke="var(--muted-foreground)" />
                 <YAxis dataKey="title" type="category" width={140} stroke="var(--muted-foreground)" tick={{ fontSize: 12 }} />
                 <Tooltip contentStyle={{ background: "var(--card)", border: "1px solid var(--border)" }} />
-                <Bar dataKey="enrollments" fill="var(--gold)" radius={[0, 6, 6, 0]} />
+                <Bar dataKey="enrollments" fill="var(--gold)" radius={[0, 6, 6, 0]}>
+                  <LabelList dataKey="enrollments" position="right" style={{ fontSize: 11, fill: "var(--foreground)" }} />
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
