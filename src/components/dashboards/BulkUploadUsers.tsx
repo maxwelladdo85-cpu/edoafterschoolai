@@ -199,7 +199,7 @@ function BulkUploadCard({
           <span className="font-mono">
             {role === "teacher"
               ? "phone_number, lga, school_type, class_taught, school_name, date_of_birth, password"
-              : "lga, password"}
+              : "lga, password, school_name, phone_number, nin"}
           </span>.
           If password is blank a secure one is generated and returned in the results CSV.
         </p>
