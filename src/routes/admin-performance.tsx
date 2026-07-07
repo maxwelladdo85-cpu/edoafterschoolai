@@ -70,12 +70,14 @@ function AdminPerformancePage() {
     setRefreshedAt(new Date());
   };
 
-  const loadActivity = async () => {
-    if (!fromDate || !toDate) return toast.error("Pick a date range");
-    if (fromDate > toDate) return toast.error("From date must be on or before To date");
+  const loadActivity = async (fromArg?: string, toArg?: string) => {
+    const f = fromArg ?? fromDate;
+    const t = toArg ?? toDate;
+    if (!f || !t) return toast.error("Pick a date range");
+    if (f > t) return toast.error("From date must be on or before To date");
     setActLoading(true);
-    const fromIso = new Date(`${fromDate}T00:00:00`).toISOString();
-    const toIso = new Date(`${toDate}T23:59:59.999`).toISOString();
+    const fromIso = new Date(`${f}T00:00:00`).toISOString();
+    const toIso = new Date(`${t}T23:59:59.999`).toISOString();
     const { data, error } = await supabase.rpc("admin_activity_log_range", {
       p_from: fromIso, p_to: toIso, p_limit: 10000,
     });
