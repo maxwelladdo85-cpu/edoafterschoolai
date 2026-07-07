@@ -238,7 +238,9 @@ function AdminAnalyticsPage() {
                 <XAxis type="number" stroke="hsl(var(--muted-foreground))" fontSize={12} allowDecimals={false} />
                 <YAxis type="category" dataKey="title" stroke="hsl(var(--muted-foreground))" fontSize={11} width={140} />
                 <Tooltip contentStyle={tooltipStyle} />
-                <Bar dataKey="enrollments" fill="hsl(var(--primary))" radius={[0, 6, 6, 0]} />
+                <Bar dataKey="enrollments" fill="hsl(var(--primary))" radius={[0, 6, 6, 0]}>
+                  <LabelList dataKey="enrollments" position="right" style={{ fontSize: 11, fill: "hsl(var(--foreground))" }} />
+                </Bar>
               </BarChart>
             )}
           </ChartCard>
