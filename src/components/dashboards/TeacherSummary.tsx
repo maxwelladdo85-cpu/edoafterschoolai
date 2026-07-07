@@ -67,7 +67,7 @@ export function TeacherSummary() {
   const drafts = courses.length - active;
 
   const stats = [
-    { label: "Total courses", value: courses.length, icon: GraduationCap, tint: "from-primary/15 to-primary/5", iconClass: "bg-primary/10 text-primary" },
+    { label: isScripter ? "Total courses" : "Total lessons", value: courses.length, icon: GraduationCap, tint: "from-primary/15 to-primary/5", iconClass: "bg-primary/10 text-primary" },
     { label: "Active", value: active, icon: BookOpen, tint: "from-emerald-500/15 to-emerald-500/5", iconClass: "bg-primary/10 text-primary" },
     { label: "Drafts", value: drafts, icon: FileText, tint: "from-gold/20 to-gold/5", iconClass: "bg-gold/15 text-gold-foreground" },
     { label: "Enrollments", value: enrollments, icon: Users, tint: "from-destructive/15 to-destructive/5", iconClass: "bg-destructive/10 text-destructive" },
@@ -79,7 +79,7 @@ export function TeacherSummary() {
   const heroTitle = isScripter ? "Sub Admin - Scripter" : "Teacher Workspace";
   const heroDesc = isScripter
     ? "Create and upload courses, schedule Zoom classes, and share them with teachers."
-    : "A snapshot of everything you've created — courses, lessons and learners — in one elegant view.";
+    : "A snapshot of everything you've created — lessons and learners — in one elegant view.";
 
   return (
     <div className="space-y-8">
@@ -105,13 +105,15 @@ export function TeacherSummary() {
           </div>
           <div className="flex flex-wrap gap-2">
             {isScripter && (
-              <Button asChild variant="secondary" className="bg-white/10 text-white hover:bg-white/20 border-white/20 border">
-                <Link to="/courses/builder"><Wand2 className="mr-2 h-4 w-4" />Create course</Link>
-              </Button>
+              <>
+                <Button asChild variant="secondary" className="bg-white/10 text-white hover:bg-white/20 border-white/20 border">
+                  <Link to="/courses/builder"><Wand2 className="mr-2 h-4 w-4" />Create course</Link>
+                </Button>
+                <Button asChild variant="secondary" className="bg-white/10 text-white hover:bg-white/20 border-white/20 border">
+                  <Link to="/my-courses"><GraduationCap className="mr-2 h-4 w-4" />Manage</Link>
+                </Button>
+              </>
             )}
-            <Button asChild variant="secondary" className="bg-white/10 text-white hover:bg-white/20 border-white/20 border">
-              <Link to="/my-courses"><GraduationCap className="mr-2 h-4 w-4" />Manage</Link>
-            </Button>
           </div>
         </div>
       </section>
@@ -145,8 +147,8 @@ export function TeacherSummary() {
       <section>
         <div className="mb-4 flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-semibold tracking-tight">Recent courses</h2>
-            <p className="text-sm text-muted-foreground">{lessons} lesson{lessons === 1 ? "" : "s"} across your courses.</p>
+            <h2 className="text-2xl font-semibold tracking-tight">{isScripter ? "Recent courses" : "Recent lessons"}</h2>
+            <p className="text-sm text-muted-foreground">{lessons} lesson{lessons === 1 ? "" : "s"} across your {isScripter ? "courses" : "lessons"}.</p>
           </div>
           <Button asChild variant="ghost" className="gap-1">
             <Link to="/my-courses">View all <ArrowRight className="h-4 w-4" /></Link>
@@ -159,9 +161,9 @@ export function TeacherSummary() {
               <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary">
                 <BookOpen className="h-7 w-7" />
               </div>
-              <p className="text-base font-medium">No courses yet</p>
-              <p className="max-w-sm text-sm text-muted-foreground">Create your first course and start sharing knowledge with learners across Edo State.</p>
-              <Button asChild className="mt-2"><Link to="/courses/builder"><Wand2 className="mr-2 h-4 w-4" />Open Course Builder</Link></Button>
+              <p className="text-base font-medium">{isScripter ? "No courses yet" : "No lessons yet"}</p>
+              <p className="max-w-sm text-sm text-muted-foreground">{isScripter ? "Create your first course and start sharing knowledge with learners across Edo State." : "Lessons assigned to you will appear here."}</p>
+              {isScripter && <Button asChild className="mt-2"><Link to="/courses/builder"><Wand2 className="mr-2 h-4 w-4" />Open Course Builder</Link></Button>}
             </CardContent>
           </Card>
         ) : (

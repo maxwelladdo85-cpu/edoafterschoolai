@@ -203,14 +203,14 @@ export function TeacherDashboard() {
         eyebrow="Teacher workspace"
         EyebrowIcon={GraduationCap}
         title="Teacher Workspace"
-        description="Preview courses and interact with your students."
+        description="Preview lessons and interact with your students."
         backgroundImage={dashboardHero}
       />
 
 
       <section>
         <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-2xl font-semibold">Courses</h2>
+          <h2 className="text-2xl font-semibold">Lessons</h2>
           <div className="flex flex-wrap gap-2">
             <Select value={subjectFilter} onValueChange={setSubjectFilter}>
               <SelectTrigger className="w-[180px]"><SelectValue placeholder="Subject" /></SelectTrigger>
@@ -234,11 +234,11 @@ export function TeacherDashboard() {
         {courses.length === 0 ? (
           <Card><CardContent className="flex flex-col items-center gap-3 py-12 text-center text-base text-muted-foreground">
             <BookOpen className="h-10 w-10" />
-            <p>No courses assigned to you yet. Courses created by admins will appear here for preview.</p>
+            <p>No lessons assigned to you yet. Lessons created by admins will appear here for preview.</p>
           </CardContent></Card>
         ) : filteredCourses.length === 0 ? (
           <Card><CardContent className="py-12 text-center text-base text-muted-foreground">
-            No courses match the selected filters.
+            No lessons match the selected filters.
           </CardContent></Card>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
