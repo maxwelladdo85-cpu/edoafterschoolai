@@ -291,7 +291,9 @@ export function AdminDashboard() {
                 <XAxis dataKey="day" tickFormatter={(d) => format(parseISO(d), "EEE")} stroke="var(--muted-foreground)" />
                 <YAxis allowDecimals={false} stroke="var(--muted-foreground)" />
                 <Tooltip contentStyle={{ background: "var(--card)", border: "1px solid var(--border)" }} />
-                <Bar dataKey="enrollments" fill="var(--primary)" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="enrollments" fill="var(--primary)" radius={[6, 6, 0, 0]}>
+                  <LabelList dataKey="enrollments" position="top" style={{ fontSize: 11, fill: "var(--foreground)" }} />
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
