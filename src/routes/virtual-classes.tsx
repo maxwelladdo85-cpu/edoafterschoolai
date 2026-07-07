@@ -338,7 +338,9 @@ function Section({
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
                       <CardTitle className="text-base truncate">{c.title}</CardTitle>
-                      <CardDescription className="truncate">{c.course?.title} · {c.duration_minutes} min</CardDescription>
+                      <CardDescription className="truncate">
+                        {c.course?.title ? `${c.course.title} · ${c.duration_minutes} min` : `${c.duration_minutes} min`}
+                      </CardDescription>
                     </div>
                     {status === "live"
                       ? <Badge className="bg-destructive text-destructive-foreground animate-pulse">LIVE</Badge>
