@@ -536,7 +536,22 @@ function SortableModuleCard({ module: m, index, onChange, onRemove, onAddLesson,
 function SortableLessonRow({ lesson, onChange, onRemove }: { lesson: DraftLesson; onChange: (p: Partial<DraftLesson>) => void; onRemove: () => void }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: lesson.id });
   const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.6 : 1 };
-  const Icon = lesson.content_type === "video" ? Film : lesson.content_type === "pdf" ? FileText : lesson.content_type === "audio" ? Headphones : NotebookPen;
+  const Icon = lesson.content_type === "video" ? Film : lesson.content_type === "pdf" ? FileText : lesson.content_type === "audio" ? Headphones : lesson.content_type === "doc" ? FileText : NotebookPen;
+  const isUpload = lesson.content_type === "pdf" || lesson.content_type === "audio" || lesson.content_type === "doc" || lesson.content_type === "video";
+  const acceptFor = (t: ContentType) =>
+    t === "pdf" ? "application/pdf"
+    : t === "audio" ? "audio/*"
+    : t === "video" ? "video/*"
+    : t === "doc" ? ".doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    : "";
+  const handleFile = (f: File | null) => {
+    if (f && f.size > MAX_LESSON_UPLOAD_BYTES) {
+      toast.error(`"${f.name}" is ${(f.size / (1024 * 1024)).toFixed(1)} MB. Materials must be 100 MB or smaller.`);
+      onChange({ uploadFile: null });
+      return;
+    }
+    onChange({ uploadFile: f });
+  };
   return (
     <div ref={setNodeRef} style={style} className="rounded-md border bg-background p-3 space-y-2">
       <div className="flex items-center gap-2">
@@ -544,10 +559,11 @@ function SortableLessonRow({ lesson, onChange, onRemove }: { lesson: DraftLesson
         <Icon className="h-4 w-4 text-muted-foreground" />
         <Input value={lesson.title} onChange={(e) => onChange({ title: e.target.value })} className="flex-1" placeholder="Lesson title" />
         <Select value={lesson.content_type} onValueChange={(v) => onChange({ content_type: v as ContentType, content_url: null, content_text: null, uploadFile: null })}>
-          <SelectTrigger className="w-[130px]"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-[150px]"><SelectValue /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="video">Video URL</SelectItem>
+            <SelectItem value="video">Video (URL or file)</SelectItem>
             <SelectItem value="pdf">PDF</SelectItem>
+            <SelectItem value="doc">Word document</SelectItem>
             <SelectItem value="audio">Audio</SelectItem>
             <SelectItem value="text">Text</SelectItem>
           </SelectContent>
@@ -555,16 +571,20 @@ function SortableLessonRow({ lesson, onChange, onRemove }: { lesson: DraftLesson
         <Button size="icon" variant="ghost" onClick={onRemove}><Trash2 className="h-4 w-4 text-destructive" /></Button>
       </div>
       {lesson.content_type === "video" && (
-        <Input placeholder="https://youtube.com/…" value={lesson.content_url ?? ""} onChange={(e) => onChange({ content_url: e.target.value })} />
+        <Input placeholder="Paste a YouTube / Vimeo link (or upload a video file below)" value={lesson.content_url ?? ""} onChange={(e) => onChange({ content_url: e.target.value })} />
       )}
-      {(lesson.content_type === "pdf" || lesson.content_type === "audio") && (
+      {isUpload && (
         <div className="space-y-1">
           <Input
             type="file"
-            accept={lesson.content_type === "pdf" ? "application/pdf" : "audio/*"}
-            onChange={(e) => onChange({ uploadFile: e.target.files?.[0] ?? null })}
+            accept={acceptFor(lesson.content_type)}
+            onChange={(e) => handleFile(e.target.files?.[0] ?? null)}
           />
-          {lesson.content_url && !lesson.uploadFile && (
+          <p className="text-xs text-muted-foreground">Max 100 MB per material. Allowed: PDF, Word, audio, video.</p>
+          {lesson.uploadFile && (
+            <p className="text-xs text-primary flex items-center gap-1"><Upload className="h-3 w-3" /> {lesson.uploadFile.name} ({(lesson.uploadFile.size / (1024 * 1024)).toFixed(1)} MB) — will upload on Save.</p>
+          )}
+          {lesson.content_url && !lesson.uploadFile && lesson.content_type !== "video" && (
             <p className="text-xs text-muted-foreground flex items-center gap-1"><Upload className="h-3 w-3" /> File uploaded — choose a new file to replace.</p>
           )}
         </div>
