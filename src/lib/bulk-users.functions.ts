@@ -16,6 +16,7 @@ const RowSchema = z.object({
   date_of_birth: z.string().trim().max(50).optional().or(z.literal("")).transform((v) => (v ? v : undefined)),
   oracle_id: z.string().trim().max(50).optional().or(z.literal("")).transform((v) => (v ? v : undefined)),
   school_name: z.string().trim().max(200).optional().or(z.literal("")).transform((v) => (v ? v : undefined)),
+  nin: z.string().trim().max(20).optional().or(z.literal("")).transform((v) => (v ? v : undefined)),
 });
 
 
