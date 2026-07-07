@@ -41,7 +41,8 @@ function AnnouncementsPage() {
   const [history, setHistory] = useState<HistoryRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
-  const [audience, setAudience] = useState<"learners" | "teachers">("learners");
+  const isScripter = role === "scripter";
+  const [audience, setAudience] = useState<"learners" | "teachers">(isScripter ? "teachers" : "learners");
   const [form, setForm] = useState({ class_level: "", title: "", message: "" });
   const [recipientCount, setRecipientCount] = useState<number | null>(null);
   const [open, setOpen] = useState(false);
@@ -50,11 +51,15 @@ function AnnouncementsPage() {
 
   useEffect(() => { if (!authLoading && !user) nav({ to: "/login" }); }, [authLoading, user, nav]);
 
-  const isStaff = role === "teacher" || role === "admin";
+  const isStaff = role === "teacher" || role === "admin" || role === "scripter";
 
   useEffect(() => {
     if (!authLoading && user && !isStaff) nav({ to: "/dashboard" });
   }, [authLoading, user, isStaff, nav]);
+
+  useEffect(() => {
+    if (isScripter) setAudience("teachers");
+  }, [isScripter]);
 
   const load = async () => {
     if (!user || !isStaff) return;
