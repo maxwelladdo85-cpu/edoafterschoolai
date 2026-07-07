@@ -214,7 +214,7 @@ function AdminPerformancePage() {
                 <Label htmlFor="to-date" className="text-xs">To</Label>
                 <Input id="to-date" type="date" value={toDate} min={fromDate} max={today} onChange={(e) => setToDate(e.target.value)} />
               </div>
-              <Button onClick={loadActivity} disabled={actLoading}>
+              <Button onClick={() => loadActivity()} disabled={actLoading}>
                 {actLoading ? <><RefreshCw className="h-4 w-4 mr-2 animate-spin" />Loading…</> : "View activity"}
               </Button>
               <Button variant="outline" onClick={downloadActivity} disabled={filteredActivity.length === 0}>
