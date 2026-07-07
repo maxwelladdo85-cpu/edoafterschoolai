@@ -1,7 +1,10 @@
 import { ReactNode } from "react";
+import { useRouter } from "@tanstack/react-router";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { NotificationBell } from "@/components/NotificationBell";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
 
 export function DashboardShell({ title, children }: { title?: string; children: ReactNode }) {
   return (
