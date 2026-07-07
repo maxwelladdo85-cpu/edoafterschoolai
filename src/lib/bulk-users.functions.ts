@@ -16,6 +16,7 @@ const RowSchema = z.object({
   date_of_birth: z.string().trim().max(50).optional().or(z.literal("")).transform((v) => (v ? v : undefined)),
   oracle_id: z.string().trim().max(50).optional().or(z.literal("")).transform((v) => (v ? v : undefined)),
   school_name: z.string().trim().max(200).optional().or(z.literal("")).transform((v) => (v ? v : undefined)),
+  nin: z.string().trim().max(20).optional().or(z.literal("")).transform((v) => (v ? v : undefined)),
 });
 
 
@@ -76,6 +77,8 @@ export const bulkCreateUsers = createServerFn({ method: "POST" })
         if (r.school_type) profilePatch.school_type = r.school_type;
         if (r.date_of_birth) profilePatch.date_of_birth = r.date_of_birth;
         if (r.oracle_id) profilePatch.teacher_id = r.oracle_id;
+        if (r.nin) profilePatch.nin = r.nin;
+        if (r.parent_phone && r.role === "learner") profilePatch.phone = r.parent_phone;
         profilePatch.status = "active";
         await (supabaseAdmin.from("profiles") as any).update(profilePatch).eq("id", uid);
 

@@ -12,7 +12,7 @@ type ParsedRow = {
   email: string; full_name: string; role: string;
   class_level?: string; lga?: string; password?: string;
   parent_phone?: string; school_id?: string; school_type?: string; date_of_birth?: string;
-  oracle_id?: string; school_name?: string;
+  oracle_id?: string; school_name?: string; nin?: string;
   _error?: string;
 };
 
@@ -21,7 +21,7 @@ type ResultRow = {
   ok: boolean; password?: string; error?: string;
 };
 
-const LEARNER_HEADERS = ["email", "full_name", "class_level", "lga", "password"];
+const LEARNER_HEADERS = ["email", "full_name", "class_level", "lga", "password", "school_name", "phone_number", "nin"];
 const TEACHER_HEADERS = ["full_name", "phone_number", "email", "lga", "school_type", "class_taught", "oracle_id", "school_name", "date_of_birth", "password"];
 
 function makeTemplateCSV(headers: string[], rows: string[]) {
@@ -29,8 +29,8 @@ function makeTemplateCSV(headers: string[], rows: string[]) {
 }
 
 const LEARNER_TEMPLATE_CSV = makeTemplateCSV(LEARNER_HEADERS, [
-  "jane@example.com,Jane Doe,Primary 4,Oredo,",
-  "chidi@example.com,Chidi Nwosu,Primary 2,Egor,",
+  "jane@example.com,Jane Doe,Primary 4,Oredo,,Ihogbe Primary School,08012345678,",
+  "chidi@example.com,Chidi Nwosu,Primary 2,Egor,,Emotan Model Primary School,08087654321,12345678901",
 ]);
 
 const TEACHER_TEMPLATE_CSV = makeTemplateCSV(TEACHER_HEADERS, [
@@ -72,7 +72,7 @@ function parseRoleCSV(text: string, role: "learner" | "teacher"): { rows: Parsed
   }
   const iClass = idx("class_level"), iClassTaught = idx("class_taught"), iLga = idx("lga"), iPwd = idx("password");
   const iPhone = idx("phone_number"), iSchoolId = idx("school_id"), iSchoolType = idx("school_type"), iDob = idx("date_of_birth");
-  const iOracle = idx("oracle_id"), iSchoolName = idx("school_name");
+  const iOracle = idx("oracle_id"), iSchoolName = idx("school_name"), iNin = idx("nin");
   const iClassAny = role === "teacher" && iClassTaught >= 0 ? iClassTaught : iClass;
 
   const rows: ParsedRow[] = [];
@@ -91,6 +91,7 @@ function parseRoleCSV(text: string, role: "learner" | "teacher"): { rows: Parsed
       date_of_birth: iDob >= 0 ? cells[iDob] : undefined,
       oracle_id: iOracle >= 0 ? cells[iOracle] : undefined,
       school_name: iSchoolName >= 0 ? cells[iSchoolName] : undefined,
+      nin: iNin >= 0 ? cells[iNin] : undefined,
     };
     if (!row.email || /^\S+@\S+\.\S+$/.test(row.email) === false) row._error = "Invalid email";
     else if (!row.full_name) row._error = "Missing name";
@@ -155,7 +156,7 @@ function BulkUploadCard({
         email: r.email, full_name: r.full_name, role: r.role as "learner" | "teacher",
         class_level: r.class_level, lga: r.lga, password: r.password,
         parent_phone: r.parent_phone, school_id: r.school_id, school_type: r.school_type, date_of_birth: r.date_of_birth,
-        oracle_id: r.oracle_id, school_name: r.school_name,
+        oracle_id: r.oracle_id, school_name: r.school_name, nin: r.nin,
       })) } });
       setResults(res.results as ResultRow[]);
       toast.success(`Created ${res.created} ${role}(s)${res.failed ? `, ${res.failed} failed` : ""}`);
@@ -198,7 +199,7 @@ function BulkUploadCard({
           <span className="font-mono">
             {role === "teacher"
               ? "phone_number, lga, school_type, class_taught, school_name, date_of_birth, password"
-              : "lga, password"}
+              : "lga, password, school_name, phone_number, nin"}
           </span>.
           If password is blank a secure one is generated and returned in the results CSV.
         </p>
@@ -348,8 +349,8 @@ export function BulkUploadUsers({ onDone }: { onDone?: () => void }) {
         icon={<GraduationCap className="h-4 w-4" />}
         templateCSV={LEARNER_TEMPLATE_CSV}
         templateFilename="bulk-learners-template.csv"
-        description="Upload a CSV to onboard multiple learners at once."
-        headersLabel="email, full_name, class_level"
+        description="Upload a CSV to onboard up to 1000 learners per batch."
+        headersLabel="email, full_name, class_level, lga, password, school_name, phone_number, nin"
         onDone={onDone}
       />
     </div>
