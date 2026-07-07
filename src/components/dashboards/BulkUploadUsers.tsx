@@ -21,7 +21,7 @@ type ResultRow = {
   ok: boolean; password?: string; error?: string;
 };
 
-const LEARNER_HEADERS = ["email", "full_name", "class_level", "lga", "password"];
+const LEARNER_HEADERS = ["email", "full_name", "class_level", "lga", "password", "school_name", "phone_number", "nin"];
 const TEACHER_HEADERS = ["full_name", "phone_number", "email", "lga", "school_type", "class_taught", "oracle_id", "school_name", "date_of_birth", "password"];
 
 function makeTemplateCSV(headers: string[], rows: string[]) {
@@ -29,8 +29,8 @@ function makeTemplateCSV(headers: string[], rows: string[]) {
 }
 
 const LEARNER_TEMPLATE_CSV = makeTemplateCSV(LEARNER_HEADERS, [
-  "jane@example.com,Jane Doe,Primary 4,Oredo,",
-  "chidi@example.com,Chidi Nwosu,Primary 2,Egor,",
+  "jane@example.com,Jane Doe,Primary 4,Oredo,,Ihogbe Primary School,08012345678,",
+  "chidi@example.com,Chidi Nwosu,Primary 2,Egor,,Emotan Model Primary School,08087654321,12345678901",
 ]);
 
 const TEACHER_TEMPLATE_CSV = makeTemplateCSV(TEACHER_HEADERS, [
