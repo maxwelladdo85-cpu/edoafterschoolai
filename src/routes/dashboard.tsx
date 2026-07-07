@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, useRouter } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,6 +9,8 @@ import { NotificationBell } from "@/components/NotificationBell";
 import { LearnerDashboard } from "@/components/dashboards/LearnerDashboard";
 import { TeacherSummary } from "@/components/dashboards/TeacherSummary";
 import { AdminDashboard } from "@/components/dashboards/AdminDashboard";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
 
 export const Route = createFileRoute("/dashboard")({
   component: DashboardPage,
