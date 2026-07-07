@@ -412,6 +412,9 @@ function BuilderPage() {
               <Button size="sm" onClick={addModule}><Plus className="mr-1 h-4 w-4" />Module</Button>
             </CardHeader>
             <CardContent className="space-y-3">
+              <div className="rounded-md border border-primary/20 bg-primary/5 p-3 text-xs text-muted-foreground">
+                Upload materials as <strong>PDF, Word (.doc/.docx), audio, or video</strong>. Each material must be <strong>100 MB or smaller</strong>. Video lessons can also be added by pasting a YouTube or Vimeo link.
+              </div>
               {modules.length === 0 && <p className="text-sm text-muted-foreground py-6 text-center">Add your first module to get started.</p>}
               <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onModuleDragEnd}>
                 <SortableContext items={modules.map((m) => m.id)} strategy={verticalListSortingStrategy}>
