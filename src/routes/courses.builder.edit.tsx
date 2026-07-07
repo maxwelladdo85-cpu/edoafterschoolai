@@ -131,7 +131,7 @@ function BuilderPage() {
       // Prefill scripter name from profile for new courses
       (async () => {
         const { data: prof } = await supabase.from("profiles").select("full_name").eq("id", user.id).maybeSingle();
-        if (prof?.full_name) setScripterName((s) => s || prof.full_name);
+        if (prof?.full_name) setScripterName((s) => s || prof.full_name || "");
       })();
       return;
     }
