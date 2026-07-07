@@ -286,7 +286,9 @@ function AdminAnalyticsPage() {
               <XAxis dataKey="title" stroke="hsl(var(--muted-foreground))" fontSize={11} angle={-25} textAnchor="end" interval={0} height={70} />
               <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} unit="%" domain={[0, 100]} />
               <Tooltip formatter={(v: any) => `${v}%`} contentStyle={tooltipStyle} />
-              <Bar dataKey="completion_pct" fill="hsl(var(--accent))" radius={[6, 6, 0, 0]} />
+              <Bar dataKey="completion_pct" fill="hsl(var(--accent))" radius={[6, 6, 0, 0]}>
+                <LabelList dataKey="completion_pct" position="top" formatter={(v: any) => `${v}%`} style={{ fontSize: 11, fill: "hsl(var(--foreground))" }} />
+              </Bar>
             </BarChart>
           )}
         </ChartCard>
