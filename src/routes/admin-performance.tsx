@@ -120,8 +120,10 @@ function AdminPerformancePage() {
   };
 
   const setPreset = (days: number) => {
-    setFromDate(format(new Date(Date.now() - (days - 1) * 86400000), "yyyy-MM-dd"));
+    const from = format(new Date(Date.now() - (days - 1) * 86400000), "yyyy-MM-dd");
+    setFromDate(from);
     setToDate(today);
+    loadActivity(from, today);
   };
 
   useEffect(() => {
