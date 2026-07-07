@@ -148,10 +148,10 @@ function VirtualClassesPage() {
   };
 
   const onDelete = async (c: ClassRow) => {
-    if (!confirm(`Delete "${c.title}"?`)) return;
     const { error } = await (supabase as any).from("virtual_classes").delete().eq("id", c.id);
     if (error) return toast.error(error.message);
     toast.success("Class deleted");
+    setDeleting(null);
     refresh();
   };
 
