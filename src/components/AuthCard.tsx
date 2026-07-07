@@ -525,26 +525,24 @@ export function AuthCard() {
         </CardContent>
       </Card>
 
-      {showScrollButtons && (
-        <div className="fixed right-3 bottom-[calc(env(safe-area-inset-bottom,0px)+1rem)] z-50 flex flex-col gap-2">
-          <button
-            type="button"
-            onClick={scrollToTop}
-            aria-label="Scroll to top"
-            className="rounded-full bg-primary text-primary-foreground shadow-lg p-2 hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary"
-          >
-            <ChevronUp className="h-5 w-5" />
-          </button>
-          <button
-            type="button"
-            onClick={scrollToBottom}
-            aria-label="Scroll to bottom"
-            className="rounded-full bg-primary text-primary-foreground shadow-lg p-2 hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary"
-          >
-            <ChevronDown className="h-5 w-5" />
-          </button>
-        </div>
-      )}
+      <div className="fixed right-3 bottom-[calc(env(safe-area-inset-bottom,0px)+1rem)] z-50 flex flex-col gap-2 sm:hidden">
+        <button
+          type="button"
+          onClick={scrollToTop}
+          aria-label="Scroll to top"
+          className="rounded-full bg-primary text-primary-foreground shadow-lg p-2 hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary"
+        >
+          <ChevronUp className="h-5 w-5" />
+        </button>
+        <button
+          type="button"
+          onClick={scrollToBottom}
+          aria-label="Scroll to bottom"
+          className="rounded-full bg-primary text-primary-foreground shadow-lg p-2 hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary"
+        >
+          <ChevronDown className="h-5 w-5" />
+        </button>
+      </div>
 
       {forgotOpen && (
         <Suspense fallback={null}>
