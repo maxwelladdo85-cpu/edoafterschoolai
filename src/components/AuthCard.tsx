@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +10,7 @@ import { useNavigate, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Logo } from "@/components/Logo";
-import { Eye, EyeOff, Smartphone } from "lucide-react";
+import { Eye, EyeOff, Smartphone, ChevronUp, ChevronDown } from "lucide-react";
 import { lookupLearnerEmail, checkLearnerNinAvailable } from "@/lib/learner-auth.functions";
 import { lookupTeacherEmail } from "@/lib/teacher-auth.functions";
 import { CLASS_GROUPS } from "@/lib/classes";
@@ -40,6 +40,7 @@ function PasswordInput({ id, value, onChange, minLength }: { id: string; value: 
 
 export function AuthCard() {
   const nav = useNavigate();
+  const scrollRef = useRef<HTMLDivElement>(null);
   const [tab, setTab] = useState<"signin" | "signup">("signin");
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
@@ -65,6 +66,12 @@ export function AuthCard() {
   const lookupEmail = useServerFn(lookupLearnerEmail);
   const lookupTeacher = useServerFn(lookupTeacherEmail);
   const checkNin = useServerFn(checkLearnerNinAvailable);
+  const scrollToTop = () => scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+  const scrollToBottom = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+  };
 
   useEffect(() => {
     (async () => {
@@ -232,7 +239,7 @@ export function AuthCard() {
   };
 
   return (
-    <div className="min-h-[100dvh] w-full flex items-start sm:items-center justify-center p-4 pb-[calc(env(safe-area-inset-bottom,0px)+2rem)] overflow-y-auto bg-gradient-to-br from-primary/10 via-background to-gold/10">
+    <div ref={scrollRef} className="h-[100dvh] w-full flex items-start sm:items-center justify-center p-4 pb-[calc(env(safe-area-inset-bottom,0px)+2rem)] overflow-y-auto bg-gradient-to-br from-primary/10 via-background to-gold/10">
       <Card className="w-full max-w-md shadow-xl border-2">
         <CardHeader className="space-y-3 text-center">
           <div className="flex justify-center"><Logo /></div>
@@ -240,6 +247,17 @@ export function AuthCard() {
           <CardDescription>Sign in or create an account to continue</CardDescription>
         </CardHeader>
         <CardContent>
+          <div className="mb-4 flex flex-col items-center gap-2">
+            <a
+              href={edolearnApk.url}
+              download="EdoLearn-v1.3.apk"
+              className="inline-flex items-center gap-2 rounded-md border border-primary/30 bg-primary/10 px-3 py-2 text-sm font-medium text-primary hover:bg-primary/20 transition-colors"
+            >
+              <Smartphone className="h-4 w-4" />
+              Download Android app (APK)
+            </a>
+            <Link to="/" className="text-xs text-muted-foreground hover:underline">← Back to home</Link>
+          </div>
           <Tabs value={tab} onValueChange={(v) => setTab(v as "signin" | "signup")}>
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="signin">Sign In</TabsTrigger>
@@ -487,19 +505,27 @@ export function AuthCard() {
               </p>
             </TabsContent>
           </Tabs>
-          <div className="mt-4 flex flex-col items-center gap-3">
-            <a
-              href={edolearnApk.url}
-              download="EdoLearn-v1.3.apk"
-              className="inline-flex items-center gap-2 rounded-md border border-primary/30 bg-primary/10 px-3 py-2 text-sm font-medium text-primary hover:bg-primary/20 transition-colors"
-            >
-              <Smartphone className="h-4 w-4" />
-              Download Android app (APK)
-            </a>
-            <Link to="/" className="text-xs text-muted-foreground hover:underline">← Back to home</Link>
-          </div>
         </CardContent>
       </Card>
+
+      <div className="fixed left-3 bottom-[calc(env(safe-area-inset-bottom,0px)+1rem)] z-50 flex flex-col gap-2 sm:hidden">
+        <button
+          type="button"
+          onClick={scrollToTop}
+          aria-label="Scroll to top"
+          className="rounded-full bg-primary text-primary-foreground shadow-lg p-2 hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary"
+        >
+          <ChevronUp className="h-5 w-5" />
+        </button>
+        <button
+          type="button"
+          onClick={scrollToBottom}
+          aria-label="Scroll to bottom"
+          className="rounded-full bg-primary text-primary-foreground shadow-lg p-2 hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary"
+        >
+          <ChevronDown className="h-5 w-5" />
+        </button>
+      </div>
 
       {forgotOpen && (
         <Suspense fallback={null}>
