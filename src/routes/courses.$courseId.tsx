@@ -314,7 +314,7 @@ function CoursePlayer() {
         </aside>
 
         {/* Main content */}
-        <section>
+        <section className="min-w-0">
           {activeLesson ? (
             <Card>
               <CardHeader>
