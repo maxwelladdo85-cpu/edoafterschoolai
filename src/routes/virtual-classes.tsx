@@ -271,7 +271,7 @@ function VirtualClassesPage() {
           </Dialog>
         </div>
 
-        {courses.length === 0 && !loading && (
+        {!canManageAll && courses.length === 0 && !loading && (
           <Card className="border-dashed"><CardContent className="py-6 text-center text-sm text-muted-foreground">
             Create a course first before scheduling a virtual class.
           </CardContent></Card>
