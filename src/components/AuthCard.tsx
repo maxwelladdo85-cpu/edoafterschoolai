@@ -68,15 +68,23 @@ export function AuthCard() {
   const checkNin = useServerFn(checkLearnerNinAvailable);
   const [showScrollButtons, setShowScrollButtons] = useState(false);
 
+  const updateScrollable = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setShowScrollButtons(el.scrollHeight > el.clientHeight + 16);
+  };
+
+  const scrollToTop = () => scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+  const scrollToBottom = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+  };
+
   useEffect(() => {
-    const container = document.documentElement;
-    const onScroll = () => {
-      const scrollable = container.scrollHeight > container.clientHeight + 16;
-      setShowScrollButtons(scrollable);
-    };
-    onScroll();
-    window.addEventListener("resize", onScroll);
-    return () => window.removeEventListener("resize", onScroll);
+    updateScrollable();
+    window.addEventListener("resize", updateScrollable);
+    return () => window.removeEventListener("resize", updateScrollable);
   }, []);
 
   useEffect(() => {
