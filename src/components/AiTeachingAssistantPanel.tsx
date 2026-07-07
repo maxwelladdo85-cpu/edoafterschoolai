@@ -489,16 +489,12 @@ export function AiTeachingAssistantPanel() {
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="quiz" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4">
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="quiz"><ListChecks className="mr-2 h-4 w-4" />Quiz</TabsTrigger>
             <TabsTrigger value="plan"><CalendarRange className="mr-2 h-4 w-4" />Lesson Plan</TabsTrigger>
-            <TabsTrigger value="summary"><FileText className="mr-2 h-4 w-4" />Summariser</TabsTrigger>
-            <TabsTrigger value="grading"><GraduationCap className="mr-2 h-4 w-4" />Grading</TabsTrigger>
           </TabsList>
           <TabsContent value="quiz" className="mt-4"><QuizGenerator /></TabsContent>
           <TabsContent value="plan" className="mt-4"><LessonPlanner /></TabsContent>
-          <TabsContent value="summary" className="mt-4"><ContentSummariser /></TabsContent>
-          <TabsContent value="grading" className="mt-4"><GradingAssist /></TabsContent>
         </Tabs>
       </CardContent>
     </Card>
