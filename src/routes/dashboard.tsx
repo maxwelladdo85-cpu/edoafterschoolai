@@ -19,6 +19,7 @@ export const Route = createFileRoute("/dashboard")({
 function DashboardPage() {
   const { user, role, loading } = useAuth();
   const nav = useNavigate();
+  const router = useRouter();
 
   useEffect(() => {
     if (!loading && !user) nav({ to: "/login" });
