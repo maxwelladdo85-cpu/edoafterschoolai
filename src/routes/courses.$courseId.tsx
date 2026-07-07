@@ -195,6 +195,7 @@ function CoursePlayer() {
 
   return (
     <DashboardShell title={course.title}>
+      <div className="pb-28 lg:pb-6">
       <div className="mb-4">
         <Button
           variant="ghost"
@@ -209,6 +210,7 @@ function CoursePlayer() {
         </Button>
       </div>
       <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
+
         {/* Lesson sidebar */}
         <aside className="space-y-4">
           <div>
@@ -316,12 +318,12 @@ function CoursePlayer() {
           {activeLesson ? (
             <Card>
               <CardHeader>
-                <div className="flex items-start justify-between gap-3">
-                  <div>
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="min-w-0 flex-1">
                     <Badge variant="secondary" className="mb-2 capitalize">{activeLesson.content_type}</Badge>
-                    <CardTitle>{activeLesson.title}</CardTitle>
+                    <CardTitle className="break-words">{activeLesson.title}</CardTitle>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex shrink-0 gap-2 self-end sm:self-auto">
                     <Button size="icon" variant="outline" disabled={activeIdx <= 0} onClick={() => goTo(activeIdx - 1)}>
                       <ChevronLeft className="h-4 w-4" />
                     </Button>
@@ -331,6 +333,7 @@ function CoursePlayer() {
                   </div>
                 </div>
               </CardHeader>
+
               <CardContent className="space-y-6">
                 <LessonContent lesson={activeLesson} />
                 <div className="flex flex-wrap items-center justify-between gap-3 border-t pt-4">
@@ -371,7 +374,9 @@ function CoursePlayer() {
       <div className="mt-6">
         <CourseForum courseId={courseId} />
       </div>
+      </div>
       {!isStaff && <AiTutorWidget courseId={courseId} courseTitle={course.title} />}
+
 
       <Dialog open={showCongrats} onOpenChange={setShowCongrats}>
         <DialogContent className="sm:max-w-md text-center">
@@ -448,7 +453,7 @@ function LessonContent({ lesson }: { lesson: Lesson }) {
     const office = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(lesson.content_url)}`;
     return (
       <div className="space-y-2">
-        <iframe src={office} title={lesson.title} className="h-[70vh] w-full rounded-lg border" />
+        <iframe src={office} title={lesson.title} className="h-[55vh] sm:h-[70vh] w-full rounded-lg border" />
         {downloadBtn}
       </div>
     );
@@ -484,7 +489,7 @@ function PdfMaterial({ url, title }: { url: string; title: string }) {
         <iframe
           src={useFallback ? gviewSrc : directSrc}
           title={title}
-          className="h-[70vh] w-full"
+          className="h-[55vh] sm:h-[70vh] w-full"
           onError={() => setUseFallback(true)}
         />
       </div>
