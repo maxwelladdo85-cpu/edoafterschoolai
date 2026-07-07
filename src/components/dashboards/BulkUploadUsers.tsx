@@ -141,7 +141,7 @@ function BulkUploadCard({
     const { rows: parsed, errors } = parseRoleCSV(text, role);
     if (errors.length) { toast.error(errors[0]); return; }
     if (parsed.length === 0) { toast.error("No data rows found"); return; }
-    if (parsed.length > 500) { toast.error("Maximum 500 rows per upload"); return; }
+    if (parsed.length > 1000) { toast.error("Maximum 1000 rows per upload"); return; }
     setRows(parsed);
     toast.success(`Parsed ${parsed.length} row(s)`);
   };
