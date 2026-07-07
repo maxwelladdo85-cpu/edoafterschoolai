@@ -2,7 +2,7 @@ export type VirtualClassStatus = "upcoming" | "live" | "ended";
 
 export interface VirtualClass {
   id: string;
-  course_id: string;
+  course_id: string | null;
   teacher_id: string;
   title: string;
   description: string | null;
