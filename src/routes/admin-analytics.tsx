@@ -250,7 +250,8 @@ function AdminAnalyticsPage() {
               <EmptyChart text="No learners in this scope." />
             ) : (
               <PieChart>
-                <Pie data={data!.by_school_type} dataKey="learners" nameKey="school_type" cx="50%" cy="50%" outerRadius={100} innerRadius={55} paddingAngle={3}>
+                <Pie data={data!.by_school_type} dataKey="learners" nameKey="school_type" cx="50%" cy="50%" outerRadius={100} innerRadius={55} paddingAngle={3}
+                  label={(entry: any) => `${entry.school_type}: ${entry.learners}`} labelLine={true}>
                   {data!.by_school_type.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
                 </Pie>
                 <Tooltip contentStyle={tooltipStyle} />
