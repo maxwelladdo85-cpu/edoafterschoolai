@@ -207,7 +207,9 @@ function AdminAnalyticsPage() {
               <XAxis dataKey="day" stroke="hsl(var(--muted-foreground))" fontSize={12} />
               <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} allowDecimals={false} />
               <Tooltip contentStyle={tooltipStyle} />
-              <Area type="monotone" dataKey="active_users" stroke="hsl(var(--primary))" fill="url(#dauG)" strokeWidth={2} />
+              <Area type="monotone" dataKey="active_users" stroke="hsl(var(--primary))" fill="url(#dauG)" strokeWidth={2}>
+                <LabelList dataKey="active_users" position="top" style={{ fontSize: 11, fill: "hsl(var(--foreground))" }} />
+              </Area>
             </AreaChart>
           </ChartCard>
 
@@ -218,8 +220,12 @@ function AdminAnalyticsPage() {
               <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} allowDecimals={false} />
               <Tooltip contentStyle={tooltipStyle} />
               <Legend />
-              <Line type="monotone" dataKey="signups" stroke="hsl(var(--accent))" strokeWidth={2.5} dot={{ r: 3 }} />
-              <Line type="monotone" dataKey="enrollments" stroke="hsl(var(--primary))" strokeWidth={2.5} dot={{ r: 3 }} />
+              <Line type="monotone" dataKey="signups" stroke="hsl(var(--accent))" strokeWidth={2.5} dot={{ r: 3 }}>
+                <LabelList dataKey="signups" position="top" style={{ fontSize: 11, fill: "hsl(var(--accent))" }} />
+              </Line>
+              <Line type="monotone" dataKey="enrollments" stroke="hsl(var(--primary))" strokeWidth={2.5} dot={{ r: 3 }}>
+                <LabelList dataKey="enrollments" position="bottom" style={{ fontSize: 11, fill: "hsl(var(--primary))" }} />
+              </Line>
             </LineChart>
           </ChartCard>
 
