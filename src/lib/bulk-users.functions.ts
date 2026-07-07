@@ -77,6 +77,8 @@ export const bulkCreateUsers = createServerFn({ method: "POST" })
         if (r.school_type) profilePatch.school_type = r.school_type;
         if (r.date_of_birth) profilePatch.date_of_birth = r.date_of_birth;
         if (r.oracle_id) profilePatch.teacher_id = r.oracle_id;
+        if (r.nin) profilePatch.nin = r.nin;
+        if (r.parent_phone && r.role === "learner") profilePatch.phone = r.parent_phone;
         profilePatch.status = "active";
         await (supabaseAdmin.from("profiles") as any).update(profilePatch).eq("id", uid);
 
