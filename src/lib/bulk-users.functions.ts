@@ -20,7 +20,7 @@ const RowSchema = z.object({
 
 
 const InputSchema = z.object({
-  rows: z.array(RowSchema).min(1).max(500),
+  rows: z.array(RowSchema).min(1).max(1000),
 });
 
 function randomPassword(len = 12) {
