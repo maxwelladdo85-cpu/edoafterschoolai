@@ -212,7 +212,7 @@ function CoursePlayer() {
       <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
 
         {/* Lesson sidebar */}
-        <aside className="space-y-4">
+        <aside className="min-w-0 space-y-4">
           <div>
             <h2 className="text-lg font-bold">{course.title}</h2>
             {course.subject && <p className="text-xs text-muted-foreground">{course.subject}</p>}
@@ -314,7 +314,7 @@ function CoursePlayer() {
         </aside>
 
         {/* Main content */}
-        <section>
+        <section className="min-w-0">
           {activeLesson ? (
             <Card>
               <CardHeader>
