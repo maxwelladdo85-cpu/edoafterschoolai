@@ -125,9 +125,13 @@ function VirtualClassesPage() {
       toast.error(parsed.error.issues[0]?.message ?? "Invalid input");
       return;
     }
+    if (!canManageAll && !parsed.data.course_id) {
+      toast.error("Pick a course");
+      return;
+    }
     const scheduled_at = new Date(`${parsed.data.date}T${parsed.data.time}`).toISOString();
     const payload = {
-      course_id: parsed.data.course_id,
+      course_id: canManageAll ? parsed.data.course_id ?? null : parsed.data.course_id,
       title: parsed.data.title,
       description: parsed.data.description,
       scheduled_at,
