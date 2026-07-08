@@ -63,11 +63,11 @@ workflows:
             <key>method</key><string>app-store-connect</string>
             <key>teamID</key><string>UPH4MRP52S</string>
             <key>signingStyle</key><string>manual</string>
-            <key>provisioningProfileSpecifiers</key>
-            <array><dict>
-              <key>bundleID</key><string>ng.gov.edosubeb.edolearn</string>
-              <key>profileSpecifier</key><string>match AppStore ng.gov.edosubeb.edolearn</string>
-            </dict></array>
+            <key>provisioningProfiles</key>
+            <dict>
+              <key>ng.gov.edosubeb.edolearn</key>
+              <string>match AppStore ng.gov.edosubeb.edolearn</string>
+            </dict>
             <key>stripSwiftSymbols</key><true/>
             <key>uploadSymbols</key><true/>
           </dict></plist>
