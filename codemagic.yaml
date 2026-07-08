@@ -56,21 +56,17 @@ workflows:
             -configuration Release \
             -destination 'generic/platform=iOS' \
             -archivePath "$CM_BUILD_DIR/build/ios/App.xcarchive" \
+            -allowProvisioningUpdates \
             DEVELOPMENT_TEAM="${TEAM_ID}"
       - name: Export IPA
         script: |
-          PROFILE_UUID=$(ls ~/Library/Developer/Xcode/UserData/Provisioning\ Profiles/*.mobileprovision 2>/dev/null | head -1 | xargs -I{} basename {} .mobileprovision)
-          echo "Using profile: $PROFILE_UUID"
           cat > /tmp/exportOptions.plist << PLIST
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
           <plist version="1.0"><dict>
             <key>method</key><string>app-store-connect</string>
             <key>teamID</key><string>UPH4MRP52S</string>
-            <key>signingStyle</key><string>manual</string>
-            <key>provisioningProfiles</key><dict>
-              <key>ng.gov.edosubeb.edolearn</key><string>${PROFILE_UUID}</string>
-            </dict>
+            <key>signingStyle</key><string>automatic</string>
             <key>stripSwiftSymbols</key><true/>
             <key>uploadSymbols</key><true/>
           </dict></plist>
