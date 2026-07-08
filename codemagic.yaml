@@ -62,7 +62,12 @@ workflows:
           <plist version="1.0"><dict>
             <key>method</key><string>app-store-connect</string>
             <key>teamID</key><string>UPH4MRP52S</string>
-            <key>signingStyle</key><string>automatic</string>
+            <key>signingStyle</key><string>manual</string>
+            <key>provisioningProfileSpecifiers</key>
+            <array><dict>
+              <key>bundleID</key><string>ng.gov.edosubeb.edolearn</string>
+              <key>profileSpecifier</key><string>match AppStore ng.gov.edosubeb.edolearn</string>
+            </dict></array>
             <key>stripSwiftSymbols</key><true/>
             <key>uploadSymbols</key><true/>
           </dict></plist>
