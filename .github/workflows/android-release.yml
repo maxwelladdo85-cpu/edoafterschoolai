@@ -27,7 +27,7 @@ jobs:
       - uses: android-actions/setup-android@v3
 
       - run: bun install --frozen-lockfile
-      - run: npx cap add android
+      - run: rm -rf android && npx cap add android
       - run: mkdir -p android/app/src/main/assets
       - run: npx cap sync android
 

@@ -22,7 +22,7 @@ jobs:
           ruby-version: 3.2
 
       - run: bun install --frozen-lockfile
-      - run: npx cap add ios
+      - run: rm -rf ios && npx cap add ios
       - run: npx cap sync ios
 
       - name: Install Fastlane & setup signing
