@@ -22,7 +22,7 @@ const config: CapacitorConfig = {
 
   // Marketing version → CFBundleShortVersionString in Info.plist.
   // Bump for every public release (e.g. "1.0.1", "1.1.0").
-  version: "1.4.0",
+  version: "1.3.1",
 
   server: {
     url: "https://edodlah.com",
@@ -59,7 +59,7 @@ const config: CapacitorConfig = {
   ios: {
     // CFBundleVersion — App Store Connect requires this to increase
     // on every upload, even for the same marketing `version`.
-    buildNumber: "1",
+    buildNumber: "2",
     contentInset: "always",
     // Background color shown behind the WebView during transitions.
     backgroundColor: "#00843D",
