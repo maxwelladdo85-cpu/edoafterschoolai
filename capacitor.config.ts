@@ -59,7 +59,7 @@ const config: CapacitorConfig = {
   ios: {
     // CFBundleVersion — App Store Connect requires this to increase
     // on every upload, even for the same marketing `version`.
-    buildNumber: "2",
+    buildNumber: "3",
     contentInset: "always",
     // Background color shown behind the WebView during transitions.
     backgroundColor: "#00843D",
