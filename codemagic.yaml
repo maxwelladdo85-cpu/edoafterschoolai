@@ -26,6 +26,8 @@ workflows:
         script: npm install
       - name: Build web assets
         script: npm run build
+      - name: Re-add iOS platform (picks up latest version/buildNumber)
+        script: rm -rf ios && npx cap add ios
       - name: Sync Capacitor iOS
         script: npx cap sync ios
       - name: Install Fastlane & setup signing
