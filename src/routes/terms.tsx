@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { FileText, Mail, ArrowLeft } from "lucide-react";
+import { FileText, Mail, ArrowLeft, HelpCircle, ChevronDown, GraduationCap, Users, ShieldCheck, PenSquare } from "lucide-react";
 
 export const Route = createFileRoute("/terms")({
   head: () => ({
