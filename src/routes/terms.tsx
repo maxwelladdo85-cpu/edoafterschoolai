@@ -269,13 +269,3 @@ function FAQSection() {
     </section>
   );
 }
-      </main>
-
-      <footer className="border-t bg-card">
-        <div className="mx-auto max-w-4xl px-6 py-6 text-center text-sm text-muted-foreground">
-          © {new Date().getFullYear()} Edo State Universal Basic Education Board (SUBEB). All rights reserved.
-        </div>
-      </footer>
-    </div>
-  );
-}
