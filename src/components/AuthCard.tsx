@@ -10,12 +10,12 @@ import { useNavigate, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Logo } from "@/components/Logo";
-import { Eye, EyeOff, Smartphone, ChevronUp, ChevronDown } from "lucide-react";
+import { Eye, EyeOff, ChevronUp, ChevronDown } from "lucide-react";
 import { lookupLearnerEmail, checkLearnerNinAvailable } from "@/lib/learner-auth.functions";
 import { lookupTeacherEmail } from "@/lib/teacher-auth.functions";
 import { CLASS_GROUPS } from "@/lib/classes";
 import { EDO_LGAS } from "@/lib/lgas";
-import edolearnApk from "@/assets/edolearn-apk.asset.json";
+
 
 const ForgotPasswordDialog = lazy(() =>
   import("@/components/ForgotPasswordDialog").then((m) => ({ default: m.ForgotPasswordDialog })),
@@ -248,14 +248,6 @@ export function AuthCard() {
         </CardHeader>
         <CardContent>
           <div className="mb-4 flex flex-col items-center gap-2">
-            <a
-              href={edolearnApk.url}
-              download="EdoLearn-v1.3.apk"
-              className="inline-flex items-center gap-2 rounded-md border border-primary/30 bg-primary/10 px-3 py-2 text-sm font-medium text-primary hover:bg-primary/20 transition-colors"
-            >
-              <Smartphone className="h-4 w-4" />
-              Download Android app (APK)
-            </a>
             <Link to="/" className="text-xs text-muted-foreground hover:underline">← Back to home</Link>
           </div>
           <Tabs value={tab} onValueChange={(v) => setTab(v as "signin" | "signup")}>
