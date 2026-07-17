@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +10,7 @@ import { useNavigate, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Logo } from "@/components/Logo";
-import { Eye, EyeOff, ChevronUp, ChevronDown } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import { lookupLearnerEmail, checkLearnerNinAvailable } from "@/lib/learner-auth.functions";
 import { lookupTeacherEmail } from "@/lib/teacher-auth.functions";
 import { CLASS_GROUPS } from "@/lib/classes";
@@ -40,7 +40,7 @@ function PasswordInput({ id, value, onChange, minLength }: { id: string; value: 
 
 export function AuthCard() {
   const nav = useNavigate();
-  const scrollRef = useRef<HTMLDivElement>(null);
+  
   const [tab, setTab] = useState<"signin" | "signup">("signin");
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
@@ -66,12 +66,6 @@ export function AuthCard() {
   const lookupEmail = useServerFn(lookupLearnerEmail);
   const lookupTeacher = useServerFn(lookupTeacherEmail);
   const checkNin = useServerFn(checkLearnerNinAvailable);
-  const scrollToTop = () => scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
-  const scrollToBottom = () => {
-    const el = scrollRef.current;
-    if (!el) return;
-    el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
-  };
 
   useEffect(() => {
     (async () => {
@@ -239,7 +233,7 @@ export function AuthCard() {
   };
 
   return (
-    <div ref={scrollRef} className="min-h-[100dvh] w-full flex items-start sm:items-center justify-center p-4 pt-6 pb-[calc(env(safe-area-inset-bottom,0px)+5rem)] overflow-y-auto bg-gradient-to-br from-primary/10 via-background to-gold/10">
+    <div className="min-h-[100dvh] w-full flex items-start sm:items-center justify-center p-4 pt-6 pb-[calc(env(safe-area-inset-bottom,0px)+2rem)] bg-gradient-to-br from-primary/10 via-background to-gold/10">
       <Card className="w-full max-w-md shadow-xl border-2 my-4 sm:my-0">
         <CardHeader className="space-y-3 text-center pt-8">
           <div className="mt-12 flex justify-center"><Logo /></div>
@@ -500,24 +494,6 @@ export function AuthCard() {
         </CardContent>
       </Card>
 
-      <div className="fixed right-2 bottom-[calc(env(safe-area-inset-bottom,0px)+3.5rem)] z-50 flex flex-col gap-2 sm:hidden">
-        <button
-          type="button"
-          onClick={scrollToTop}
-          aria-label="Scroll to top"
-          className="rounded-full bg-primary/90 text-primary-foreground shadow-lg p-1.5 hover:bg-primary focus:outline-none focus:ring-2 focus:ring-primary"
-        >
-          <ChevronUp className="h-4 w-4" />
-        </button>
-        <button
-          type="button"
-          onClick={scrollToBottom}
-          aria-label="Scroll to bottom"
-          className="rounded-full bg-primary/90 text-primary-foreground shadow-lg p-1.5 hover:bg-primary focus:outline-none focus:ring-2 focus:ring-primary"
-        >
-          <ChevronDown className="h-4 w-4" />
-        </button>
-      </div>
 
       {forgotOpen && (
         <Suspense fallback={null}>
