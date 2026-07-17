@@ -32,7 +32,7 @@ function Index() {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div ref={scrollRef} className="page-scrollbar h-[100dvh] overflow-y-scroll overscroll-y-contain bg-background">
+    <div ref={scrollRef} className="page-scrollbar h-[100dvh] overflow-y-scroll overscroll-y-contain bg-background pr-10 sm:pr-12">
       <div className="relative">
         <img
           src={heroBg}
