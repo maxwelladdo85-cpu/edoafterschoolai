@@ -239,8 +239,8 @@ export function AuthCard() {
   };
 
   return (
-    <div ref={scrollRef} className="h-[100dvh] w-full flex items-start sm:items-center justify-center p-4 pb-[calc(env(safe-area-inset-bottom,0px)+2rem)] overflow-y-auto bg-gradient-to-br from-primary/10 via-background to-gold/10">
-      <Card className="w-full max-w-md shadow-xl border-2">
+    <div ref={scrollRef} className="min-h-[100dvh] w-full flex items-start sm:items-center justify-center p-4 pt-6 pb-[calc(env(safe-area-inset-bottom,0px)+5rem)] overflow-y-auto bg-gradient-to-br from-primary/10 via-background to-gold/10">
+      <Card className="w-full max-w-md shadow-xl border-2 my-4 sm:my-0">
         <CardHeader className="space-y-3 text-center pt-8">
           <div className="mt-12 flex justify-center"><Logo /></div>
           <CardTitle className="text-2xl">Welcome</CardTitle>
@@ -500,7 +500,7 @@ export function AuthCard() {
         </CardContent>
       </Card>
 
-      <div className="fixed left-3 bottom-[calc(env(safe-area-inset-bottom,0px)+1rem)] z-50 flex flex-col gap-2 sm:hidden">
+      <div className="fixed right-3 bottom-[calc(env(safe-area-inset-bottom,0px)+5rem)] z-50 flex flex-col gap-2 sm:hidden">
         <button
           type="button"
           onClick={scrollToTop}
