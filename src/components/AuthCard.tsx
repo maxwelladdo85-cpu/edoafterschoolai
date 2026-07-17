@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,7 @@ import { useNavigate, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Logo } from "@/components/Logo";
+import { SideScrollBar } from "@/components/SideScrollBar";
 import { Eye, EyeOff } from "lucide-react";
 import { lookupLearnerEmail, checkLearnerNinAvailable } from "@/lib/learner-auth.functions";
 import { lookupTeacherEmail } from "@/lib/teacher-auth.functions";
@@ -40,6 +41,7 @@ function PasswordInput({ id, value, onChange, minLength }: { id: string; value: 
 
 export function AuthCard() {
   const nav = useNavigate();
+  const scrollRef = useRef<HTMLDivElement>(null);
   
   const [tab, setTab] = useState<"signin" | "signup">("signin");
   const [loading, setLoading] = useState(false);
@@ -233,7 +235,7 @@ export function AuthCard() {
   };
 
   return (
-    <div className="min-h-[100dvh] w-full flex items-start sm:items-center justify-center p-4 pt-6 pb-[calc(env(safe-area-inset-bottom,0px)+2rem)] bg-gradient-to-br from-primary/10 via-background to-gold/10">
+    <div ref={scrollRef} className="page-scrollbar h-[100dvh] w-full overflow-y-scroll overscroll-y-contain flex items-start justify-center p-4 pt-6 pb-[calc(env(safe-area-inset-bottom,0px)+6rem)] bg-gradient-to-br from-primary/10 via-background to-gold/10">
       <Card className="w-full max-w-md shadow-xl border-2 my-4 sm:my-0">
         <CardHeader className="space-y-3 text-center pt-8">
           <div className="mt-12 flex justify-center"><Logo /></div>
@@ -504,6 +506,7 @@ export function AuthCard() {
           />
         </Suspense>
       )}
+      <SideScrollBar targetRef={scrollRef} />
     </div>
   );
 }
