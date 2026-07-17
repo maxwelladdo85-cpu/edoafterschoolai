@@ -1,8 +1,10 @@
+import { useRef } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { setResponseHeaders } from "@tanstack/react-start/server";
 import { createServerFn } from "@tanstack/react-start";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
+import { SideScrollBar } from "@/components/SideScrollBar";
 import { GraduationCap, Users, Sparkles, BookOpen } from "lucide-react";
 import learnersImg from "@/assets/learners.jpg";
 import teachersImg from "@/assets/teachers.jpg";
@@ -27,8 +29,10 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
   return (
-    <div className="min-h-screen bg-background">
+    <div ref={scrollRef} className="page-scrollbar h-[100dvh] overflow-y-scroll overscroll-y-contain bg-background">
       <div className="relative">
         <img
           src={heroBg}
@@ -101,6 +105,7 @@ function Index() {
           <p>© {new Date().getFullYear()} Edo State Universal Basic Education Board (SUBEB)</p>
         </div>
       </footer>
+      <SideScrollBar targetRef={scrollRef} />
     </div>
   );
 }
