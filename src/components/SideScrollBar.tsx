@@ -70,13 +70,14 @@ export function SideScrollBar({ targetRef }: SideScrollBarProps) {
     };
   }, [targetRef, updateMetrics]);
 
-  if (!metrics.canScroll) return null;
-
   return (
     <div
       ref={railRef}
       aria-label="Page scroll bar"
-      className="fixed right-1 top-20 bottom-20 z-50 w-7 touch-none rounded-full bg-muted/80 p-1 shadow-lg ring-1 ring-border backdrop-blur sm:right-2"
+      aria-hidden={!metrics.canScroll}
+      className={`fixed right-1 top-20 bottom-20 z-50 w-7 touch-none rounded-full bg-muted/80 p-1 shadow-lg ring-1 ring-border backdrop-blur transition-opacity sm:right-2 ${
+        metrics.canScroll ? "opacity-100" : "pointer-events-none opacity-0"
+      }`}
       onPointerDown={(event) => {
         const rail = railRef.current;
         if (!rail) return;
