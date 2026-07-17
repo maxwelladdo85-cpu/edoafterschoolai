@@ -235,7 +235,7 @@ export function AuthCard() {
   };
 
   return (
-    <div ref={scrollRef} className="page-scrollbar h-[100dvh] w-full overflow-y-scroll overscroll-y-contain flex items-start justify-center p-4 pt-6 pb-[calc(env(safe-area-inset-bottom,0px)+6rem)] bg-gradient-to-br from-primary/10 via-background to-gold/10">
+    <div ref={scrollRef} className="page-scrollbar h-[100dvh] w-full overflow-y-scroll overscroll-y-contain flex items-start justify-center p-4 pt-6 pr-12 sm:pr-14 pb-[calc(env(safe-area-inset-bottom,0px)+6rem)] bg-gradient-to-br from-primary/10 via-background to-gold/10">
       <Card className="w-full max-w-md shadow-xl border-2 my-4 sm:my-0">
         <CardHeader className="space-y-3 text-center pt-8">
           <div className="mt-12 flex justify-center"><Logo /></div>
