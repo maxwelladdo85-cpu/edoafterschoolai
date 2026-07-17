@@ -10,7 +10,7 @@ import { useNavigate, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Logo } from "@/components/Logo";
-import { Eye, EyeOff, ChevronUp, ChevronDown } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import { lookupLearnerEmail, checkLearnerNinAvailable } from "@/lib/learner-auth.functions";
 import { lookupTeacherEmail } from "@/lib/teacher-auth.functions";
 import { CLASS_GROUPS } from "@/lib/classes";
@@ -66,12 +66,6 @@ export function AuthCard() {
   const lookupEmail = useServerFn(lookupLearnerEmail);
   const lookupTeacher = useServerFn(lookupTeacherEmail);
   const checkNin = useServerFn(checkLearnerNinAvailable);
-  const scrollToTop = () => scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
-  const scrollToBottom = () => {
-    const el = scrollRef.current;
-    if (!el) return;
-    el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
-  };
 
   useEffect(() => {
     (async () => {
@@ -500,24 +494,6 @@ export function AuthCard() {
         </CardContent>
       </Card>
 
-      <div className="fixed right-2 bottom-[calc(env(safe-area-inset-bottom,0px)+3.5rem)] z-50 flex flex-col gap-2 sm:hidden">
-        <button
-          type="button"
-          onClick={scrollToTop}
-          aria-label="Scroll to top"
-          className="rounded-full bg-primary/90 text-primary-foreground shadow-lg p-1.5 hover:bg-primary focus:outline-none focus:ring-2 focus:ring-primary"
-        >
-          <ChevronUp className="h-4 w-4" />
-        </button>
-        <button
-          type="button"
-          onClick={scrollToBottom}
-          aria-label="Scroll to bottom"
-          className="rounded-full bg-primary/90 text-primary-foreground shadow-lg p-1.5 hover:bg-primary focus:outline-none focus:ring-2 focus:ring-primary"
-        >
-          <ChevronDown className="h-4 w-4" />
-        </button>
-      </div>
 
       {forgotOpen && (
         <Suspense fallback={null}>
