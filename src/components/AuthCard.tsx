@@ -500,22 +500,22 @@ export function AuthCard() {
         </CardContent>
       </Card>
 
-      <div className="fixed right-3 bottom-[calc(env(safe-area-inset-bottom,0px)+5rem)] z-50 flex flex-col gap-2 sm:hidden">
+      <div className="fixed right-2 bottom-[calc(env(safe-area-inset-bottom,0px)+3.5rem)] z-50 flex flex-col gap-2 sm:hidden">
         <button
           type="button"
           onClick={scrollToTop}
           aria-label="Scroll to top"
-          className="rounded-full bg-primary text-primary-foreground shadow-lg p-2 hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary"
+          className="rounded-full bg-primary/90 text-primary-foreground shadow-lg p-1.5 hover:bg-primary focus:outline-none focus:ring-2 focus:ring-primary"
         >
-          <ChevronUp className="h-5 w-5" />
+          <ChevronUp className="h-4 w-4" />
         </button>
         <button
           type="button"
           onClick={scrollToBottom}
           aria-label="Scroll to bottom"
-          className="rounded-full bg-primary text-primary-foreground shadow-lg p-2 hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary"
+          className="rounded-full bg-primary/90 text-primary-foreground shadow-lg p-1.5 hover:bg-primary focus:outline-none focus:ring-2 focus:ring-primary"
         >
-          <ChevronDown className="h-5 w-5" />
+          <ChevronDown className="h-4 w-4" />
         </button>
       </div>
 
