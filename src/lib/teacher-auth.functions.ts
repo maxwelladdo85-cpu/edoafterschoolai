@@ -20,26 +20,27 @@ export const lookupTeacherEmail = createServerFn({ method: "POST" })
 
     const { data: profiles, error } = await supabaseAdmin
       .from("profiles")
-      .select("id,email,teacher_id")
+      .select("id,email,teacher_id,created_at")
       .ilike("teacher_id", oracle)
-      .limit(20);
+      .order("created_at", { ascending: true })
+      .limit(50);
 
     if (error) throw new Error(error.message);
     if (!profiles || profiles.length === 0) {
       throw new Error("No teacher found with that Oracle number.");
     }
 
-    const finalMatch = emailLc
+    // Oracle number + password is the identifier. If an email was supplied we
+    // narrow with it, otherwise the first matching account is used.
+    const narrowed = emailLc
       ? profiles.filter((p) => (p.email ?? "").trim().toLowerCase() === emailLc)
       : profiles;
-    if (finalMatch.length === 0) {
+    if (narrowed.length === 0) {
       throw new Error("Email does not match the account for this Oracle number.");
     }
-    if (finalMatch.length > 1) {
-      throw new Error("Multiple accounts match. Please also enter your email to continue.");
-    }
 
-    const profile = finalMatch[0];
+    const profile = narrowed.find((p) => !!p.email) ?? narrowed[0];
+
 
     const { data: roles, error: rolesErr } = await supabaseAdmin
       .from("user_roles")
