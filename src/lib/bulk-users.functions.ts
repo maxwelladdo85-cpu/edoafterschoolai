@@ -79,6 +79,9 @@ export const bulkCreateUsers = createServerFn({ method: "POST" })
         if (r.oracle_id) profilePatch.teacher_id = r.oracle_id;
         if (r.nin) profilePatch.nin = r.nin;
         if (r.parent_phone && r.role === "learner") profilePatch.phone = r.parent_phone;
+        // Teachers have no email address — the auth account keeps a hidden
+        // internal one, but the profile email stays blank.
+        if (r.role === "teacher") profilePatch.email = null;
         profilePatch.status = "active";
         await (supabaseAdmin.from("profiles") as any).update(profilePatch).eq("id", uid);
 

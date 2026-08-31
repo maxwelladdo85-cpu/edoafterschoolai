@@ -47,14 +47,20 @@ export const lookupTeacherEmail = createServerFn({ method: "POST" })
     if (rolesErr) throw new Error(rolesErr.message);
 
     const teacherIds = new Set((roles ?? []).map((r) => r.user_id));
-    const profile = narrowed.find((p) => teacherIds.has(p.id) && !!p.email);
+    const profile = narrowed.find((p) => teacherIds.has(p.id));
     if (!profile) {
-      if (narrowed.some((p) => teacherIds.has(p.id))) {
-        throw new Error("No email is linked to this teacher account. Contact an admin.");
-      }
       throw new Error("This sign-in method is for teachers only.");
     }
 
-    return { email: profile.email! };
+    // Profiles no longer store teacher emails — resolve the internal sign-in
+    // email from the auth account instead.
+    const { data: authUser, error: authErr } = await supabaseAdmin.auth.admin.getUserById(profile.id);
+    if (authErr) throw new Error(authErr.message);
+    const authEmail = authUser?.user?.email;
+    if (!authEmail) {
+      throw new Error("No sign-in account is linked to this teacher. Contact an admin.");
+    }
+
+    return { email: authEmail };
 
   });
