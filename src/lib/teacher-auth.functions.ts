@@ -39,22 +39,22 @@ export const lookupTeacherEmail = createServerFn({ method: "POST" })
       throw new Error("Email does not match the account for this Oracle number.");
     }
 
-    const profile = narrowed.find((p) => !!p.email) ?? narrowed[0];
-
-
     const { data: roles, error: rolesErr } = await supabaseAdmin
       .from("user_roles")
-      .select("role")
-      .eq("user_id", profile.id);
+      .select("user_id,role")
+      .in("user_id", narrowed.map((p) => p.id))
+      .eq("role", "teacher");
     if (rolesErr) throw new Error(rolesErr.message);
-    const isTeacher = (roles ?? []).some((r) => r.role === "teacher");
-    if (!isTeacher) {
+
+    const teacherIds = new Set((roles ?? []).map((r) => r.user_id));
+    const profile = narrowed.find((p) => teacherIds.has(p.id) && !!p.email);
+    if (!profile) {
+      if (narrowed.some((p) => teacherIds.has(p.id))) {
+        throw new Error("No email is linked to this teacher account. Contact an admin.");
+      }
       throw new Error("This sign-in method is for teachers only.");
     }
 
-    if (!profile.email) {
-      throw new Error("No email is linked to this teacher account. Contact an admin.");
-    }
+    return { email: profile.email! };
 
-    return { email: profile.email };
   });
