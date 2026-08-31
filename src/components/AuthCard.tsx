@@ -55,7 +55,7 @@ export function AuthCard() {
   const [learnerPhone, setLearnerPhone] = useState("");
   const [learnerEmail, setLearnerEmail] = useState("");
   const [teacherOracle, setTeacherOracle] = useState("");
-  const [teacherEmail, setTeacherEmail] = useState("");
+  
   // Extra sign-up fields (match Settings page)
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
