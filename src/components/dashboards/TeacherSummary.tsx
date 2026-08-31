@@ -87,7 +87,8 @@ export function TeacherSummary() {
     { label: "Assessments", value: assessments, icon: ClipboardCheck, tint: "from-sky-500/15 to-sky-500/5", iconClass: "bg-sky-500/10 text-sky-600" },
   ];
 
-  const firstName = (user?.user_metadata?.full_name as string | undefined)?.split(" ")[0] ?? (isScripter ? "Scripter" : "Teacher");
+  const fullName = profile?.full_name?.trim() || (user?.user_metadata?.full_name as string | undefined) || "";
+  const firstName = fullName.split(" ")[0] || (isScripter ? "Scripter" : "Teacher");
   const eyebrowLabel = isScripter ? "Sub Admin - Scripter" : "Teacher workspace";
   const heroTitle = isScripter ? "Sub Admin - Scripter" : "Teacher Workspace";
   const heroDesc = isScripter
@@ -110,8 +111,22 @@ export function TeacherSummary() {
               <Sparkles className="h-3.5 w-3.5" /> {eyebrowLabel}
             </span>
             <h1 className="mt-3 text-2xl font-bold tracking-tight sm:mt-4 sm:text-3xl md:text-5xl">
-              {isScripter ? "Welcome Scripter" : `Welcome back, ${firstName}.`}
+              {isScripter ? "Welcome Scripter" : `Welcome back, ${fullName || firstName}.`}
             </h1>
+            {!isScripter && (profile?.schoolName || profile?.class_level) && (
+              <div className="mt-3 flex flex-wrap gap-2 text-xs sm:text-sm">
+                {profile?.schoolName && (
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 py-1 backdrop-blur">
+                    {profile.schoolName}
+                  </span>
+                )}
+                {profile?.class_level && (
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 py-1 backdrop-blur">
+                    Class taught: {profile.class_level}
+                  </span>
+                )}
+              </div>
+            )}
             <p className="mt-2 text-sm sm:mt-3 sm:text-base md:text-lg text-white/85">
               {heroDesc}
             </p>
