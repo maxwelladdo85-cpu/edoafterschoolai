@@ -213,7 +213,9 @@ function BulkUploadCard({
               <span className="font-mono">lga, password, school_name, phone_number, nin</span>.
             </>
           )}
-          If password is blank a secure one is generated and returned in the results CSV.
+          {role === "teacher"
+            ? " No email or password column is needed — teachers sign in with their Oracle ID and the shared password edosubeb123."
+            : " If password is blank a secure one is generated and returned in the results CSV."}
         </p>
 
         <div className="flex flex-wrap gap-2">
