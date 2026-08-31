@@ -91,7 +91,7 @@ export const Route = createFileRoute("/settings")({
 function SettingsPage() {
   const { user, role, loading } = useAuth();
   const nav = useNavigate();
-  const [profile, setProfile] = useState<{ full_name: string | null; email: string | null; created_at: string; avatar_url: string | null; class_level: string | null; lga: string | null; date_of_birth: string | null; school_type: string | null; school_id: string | null; parent_phone: string | null; nin: string | null } | null>(null);
+  const [profile, setProfile] = useState<{ full_name: string | null; email: string | null; created_at: string; avatar_url: string | null; class_level: string | null; lga: string | null; date_of_birth: string | null; school_type: string | null; school_id: string | null; parent_phone: string | null; nin: string | null; teacher_id: string | null } | null>(null);
   const [dob, setDob] = useState("");
   const [savingDob, setSavingDob] = useState(false);
   const [stats, setStats] = useState<{ label: string; value: number; icon: any }[]>([]);
@@ -138,7 +138,7 @@ function SettingsPage() {
   useEffect(() => {
     const load = async () => {
       if (!user || !role) return;
-      const { data: p } = await supabase.from("profiles").select("full_name,email,created_at,avatar_url,class_level,lga,date_of_birth,school_type,school_id,parent_phone,nin" as any).eq("id", user.id).maybeSingle();
+      const { data: p } = await supabase.from("profiles").select("full_name,email,created_at,avatar_url,class_level,lga,date_of_birth,school_type,school_id,parent_phone,nin,teacher_id" as any).eq("id", user.id).maybeSingle();
       setProfile(p as any);
       const nm = ((p as any)?.full_name ?? "").trim();
       const sp = nm.indexOf(" ");
