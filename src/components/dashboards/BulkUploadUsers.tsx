@@ -71,37 +71,44 @@ function parseRoleCSV(text: string, role: "learner" | "teacher"): { rows: Parsed
   const headers = splitLine(lines[0]).map((h) => h.toLowerCase());
   const idx = (name: string) => headers.indexOf(name);
   const iEmail = idx("email"), iName = idx("full_name");
-  if (iEmail < 0 || iName < 0) {
-    errors.push(`CSV must have headers: email, full_name${role === "learner" ? ", class_level" : ""} (optional: lga, password)`);
+  const iOracle = idx("oracle_id");
+  if (iName < 0 || (role === "learner" && iEmail < 0) || (role === "teacher" && iOracle < 0)) {
+    errors.push(
+      role === "learner"
+        ? "CSV must have headers: email, full_name, class_level (optional: lga, password)"
+        : "CSV must have headers: full_name, oracle_id (plus phone_number, lga, school_type, school_name, class_taught)",
+    );
     return { rows: [], errors };
   }
   const iClass = idx("class_level"), iClassTaught = idx("class_taught"), iLga = idx("lga"), iPwd = idx("password");
   const iPhone = idx("phone_number"), iSchoolId = idx("school_id"), iSchoolType = idx("school_type"), iDob = idx("date_of_birth");
-  const iOracle = idx("oracle_id"), iSchoolName = idx("school_name"), iNin = idx("nin");
+  const iSchoolName = idx("school_name"), iNin = idx("nin");
   const iClassAny = role === "teacher" && iClassTaught >= 0 ? iClassTaught : iClass;
 
   const rows: ParsedRow[] = [];
   for (let i = 1; i < lines.length; i++) {
     const cells = splitLine(lines[i]);
+    const oracle = iOracle >= 0 ? (cells[iOracle] ?? "") : "";
+    const rawEmail = iEmail >= 0 ? (cells[iEmail] ?? "") : "";
     const row: ParsedRow = {
-      email: cells[iEmail] ?? "",
+      email: role === "teacher" && !rawEmail && oracle ? teacherEmailFromOracle(oracle) : rawEmail,
       full_name: cells[iName] ?? "",
       role,
       class_level: iClassAny >= 0 ? cells[iClassAny] : undefined,
       lga: iLga >= 0 ? cells[iLga] : undefined,
-      password: iPwd >= 0 ? cells[iPwd] : undefined,
+      password: (iPwd >= 0 ? cells[iPwd] : "") || (role === "teacher" ? TEACHER_DEFAULT_PASSWORD : undefined),
       parent_phone: iPhone >= 0 ? cells[iPhone] : undefined,
       school_id: iSchoolId >= 0 ? cells[iSchoolId] : undefined,
       school_type: iSchoolType >= 0 ? cells[iSchoolType] : undefined,
       date_of_birth: iDob >= 0 ? cells[iDob] : undefined,
-      oracle_id: iOracle >= 0 ? cells[iOracle] : undefined,
+      oracle_id: oracle || undefined,
       school_name: iSchoolName >= 0 ? cells[iSchoolName] : undefined,
       nin: iNin >= 0 ? cells[iNin] : undefined,
     };
-    if (!row.email || /^\S+@\S+\.\S+$/.test(row.email) === false) row._error = "Invalid email";
+    if (role === "teacher" && !row.oracle_id) row._error = "Missing oracle_id";
+    else if (!row.email || /^\S+@\S+\.\S+$/.test(row.email) === false) row._error = "Invalid email";
     else if (!row.full_name) row._error = "Missing name";
     else if (role === "learner" && iClass >= 0 && !row.class_level) row._error = "Missing class_level";
-    else if (role === "teacher" && !row.oracle_id) row._error = "Missing oracle_id";
     rows.push(row);
   }
   return { rows, errors };
