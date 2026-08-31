@@ -310,11 +310,11 @@ function SettingsPage() {
                     if (!trimmedLast) return toast.error("Last name is required");
                     if (trimmedName.length > 100) return toast.error("Name must be under 100 characters");
                     const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                    if (!emailRe.test(trimmedEmail)) return toast.error("Enter a valid email address");
+                    if (role !== "teacher" && !emailRe.test(trimmedEmail)) return toast.error("Enter a valid email address");
                     setSavingProfile(true);
                     try {
                       const nameChanged = trimmedName !== (profile?.full_name ?? "");
-                      const emailChanged = trimmedEmail.toLowerCase() !== (profile?.email ?? user.email ?? "").toLowerCase();
+                      const emailChanged = role !== "teacher" && trimmedEmail.toLowerCase() !== (profile?.email ?? user.email ?? "").toLowerCase();
                       if (nameChanged) {
                         const { error } = await supabase.from("profiles").update({ full_name: trimmedName }).eq("id", user.id);
                         if (error) throw error;
