@@ -105,7 +105,6 @@ export function AuthCard() {
         const res = await lookupTeacher({
           data: {
             oracle: teacherOracle.trim(),
-            email: teacherEmail.trim() || undefined,
           },
         });
         signInEmail = res.email;
