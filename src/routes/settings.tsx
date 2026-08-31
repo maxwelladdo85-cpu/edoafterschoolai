@@ -91,7 +91,7 @@ export const Route = createFileRoute("/settings")({
 function SettingsPage() {
   const { user, role, loading } = useAuth();
   const nav = useNavigate();
-  const [profile, setProfile] = useState<{ full_name: string | null; email: string | null; created_at: string; avatar_url: string | null; class_level: string | null; lga: string | null; date_of_birth: string | null; school_type: string | null; school_id: string | null; parent_phone: string | null; nin: string | null } | null>(null);
+  const [profile, setProfile] = useState<{ full_name: string | null; email: string | null; created_at: string; avatar_url: string | null; class_level: string | null; lga: string | null; date_of_birth: string | null; school_type: string | null; school_id: string | null; parent_phone: string | null; nin: string | null; teacher_id: string | null } | null>(null);
   const [dob, setDob] = useState("");
   const [savingDob, setSavingDob] = useState(false);
   const [stats, setStats] = useState<{ label: string; value: number; icon: any }[]>([]);
@@ -138,7 +138,7 @@ function SettingsPage() {
   useEffect(() => {
     const load = async () => {
       if (!user || !role) return;
-      const { data: p } = await supabase.from("profiles").select("full_name,email,created_at,avatar_url,class_level,lga,date_of_birth,school_type,school_id,parent_phone,nin" as any).eq("id", user.id).maybeSingle();
+      const { data: p } = await supabase.from("profiles").select("full_name,email,created_at,avatar_url,class_level,lga,date_of_birth,school_type,school_id,parent_phone,nin,teacher_id" as any).eq("id", user.id).maybeSingle();
       setProfile(p as any);
       const nm = ((p as any)?.full_name ?? "").trim();
       const sp = nm.indexOf(" ");
@@ -378,9 +378,16 @@ function SettingsPage() {
                 ) : (
                   <div className="grid gap-3 sm:grid-cols-2">
                     <SummaryRow icon={User} label="Full name" value={profile?.full_name} />
-                    <SummaryRow icon={Mail} label="Email" value={profile?.email ?? user.email} />
+                    {role === "teacher" && <SummaryRow icon={IdCard} label="Oracle ID" value={profile?.teacher_id} />}
+                    <SummaryRow icon={Mail} label={role === "teacher" ? "System email (sign-in ID)" : "Email"} value={profile?.email ?? user.email} />
                     <SummaryRow icon={Shield} label="Role" value={role ?? "—"} />
                     <SummaryRow icon={Calendar} label="Member since" value={profile?.created_at ? new Date(profile.created_at).toLocaleDateString() : "—"} />
+                    {role === "teacher" && (
+                      <p className="sm:col-span-2 text-xs text-muted-foreground">
+                        Your bulk-onboarding record had no email address, so the system created one from your Oracle ID for sign-in. You can replace it with your real email using “Change”.
+                      </p>
+                    )}
+
                     {role !== "learner" && (
                       <div className="sm:col-span-2 flex justify-end">
                         <Button size="sm" variant="outline" onClick={() => startEdit("profile")}><Pencil className="mr-2 h-4 w-4" />Change</Button>
@@ -440,13 +447,17 @@ function SettingsPage() {
               </CardContent>
             </Card>
 
-            {role === "learner" && (
+            {(role === "learner" || role === "teacher") && (
               <Card className="border-border/60" style={{ boxShadow: "var(--shadow-card)" }}>
-                <CardHeader><CardTitle>My class</CardTitle></CardHeader>
+                <CardHeader><CardTitle>{role === "teacher" ? "Class taught" : "My class"}</CardTitle></CardHeader>
                 <CardContent className="space-y-3">
                   {isEditing("class") ? (
                     <>
-                      <p className="text-sm text-muted-foreground">Set your class so teachers can assign courses to you (e.g. "JSS 1", "Primary 4").</p>
+                      <p className="text-sm text-muted-foreground">
+                        {role === "teacher"
+                          ? 'Set the class you teach (e.g. "JSS 1", "Primary 4").'
+                          : 'Set your class so teachers can assign courses to you (e.g. "JSS 1", "Primary 4").'}
+                      </p>
                       <ClassEditor
                         initial={profile?.class_level ?? ""}
                         onSave={async (val) => {
@@ -461,8 +472,8 @@ function SettingsPage() {
                     </>
                   ) : (
                     <div className="flex flex-wrap items-center justify-between gap-3">
-                      <SummaryRow icon={GraduationCap} label="Class" value={profile?.class_level} />
-                      {role !== "learner" && (
+                      <SummaryRow icon={GraduationCap} label={role === "teacher" ? "Class taught" : "Class"} value={profile?.class_level} />
+                      {role === "teacher" && (
                         <Button size="sm" variant="outline" onClick={() => startEdit("class")}><Pencil className="mr-2 h-4 w-4" />Change</Button>
                       )}
                     </div>
@@ -470,6 +481,7 @@ function SettingsPage() {
                 </CardContent>
               </Card>
             )}
+
 
             {(role === "learner" || role === "teacher") && (
               <Card className="border-border/60" style={{ boxShadow: "var(--shadow-card)" }}>
