@@ -33,6 +33,18 @@ export function TeacherSummary() {
     const load = async () => {
       if (!user) return;
       setLoading(true);
+      const { data: prof } = await supabase
+        .from("profiles")
+        .select("full_name,class_level,school_id" as any)
+        .eq("id", user.id)
+        .maybeSingle();
+      let schoolName: string | null = null;
+      const profSchoolId = (prof as any)?.school_id as string | null | undefined;
+      if (profSchoolId) {
+        const { data: sch } = await supabase.from("schools").select("name").eq("id", profSchoolId).maybeSingle();
+        schoolName = sch?.name ?? null;
+      }
+      setProfile({ full_name: (prof as any)?.full_name ?? null, class_level: (prof as any)?.class_level ?? null, schoolName });
       const { data: cs } = await supabase
         .from("courses")
         .select("id,title,subject,class_level,is_active,created_at,thumbnail_url")
