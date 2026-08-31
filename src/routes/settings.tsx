@@ -440,13 +440,17 @@ function SettingsPage() {
               </CardContent>
             </Card>
 
-            {role === "learner" && (
+            {(role === "learner" || role === "teacher") && (
               <Card className="border-border/60" style={{ boxShadow: "var(--shadow-card)" }}>
-                <CardHeader><CardTitle>My class</CardTitle></CardHeader>
+                <CardHeader><CardTitle>{role === "teacher" ? "Class taught" : "My class"}</CardTitle></CardHeader>
                 <CardContent className="space-y-3">
                   {isEditing("class") ? (
                     <>
-                      <p className="text-sm text-muted-foreground">Set your class so teachers can assign courses to you (e.g. "JSS 1", "Primary 4").</p>
+                      <p className="text-sm text-muted-foreground">
+                        {role === "teacher"
+                          ? 'Set the class you teach (e.g. "JSS 1", "Primary 4").'
+                          : 'Set your class so teachers can assign courses to you (e.g. "JSS 1", "Primary 4").'}
+                      </p>
                       <ClassEditor
                         initial={profile?.class_level ?? ""}
                         onSave={async (val) => {
@@ -461,8 +465,8 @@ function SettingsPage() {
                     </>
                   ) : (
                     <div className="flex flex-wrap items-center justify-between gap-3">
-                      <SummaryRow icon={GraduationCap} label="Class" value={profile?.class_level} />
-                      {role !== "learner" && (
+                      <SummaryRow icon={GraduationCap} label={role === "teacher" ? "Class taught" : "Class"} value={profile?.class_level} />
+                      {role === "teacher" && (
                         <Button size="sm" variant="outline" onClick={() => startEdit("class")}><Pencil className="mr-2 h-4 w-4" />Change</Button>
                       )}
                     </div>
@@ -470,6 +474,7 @@ function SettingsPage() {
                 </CardContent>
               </Card>
             )}
+
 
             {(role === "learner" || role === "teacher") && (
               <Card className="border-border/60" style={{ boxShadow: "var(--shadow-card)" }}>
