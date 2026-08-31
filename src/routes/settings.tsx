@@ -378,9 +378,16 @@ function SettingsPage() {
                 ) : (
                   <div className="grid gap-3 sm:grid-cols-2">
                     <SummaryRow icon={User} label="Full name" value={profile?.full_name} />
-                    <SummaryRow icon={Mail} label="Email" value={profile?.email ?? user.email} />
+                    {role === "teacher" && <SummaryRow icon={IdCard} label="Oracle ID" value={profile?.teacher_id} />}
+                    <SummaryRow icon={Mail} label={role === "teacher" ? "System email (sign-in ID)" : "Email"} value={profile?.email ?? user.email} />
                     <SummaryRow icon={Shield} label="Role" value={role ?? "—"} />
                     <SummaryRow icon={Calendar} label="Member since" value={profile?.created_at ? new Date(profile.created_at).toLocaleDateString() : "—"} />
+                    {role === "teacher" && (
+                      <p className="sm:col-span-2 text-xs text-muted-foreground">
+                        Your bulk-onboarding record had no email address, so the system created one from your Oracle ID for sign-in. You can replace it with your real email using “Change”.
+                      </p>
+                    )}
+
                     {role !== "learner" && (
                       <div className="sm:col-span-2 flex justify-end">
                         <Button size="sm" variant="outline" onClick={() => startEdit("profile")}><Pencil className="mr-2 h-4 w-4" />Change</Button>
