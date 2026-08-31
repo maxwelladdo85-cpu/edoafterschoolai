@@ -353,8 +353,8 @@ export function BulkUploadUsers({ onDone }: { onDone?: () => void }) {
         icon={<Users className="h-4 w-4" />}
         templateCSV={TEACHER_TEMPLATE_CSV}
         templateFilename="bulk-teachers-template.csv"
-        description="Upload a CSV to onboard up to 1000 teachers per batch."
-        headersLabel="full_name, phone_number, email, lga, school_type, class_taught, oracle_id, school_name, date_of_birth, password"
+        description="Upload a CSV to onboard up to 1000 teachers per batch (e.g. 10,000 teachers = 10 files)."
+        headersLabel="full_name, phone_number, lga, school_type, school_name, oracle_id, class_taught"
         onDone={onDone}
       />
       <BulkUploadCard
