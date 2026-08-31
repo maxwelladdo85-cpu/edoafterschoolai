@@ -310,11 +310,12 @@ function SettingsPage() {
                     if (!trimmedLast) return toast.error("Last name is required");
                     if (trimmedName.length > 100) return toast.error("Name must be under 100 characters");
                     const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                    if (role !== "teacher" && !emailRe.test(trimmedEmail)) return toast.error("Enter a valid email address");
+                    if (trimmedEmail && !emailRe.test(trimmedEmail)) return toast.error("Enter a valid email address");
+                    if (role !== "teacher" && !trimmedEmail) return toast.error("Email is required");
                     setSavingProfile(true);
                     try {
                       const nameChanged = trimmedName !== (profile?.full_name ?? "");
-                      const emailChanged = role !== "teacher" && trimmedEmail.toLowerCase() !== (profile?.email ?? user.email ?? "").toLowerCase();
+                      const emailChanged = !!trimmedEmail && trimmedEmail.toLowerCase() !== (profile?.email ?? (role === "teacher" ? "" : user.email) ?? "").toLowerCase();
                       if (nameChanged) {
                         const { error } = await supabase.from("profiles").update({ full_name: trimmedName }).eq("id", user.id);
                         if (error) throw error;
@@ -351,14 +352,12 @@ function SettingsPage() {
                     </label>
                     <Input value={lastName} onChange={(e) => setLastName(e.target.value)} maxLength={50} placeholder="Last name" />
                   </div>
-                  {role !== "teacher" && (
-                    <div className="space-y-1.5 rounded-lg border bg-muted/30 p-3">
-                      <label className="flex items-center gap-2 text-xs uppercase tracking-wide text-muted-foreground">
-                        <Mail className="h-3.5 w-3.5 text-primary" /> Email
-                      </label>
-                      <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} maxLength={255} placeholder="you@example.com" />
-                    </div>
-                  )}
+                  <div className="space-y-1.5 rounded-lg border bg-muted/30 p-3">
+                    <label className="flex items-center gap-2 text-xs uppercase tracking-wide text-muted-foreground">
+                      <Mail className="h-3.5 w-3.5 text-primary" /> Email{role === "teacher" ? " (optional)" : ""}
+                    </label>
+                    <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} maxLength={255} placeholder="you@example.com" />
+                  </div>
                   <div className="flex items-start gap-3 rounded-lg border bg-muted/30 p-3">
                     <Shield className="mt-1 h-4 w-4 text-primary" />
                     <div><p className="text-xs uppercase tracking-wide text-muted-foreground">Role</p><Badge className="capitalize">{role ?? "—"}</Badge></div>
@@ -381,7 +380,7 @@ function SettingsPage() {
                   <div className="grid gap-3 sm:grid-cols-2">
                     <SummaryRow icon={User} label="Full name" value={profile?.full_name} />
                     {role === "teacher" && <SummaryRow icon={IdCard} label="Oracle ID" value={profile?.teacher_id} />}
-                    {role !== "teacher" && <SummaryRow icon={Mail} label="Email" value={profile?.email ?? user.email} />}
+                    <SummaryRow icon={Mail} label="Email" value={role === "teacher" ? (profile?.email || "—") : (profile?.email ?? user.email)} />
                     <SummaryRow icon={Shield} label="Role" value={role ?? "—"} />
                     <SummaryRow icon={Calendar} label="Member since" value={profile?.created_at ? new Date(profile.created_at).toLocaleDateString() : "—"} />
 
