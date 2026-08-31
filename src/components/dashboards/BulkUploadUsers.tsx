@@ -22,7 +22,12 @@ type ResultRow = {
 };
 
 const LEARNER_HEADERS = ["email", "full_name", "class_level", "lga", "password", "school_name", "phone_number", "nin"];
-const TEACHER_HEADERS = ["full_name", "phone_number", "email", "lga", "school_type", "class_taught", "oracle_id", "school_name", "date_of_birth", "password"];
+const TEACHER_HEADERS = ["full_name", "phone_number", "lga", "school_type", "school_name", "oracle_id", "class_taught"];
+
+// Teachers sign in with their Oracle ID + this shared password.
+const TEACHER_DEFAULT_PASSWORD = "edosubeb123";
+const teacherEmailFromOracle = (oracle: string) =>
+  `t${oracle.trim().toLowerCase().replace(/[^a-z0-9]/g, "")}@edosubeb.ng`;
 
 function makeTemplateCSV(headers: string[], rows: string[]) {
   return headers.join(",") + "\n" + rows.join("\n") + "\n";
@@ -34,8 +39,8 @@ const LEARNER_TEMPLATE_CSV = makeTemplateCSV(LEARNER_HEADERS, [
 ]);
 
 const TEACHER_TEMPLATE_CSV = makeTemplateCSV(TEACHER_HEADERS, [
-  "John Smith,08012345678,john@example.com,Ikpoba-Okha,primary,Primary 4,T1000,Ihogbe Primary School,1985-04-12,",
-  "Mary Okafor,08087654321,mary@example.com,Oredo,primary,JSS 1,T1001,Emotan Model Primary School,1990-08-22,",
+  "John Smith,08012345678,Ikpoba-Okha,primary,Ihogbe Primary School,T1000,Primary 4",
+  "Mary Okafor,08087654321,Oredo,primary,Emotan Model Primary School,T1001,JSS 1",
 ]);
 
 
