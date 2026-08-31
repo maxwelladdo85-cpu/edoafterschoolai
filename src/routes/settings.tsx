@@ -144,7 +144,7 @@ function SettingsPage() {
       const sp = nm.indexOf(" ");
       setFirstName(sp === -1 ? nm : nm.slice(0, sp));
       setLastName(sp === -1 ? "" : nm.slice(sp + 1));
-      setEmail((p as any)?.email ?? user.email ?? "");
+      setEmail((p as any)?.email ?? (role === "teacher" ? "" : user.email) ?? "");
       setDob((p as any)?.date_of_birth ?? "");
       setSchoolType((p as any)?.school_type ?? "");
       setSchoolId((p as any)?.school_id ?? "");

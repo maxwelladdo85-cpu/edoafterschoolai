@@ -27,6 +27,7 @@ export function TeacherSummary() {
   const [lessons, setLessons] = useState(0);
   const [assessments, setAssessments] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState<{ full_name: string | null; class_level: string | null; schoolName: string | null } | null>(null);
 
   useEffect(() => {
     const load = async () => {
