@@ -55,7 +55,7 @@ export function AuthCard() {
   const [learnerPhone, setLearnerPhone] = useState("");
   const [learnerEmail, setLearnerEmail] = useState("");
   const [teacherOracle, setTeacherOracle] = useState("");
-  const [teacherEmail, setTeacherEmail] = useState("");
+  
   // Extra sign-up fields (match Settings page)
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -105,7 +105,6 @@ export function AuthCard() {
         const res = await lookupTeacher({
           data: {
             oracle: teacherOracle.trim(),
-            email: teacherEmail.trim() || undefined,
           },
         });
         signInEmail = res.email;
@@ -311,28 +310,19 @@ export function AuthCard() {
                     </div>
                   </>
                 ) : role === "teacher" ? (
-                  <>
-                    <div className="space-y-1">
-                      <Label htmlFor="toracle">Oracle number</Label>
-                      <Input
-                        id="toracle"
-                        required
-                        placeholder="e.g. T1000"
-                        value={teacherOracle}
-                        onChange={(e) => setTeacherOracle(e.target.value)}
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <Label htmlFor="temail">Email <span className="text-muted-foreground">(optional)</span></Label>
-                      <Input
-                        id="temail"
-                        type="email"
-                        placeholder="Only needed if more than one account matches"
-                        value={teacherEmail}
-                        onChange={(e) => setTeacherEmail(e.target.value)}
-                      />
-                    </div>
-                  </>
+                  <div className="space-y-1">
+                    <Label htmlFor="toracle">Oracle number</Label>
+                    <Input
+                      id="toracle"
+                      required
+                      placeholder="e.g. T1000"
+                      value={teacherOracle}
+                      onChange={(e) => setTeacherOracle(e.target.value)}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Sign in with your Oracle number and password only.
+                    </p>
+                  </div>
                 ) : (
                   <div className="space-y-1">
                     <Label htmlFor="e1">Email</Label>
