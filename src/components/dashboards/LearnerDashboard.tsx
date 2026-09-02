@@ -36,7 +36,7 @@ export function LearnerDashboard() {
     if (!user) return;
     let cancelled = false;
     (async () => {
-      const [eRes, nRes, vRes] = await Promise.all([
+      const [eRes, nRes, vRes, pRes] = await Promise.all([
         supabase
           .from("enrollments")
           .select("id, progress, course_id, course:courses(title, subject, description, created_at)")
