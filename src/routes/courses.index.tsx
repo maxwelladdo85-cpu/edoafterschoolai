@@ -6,7 +6,17 @@ import { DashboardShell } from "@/components/DashboardShell";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, GraduationCap, Loader2, PlayCircle, RefreshCw, Pencil, Plus } from "lucide-react";
+import { BookOpen, GraduationCap, Loader2, PlayCircle, RefreshCw, Pencil, Plus, Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { PageHero } from "@/components/PageHero";
 import heroLibrary from "@/assets/hero-library.jpg";
@@ -34,6 +44,8 @@ function CoursesLibrary() {
   const [enrolledMap, setEnrolledMap] = useState<Map<string, number>>(new Map());
   const [loading, setLoading] = useState(true);
   const [enrollingId, setEnrollingId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<CourseRow | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const isTeacher = role === "teacher";
   const isScripter = role === "scripter";
   const isAdmin = role === "admin";
@@ -90,6 +102,17 @@ function CoursesLibrary() {
     });
     toast.success("Enrolled — opening course");
     nav({ to: "/courses/$courseId", params: { courseId } });
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    const { error } = await supabase.from("courses").delete().eq("id", deleteTarget.id);
+    setDeleting(false);
+    if (error) return toast.error(error.message);
+    setCourses((prev) => prev.filter((c) => c.id !== deleteTarget.id));
+    toast.success("Lesson deleted");
+    setDeleteTarget(null);
   };
 
 
@@ -169,6 +192,11 @@ function CoursesLibrary() {
                             <Pencil className="mr-1 h-3.5 w-3.5" />Edit
                           </Link>
                         </Button>
+                        {isAdmin && (
+                          <Button variant="destructive" size="icon" aria-label={`Delete ${c.title}`} onClick={() => setDeleteTarget(c)}>
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        )}
                       </div>
                     ) : isTeacher ? (
                       <Button asChild className="w-full" variant="secondary">
@@ -198,6 +226,23 @@ function CoursesLibrary() {
           </div>
         )}
       </div>
+
+      <AlertDialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this lesson?</AlertDialogTitle>
+            <AlertDialogDescription>
+              “{deleteTarget?.title}” and all its modules, materials, quizzes and enrolments will be permanently removed. This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={(e) => { e.preventDefault(); confirmDelete(); }} disabled={deleting}>
+              {deleting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Deleting…</> : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </DashboardShell>
   );
 }
