@@ -316,10 +316,12 @@ function SettingsPage() {
                     try {
                       const nameChanged = trimmedName !== (profile?.full_name ?? "");
                       const emailChanged = role !== "learner" && !!trimmedEmail && trimmedEmail.toLowerCase() !== (profile?.email ?? (role === "teacher" ? "" : user.email) ?? "").toLowerCase();
-                      if (nameChanged) {
-                        const { error } = await supabase.from("profiles").update({ full_name: trimmedName }).eq("id", user.id);
-                        if (error) throw error;
-                      }
+                       if (nameChanged) {
+                         const { error } = await supabase.from("profiles").update({ full_name: trimmedName }).eq("id", user.id);
+                         if (error) throw error;
+                         // keep auth metadata in sync (dashboards read it)
+                         await supabase.auth.updateUser({ data: { full_name: trimmedName } });
+                       }
                       if (emailChanged) {
                         const { error: authErr } = await supabase.auth.updateUser({ email: trimmedEmail });
                         if (authErr) throw authErr;
