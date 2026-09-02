@@ -315,7 +315,7 @@ function SettingsPage() {
                     setSavingProfile(true);
                     try {
                       const nameChanged = trimmedName !== (profile?.full_name ?? "");
-                      const emailChanged = !!trimmedEmail && trimmedEmail.toLowerCase() !== (profile?.email ?? (role === "teacher" ? "" : user.email) ?? "").toLowerCase();
+                      const emailChanged = role !== "learner" && !!trimmedEmail && trimmedEmail.toLowerCase() !== (profile?.email ?? (role === "teacher" ? "" : user.email) ?? "").toLowerCase();
                       if (nameChanged) {
                         const { error } = await supabase.from("profiles").update({ full_name: trimmedName }).eq("id", user.id);
                         if (error) throw error;
@@ -352,12 +352,14 @@ function SettingsPage() {
                     </label>
                     <Input value={lastName} onChange={(e) => setLastName(e.target.value)} maxLength={50} placeholder="Last name" />
                   </div>
-                  <div className="space-y-1.5 rounded-lg border bg-muted/30 p-3">
-                    <label className="flex items-center gap-2 text-xs uppercase tracking-wide text-muted-foreground">
-                      <Mail className="h-3.5 w-3.5 text-primary" /> Email{role === "teacher" ? " (optional)" : ""}
-                    </label>
-                    <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} maxLength={255} placeholder="you@example.com" />
-                  </div>
+                  {role !== "learner" && (
+                    <div className="space-y-1.5 rounded-lg border bg-muted/30 p-3">
+                      <label className="flex items-center gap-2 text-xs uppercase tracking-wide text-muted-foreground">
+                        <Mail className="h-3.5 w-3.5 text-primary" /> Email{role === "teacher" ? " (optional)" : ""}
+                      </label>
+                      <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} maxLength={255} placeholder="you@example.com" />
+                    </div>
+                  )}
                   <div className="flex items-start gap-3 rounded-lg border bg-muted/30 p-3">
                     <Shield className="mt-1 h-4 w-4 text-primary" />
                     <div><p className="text-xs uppercase tracking-wide text-muted-foreground">Role</p><Badge className="capitalize">{role ?? "—"}</Badge></div>
@@ -384,11 +386,9 @@ function SettingsPage() {
                     <SummaryRow icon={Shield} label="Role" value={role ?? "—"} />
                     <SummaryRow icon={Calendar} label="Member since" value={profile?.created_at ? new Date(profile.created_at).toLocaleDateString() : "—"} />
 
-                    {role !== "learner" && (
-                      <div className="sm:col-span-2 flex justify-end">
-                        <Button size="sm" variant="outline" onClick={() => startEdit("profile")}><Pencil className="mr-2 h-4 w-4" />Change</Button>
-                      </div>
-                    )}
+                    <div className="sm:col-span-2 flex justify-end">
+                      <Button size="sm" variant="outline" onClick={() => startEdit("profile")}><Pencil className="mr-2 h-4 w-4" />Change</Button>
+                    </div>
                   </div>
                 )}
               </CardContent>
