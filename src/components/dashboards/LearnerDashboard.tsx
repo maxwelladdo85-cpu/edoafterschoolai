@@ -54,11 +54,13 @@ export function LearnerDashboard() {
           .order("created_at", { ascending: false })
           .limit(1)
           .maybeSingle(),
+        supabase.from("profiles").select("full_name").eq("id", user.id).maybeSingle(),
       ]);
       if (cancelled) return;
       setEnrollments((eRes.data as any) ?? []);
       setNotifications(nRes.data ?? []);
       setVark((vRes.data as any) ?? null);
+      setProfileName(((pRes as any)?.data?.full_name ?? null) as string | null);
     })();
     return () => { cancelled = true; };
   }, [user]);
