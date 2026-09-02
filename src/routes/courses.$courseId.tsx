@@ -541,6 +541,10 @@ function PdfMaterial({ url, title }: { url: string; title: string }) {
         <button type="button" className="underline" onClick={() => setUseFallback((v) => !v)}>
           Try {useFallback ? "direct" : "compatible"} viewer
         </button>
+        {" · "}
+        <a href={url} target="_blank" rel="noreferrer" className="underline">
+          Open in your browser (Chrome, Safari…)
+        </a>
       </p>
 
       <Dialog open={open} onOpenChange={setOpen}>
