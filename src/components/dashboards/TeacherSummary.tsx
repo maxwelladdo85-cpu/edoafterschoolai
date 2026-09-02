@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, GraduationCap, Users, FileText, Plus, Sparkles, ArrowRight, ClipboardCheck, Wand2 } from "lucide-react";
@@ -27,7 +28,7 @@ export function TeacherSummary() {
   const [lessons, setLessons] = useState(0);
   const [assessments, setAssessments] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [profile, setProfile] = useState<{ full_name: string | null; class_level: string | null; schoolName: string | null } | null>(null);
+  const [profile, setProfile] = useState<{ full_name: string | null; class_level: string | null; schoolName: string | null; avatar_url: string | null } | null>(null);
 
   useEffect(() => {
     const load = async () => {
@@ -35,7 +36,7 @@ export function TeacherSummary() {
       setLoading(true);
       const { data: prof } = await supabase
         .from("profiles")
-        .select("full_name,class_level,school_id" as any)
+        .select("full_name,class_level,school_id,avatar_url" as any)
         .eq("id", user.id)
         .maybeSingle();
       let schoolName: string | null = null;
@@ -44,7 +45,7 @@ export function TeacherSummary() {
         const { data: sch } = await supabase.from("schools").select("name").eq("id", profSchoolId).maybeSingle();
         schoolName = sch?.name ?? null;
       }
-      setProfile({ full_name: (prof as any)?.full_name ?? null, class_level: (prof as any)?.class_level ?? null, schoolName });
+      setProfile({ full_name: (prof as any)?.full_name ?? null, class_level: (prof as any)?.class_level ?? null, schoolName, avatar_url: (prof as any)?.avatar_url ?? null });
       const { data: cs } = await supabase
         .from("courses")
         .select("id,title,subject,class_level,is_active,created_at,thumbnail_url")
@@ -110,8 +111,14 @@ export function TeacherSummary() {
             <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium backdrop-blur">
               <Sparkles className="h-3.5 w-3.5" /> {eyebrowLabel}
             </span>
-            <h1 className="mt-3 text-2xl font-bold tracking-tight sm:mt-4 sm:text-3xl md:text-5xl">
-              {isScripter ? "Welcome Scripter" : `Welcome back, ${fullName || firstName}.`}
+            <h1 className="mt-3 flex items-center gap-3 text-2xl font-bold tracking-tight sm:mt-4 sm:gap-4 sm:text-3xl md:text-5xl">
+              <Avatar className="h-12 w-12 sm:h-16 sm:w-16 border-2 border-white/40 shrink-0">
+                {profile?.avatar_url && <AvatarImage src={profile.avatar_url} alt={fullName || "Profile picture"} />}
+                <AvatarFallback className="bg-white/15 text-white text-lg sm:text-2xl font-bold">
+                  {(fullName || firstName).trim().split(/\s+/).map((w) => w[0]).slice(0, 2).join("").toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <span className="min-w-0 break-words">{isScripter ? "Welcome Scripter" : `Welcome back, ${fullName || firstName}.`}</span>
             </h1>
             {!isScripter && (profile?.schoolName || profile?.class_level) && (
               <div className="mt-3 flex flex-wrap gap-2 text-xs sm:text-sm">

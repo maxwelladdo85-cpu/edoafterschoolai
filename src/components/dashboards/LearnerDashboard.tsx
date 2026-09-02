@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -31,6 +32,7 @@ export function LearnerDashboard() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [vark, setVark] = useState<VarkResult | null>(null);
   const [profileName, setProfileName] = useState<string | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -54,13 +56,14 @@ export function LearnerDashboard() {
           .order("created_at", { ascending: false })
           .limit(1)
           .maybeSingle(),
-        supabase.from("profiles").select("full_name").eq("id", user.id).maybeSingle(),
+        supabase.from("profiles").select("full_name, avatar_url").eq("id", user.id).maybeSingle(),
       ]);
       if (cancelled) return;
       setEnrollments((eRes.data as any) ?? []);
       setNotifications(nRes.data ?? []);
       setVark((vRes.data as any) ?? null);
       setProfileName(((pRes as any)?.data?.full_name ?? null) as string | null);
+      setAvatarUrl(((pRes as any)?.data?.avatar_url ?? null) as string | null);
     })();
     return () => { cancelled = true; };
   }, [user]);
@@ -73,7 +76,17 @@ export function LearnerDashboard() {
       <PageHero
         eyebrow="Learner space"
         EyebrowIcon={GraduationCap}
-        title={`Welcome back, ${firstName}.`}
+        title={
+          <span className="flex items-center gap-3 sm:gap-4">
+            <Avatar className="h-12 w-12 sm:h-16 sm:w-16 border-2 border-white/40 shrink-0">
+              {avatarUrl && <AvatarImage src={avatarUrl} alt={profileName ?? "Your profile picture"} />}
+              <AvatarFallback className="bg-white/15 text-white text-lg sm:text-2xl font-bold">
+                {(profileName ?? "L").trim().split(/\s+/).map((w) => w[0]).slice(0, 2).join("").toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <span>Welcome back, {firstName}.</span>
+          </span>
+        }
         description="Continue your after-school learning journey across Edo State."
         backgroundImage={dashboardHero}
       />
