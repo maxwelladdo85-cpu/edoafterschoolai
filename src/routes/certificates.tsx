@@ -5,7 +5,25 @@ import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/DashboardShell";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Award, Download, Loader2 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
+import { Award, Download, Eye, Loader2, Trash2 } from "lucide-react";
 import { SUBEB_LOGO_DATA_URL } from "@/lib/subeb-logo-data";
 import { jsPDF } from "jspdf";
 
@@ -108,6 +126,23 @@ function CertificatesPage() {
   const nav = useNavigate();
   const [certs, setCerts] = useState<Cert[]>([]);
   const [loading, setLoading] = useState(true);
+  const [preview, setPreview] = useState<Cert | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  async function deleteCertificate(c: Cert) {
+    setDeletingId(c.id);
+    try {
+      const { error } = await supabase.from("certificates").delete().eq("id", c.id);
+      if (error) throw error;
+      setCerts((prev) => prev.filter((x) => x.id !== c.id));
+      if (preview?.id === c.id) setPreview(null);
+      toast.success("Certificate deleted");
+    } catch (e: any) {
+      toast.error(e?.message ?? "Could not delete certificate");
+    } finally {
+      setDeletingId(null);
+    }
+  }
 
   useEffect(() => { if (!authLoading && !user) nav({ to: "/login" }); }, [authLoading, user, nav]);
 
@@ -148,9 +183,41 @@ function CertificatesPage() {
                 </p>
                 <p className="text-[10px] font-mono text-muted-foreground">ID: {c.certificate_code}</p>
                 <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
+                  <Button size="sm" variant="outline" onClick={() => setPreview(c)}>
+                    <Eye className="mr-2 h-4 w-4" /> View
+                  </Button>
                   <Button size="sm" onClick={() => downloadCertificate(c)}>
                     <Download className="mr-2 h-4 w-4" /> Download
                   </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button size="sm" variant="destructive" disabled={deletingId === c.id}>
+                        {deletingId === c.id ? (
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : (
+                          <Trash2 className="mr-2 h-4 w-4" />
+                        )}
+                        Delete
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete this certificate?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This permanently deletes your certificate for "{c.course_name}". This action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          onClick={() => deleteCertificate(c)}
+                        >
+                          Delete
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                   <Link to="/courses/$courseId" params={{ courseId: c.course_id }} className="text-xs text-primary hover:underline">
                     View course →
                   </Link>
@@ -160,6 +227,57 @@ function CertificatesPage() {
           ))}
         </div>
       )}
+
+      {/* Certificate preview */}
+      <Dialog open={!!preview} onOpenChange={(open) => { if (!open) setPreview(null); }}>
+        <DialogContent className="max-w-[95vw] sm:max-w-3xl max-h-[90dvh] overflow-auto">
+          <DialogHeader>
+            <DialogTitle>Certificate Preview</DialogTitle>
+          </DialogHeader>
+          {preview && (
+            <div className="space-y-4">
+              <div
+                className="w-full rounded-md border"
+                dangerouslySetInnerHTML={{ __html: buildCertificateSvg(preview) }}
+              />
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                <Button size="sm" onClick={() => downloadCertificate(preview)}>
+                  <Download className="mr-2 h-4 w-4" /> Download
+                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button size="sm" variant="destructive" disabled={deletingId === preview.id}>
+                      {deletingId === preview.id ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <Trash2 className="mr-2 h-4 w-4" />
+                      )}
+                      Delete
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete this certificate?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This permanently deletes your certificate for "{preview.course_name}". This action cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        onClick={() => deleteCertificate(preview)}
+                      >
+                        Delete
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </DashboardShell>
   );
 }
