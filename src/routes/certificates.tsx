@@ -5,7 +5,25 @@ import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/DashboardShell";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Award, Download, Loader2 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
+import { Award, Download, Eye, Loader2, Trash2 } from "lucide-react";
 import { SUBEB_LOGO_DATA_URL } from "@/lib/subeb-logo-data";
 import { jsPDF } from "jspdf";
 
@@ -108,6 +126,23 @@ function CertificatesPage() {
   const nav = useNavigate();
   const [certs, setCerts] = useState<Cert[]>([]);
   const [loading, setLoading] = useState(true);
+  const [preview, setPreview] = useState<Cert | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  async function deleteCertificate(c: Cert) {
+    setDeletingId(c.id);
+    try {
+      const { error } = await supabase.from("certificates").delete().eq("id", c.id);
+      if (error) throw error;
+      setCerts((prev) => prev.filter((x) => x.id !== c.id));
+      if (preview?.id === c.id) setPreview(null);
+      toast.success("Certificate deleted");
+    } catch (e: any) {
+      toast.error(e?.message ?? "Could not delete certificate");
+    } finally {
+      setDeletingId(null);
+    }
+  }
 
   useEffect(() => { if (!authLoading && !user) nav({ to: "/login" }); }, [authLoading, user, nav]);
 
