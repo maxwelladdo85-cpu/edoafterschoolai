@@ -192,6 +192,11 @@ function CoursesLibrary() {
                             <Pencil className="mr-1 h-3.5 w-3.5" />Edit
                           </Link>
                         </Button>
+                        {isAdmin && (
+                          <Button variant="destructive" size="icon" aria-label={`Delete ${c.title}`} onClick={() => setDeleteTarget(c)}>
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        )}
                       </div>
                     ) : isTeacher ? (
                       <Button asChild className="w-full" variant="secondary">
