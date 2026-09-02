@@ -282,19 +282,17 @@ function SettingsPage() {
                     <p className="text-2xl font-bold tracking-tight">{displayName}</p>
                     <p className="text-sm text-muted-foreground">Profile picture — JPG/PNG, under 5 MB.</p>
                   </div>
-                  {role !== "learner" && (
-                    <div className="flex flex-wrap gap-2">
-                      <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={onPickAvatar} />
-                      <Button size="sm" onClick={() => fileRef.current?.click()} disabled={uploading}>
-                        {uploading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Uploading…</> : <><Camera className="mr-2 h-4 w-4" />{profile?.avatar_url ? "Change picture" : "Upload picture"}</>}
+                  <div className="flex flex-wrap gap-2">
+                    <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={onPickAvatar} />
+                    <Button size="sm" onClick={() => fileRef.current?.click()} disabled={uploading}>
+                      {uploading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Uploading…</> : <><Camera className="mr-2 h-4 w-4" />{profile?.avatar_url ? "Change picture" : "Upload picture"}</>}
+                    </Button>
+                    {profile?.avatar_url && (
+                      <Button size="sm" variant="outline" onClick={removeAvatar} disabled={uploading}>
+                        <Trash2 className="mr-2 h-4 w-4" />Remove
                       </Button>
-                      {profile?.avatar_url && (
-                        <Button size="sm" variant="outline" onClick={removeAvatar} disabled={uploading}>
-                          <Trash2 className="mr-2 h-4 w-4" />Remove
-                        </Button>
-                      )}
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
                 {isEditing("profile") ? (
                 <form
