@@ -89,7 +89,9 @@ export function LearnerDashboard() {
             <span>Welcome back, {firstName}.</span>
           </span>
         }
-        description="Continue your after-school learning journey across Edo State."
+        description={schoolName
+          ? `${schoolName} — Continue your after-school learning journey across Edo State.`
+          : "Continue your after-school learning journey across Edo State."}
         backgroundImage={dashboardHero}
       />
 
