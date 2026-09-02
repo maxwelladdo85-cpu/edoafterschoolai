@@ -103,6 +103,16 @@ function CoursePlayer() {
         lastViewedId = (lastView as any)?.lesson_id ?? null;
       } else {
         setCompleted(new Set());
+        if (isStaff && lessonIds.length) {
+          const { data: views } = await supabase
+            .from("lesson_views")
+            .select("lesson_id")
+            .eq("learner_id", user.id)
+            .in("lesson_id", lessonIds);
+          setViewedLessons(new Set((views ?? []).map((v: any) => v.lesson_id)));
+        } else {
+          setViewedLessons(new Set());
+        }
       }
       setActiveId(lastViewedId ?? allLessons[0]?.id ?? null);
       setLoading(false);
