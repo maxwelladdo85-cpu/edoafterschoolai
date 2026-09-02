@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/DashboardShell";
@@ -508,40 +508,98 @@ function EmptyMedia({ label }: { label: string }) {
   return <div className="rounded-lg border border-dashed p-10 text-center text-sm text-muted-foreground">{label}</div>;
 }
 
+// In-app PDF renderer using PDF.js — works in every browser (incl. Android
+// Chrome / iOS Safari) because pages are drawn to canvas, not embedded frames
+// that Chrome blocks.
+function PdfJsViewer({ url, maxHeightClass = "max-h-[70vh]" }: { url: string; maxHeightClass?: string }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [pageCount, setPageCount] = useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const pdfjs = await import("pdfjs-dist");
+        const workerUrl = (await import("pdfjs-dist/build/pdf.worker.min.mjs?url")).default;
+        pdfjs.GlobalWorkerOptions.workerSrc = workerUrl;
+        const doc = await pdfjs.getDocument({ url }).promise;
+        if (cancelled) return;
+        setPageCount(doc.numPages);
+        const container = containerRef.current;
+        if (!container) return;
+        container.innerHTML = "";
+        for (let p = 1; p <= doc.numPages; p++) {
+          if (cancelled) return;
+          const page = await doc.getPage(p);
+          const base = page.getViewport({ scale: 1 });
+          const width = container.clientWidth || base.width;
+          const scale = width / base.width;
+          const viewport = page.getViewport({ scale: scale * (window.devicePixelRatio || 1) });
+          const canvas = document.createElement("canvas");
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
+          canvas.style.width = "100%";
+          canvas.style.height = "auto";
+          canvas.style.display = "block";
+          canvas.className = "border-b last:border-b-0";
+          container.appendChild(canvas);
+          const ctx = canvas.getContext("2d");
+          if (!ctx) continue;
+          await page.render({ canvas, canvasContext: ctx, viewport } as any).promise;
+        }
+        if (!cancelled) setStatus("ready");
+      } catch (e) {
+        console.error("PDF render failed", e);
+        if (!cancelled) setStatus("error");
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [url]);
+
+  if (status === "error") {
+    return (
+      <div className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
+        Could not render this PDF inside the app.{" "}
+        <a href={url} target="_blank" rel="noreferrer" className="underline">
+          Open it in your browser
+        </a>
+        .
+      </div>
+    );
+  }
+  return (
+    <div className={`relative overflow-y-auto rounded-lg border bg-muted ${maxHeightClass}`}>
+      {status === "loading" && (
+        <div className="flex items-center justify-center gap-2 p-10 text-sm text-muted-foreground">
+          <Loader2 className="h-4 w-4 animate-spin" /> Loading PDF…
+        </div>
+      )}
+      <div ref={containerRef} className="w-full" />
+      {status === "ready" && pageCount > 0 && (
+        <p className="sticky bottom-0 bg-background/80 px-3 py-1 text-right text-[11px] text-muted-foreground backdrop-blur">
+          {pageCount} page{pageCount === 1 ? "" : "s"}
+        </p>
+      )}
+    </div>
+  );
+}
+
 function PdfMaterial({ url, title }: { url: string; title: string }) {
   const [open, setOpen] = useState(false);
-  // Mobile browsers (Android Chrome, iOS Safari) can't render PDFs inline and
-  // force a download/app switch — default them to the compatible web viewer.
-  const [useFallback, setUseFallback] = useState(() => {
-    if (typeof navigator === "undefined") return false;
-    return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
-  });
-  const directSrc = `${url}#toolbar=0&navpanes=0&view=FitH`;
-  const gviewSrc = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(url)}`;
   return (
     <div className="space-y-3">
       <div className="rounded-lg border bg-muted/40 p-6 text-center">
         <FileText className="mx-auto mb-3 h-10 w-10 text-muted-foreground" />
         <p className="mb-1 font-medium">{title}</p>
         <p className="mb-4 text-xs text-muted-foreground">PDF material · view inside the app (download disabled)</p>
-        <Button onClick={() => { setUseFallback(false); setOpen(true); }}>
+        <Button onClick={() => setOpen(true)}>
           <Eye className="mr-2 h-4 w-4" />View Material
         </Button>
       </div>
-      <div className="overflow-hidden rounded-lg border bg-muted">
-        <iframe
-          src={useFallback ? gviewSrc : directSrc}
-          title={title}
-          className="h-[55vh] sm:h-[70vh] w-full"
-          onError={() => setUseFallback(true)}
-        />
-      </div>
+      <PdfJsViewer url={url} />
       <p className="text-xs text-muted-foreground">
-        Can't see the PDF?{" "}
-        <button type="button" className="underline" onClick={() => setUseFallback((v) => !v)}>
-          Try {useFallback ? "direct" : "compatible"} viewer
-        </button>
-        {" · "}
+        Trouble viewing?{" "}
         <a href={url} target="_blank" rel="noreferrer" className="underline">
           Open in your browser (Chrome, Safari…)
         </a>
@@ -552,18 +610,14 @@ function PdfMaterial({ url, title }: { url: string; title: string }) {
           <DialogHeader className="border-b p-4">
             <DialogTitle className="truncate pr-8">{title}</DialogTitle>
           </DialogHeader>
-          <div className="h-[80vh] w-full bg-muted">
-            <iframe
-              src={useFallback ? gviewSrc : directSrc}
-              title={title}
-              className="h-full w-full"
-            />
+          <div className="w-full bg-muted">
+            {open && <PdfJsViewer url={url} maxHeightClass="max-h-[80vh] rounded-none border-0" />}
           </div>
           <div className="flex items-center justify-between border-t p-3 text-xs text-muted-foreground">
             <span>Viewing within the app · downloads disabled</span>
-            <button type="button" className="underline" onClick={() => setUseFallback((v) => !v)}>
-              Switch to {useFallback ? "direct" : "compatible"} viewer
-            </button>
+            <a href={url} target="_blank" rel="noreferrer" className="underline">
+              Open in browser
+            </a>
           </div>
         </DialogContent>
       </Dialog>
