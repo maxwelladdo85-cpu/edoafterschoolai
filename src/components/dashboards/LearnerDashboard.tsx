@@ -65,7 +65,8 @@ export function LearnerDashboard() {
     return () => { cancelled = true; };
   }, [user]);
 
-  const firstName = (user?.user_metadata?.full_name as string | undefined)?.split(" ")[0] ?? "Learner";
+  const firstName =
+    (profileName ?? (user?.user_metadata?.full_name as string | undefined) ?? "").trim().split(" ")[0] || "Learner";
 
   return (
     <div className="space-y-8">
