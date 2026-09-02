@@ -546,7 +546,7 @@ function PdfJsViewer({ url, maxHeightClass = "max-h-[70vh]" }: { url: string; ma
           container.appendChild(canvas);
           const ctx = canvas.getContext("2d");
           if (!ctx) continue;
-          await page.render({ canvasContext: ctx, viewport }).promise;
+          await page.render({ canvas, canvasContext: ctx, viewport } as any).promise;
         }
         if (!cancelled) setStatus("ready");
       } catch (e) {
