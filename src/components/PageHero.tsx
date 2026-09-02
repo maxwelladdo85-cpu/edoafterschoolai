@@ -4,7 +4,7 @@ import { LucideIcon } from "lucide-react";
 interface PageHeroProps {
   eyebrow?: string;
   EyebrowIcon?: LucideIcon;
-  title: string;
+  title: ReactNode;
   description?: string;
   actions?: ReactNode;
   backgroundImage?: string;
