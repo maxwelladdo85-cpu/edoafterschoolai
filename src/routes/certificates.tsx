@@ -227,6 +227,57 @@ function CertificatesPage() {
           ))}
         </div>
       )}
+
+      {/* Certificate preview */}
+      <Dialog open={!!preview} onOpenChange={(open) => { if (!open) setPreview(null); }}>
+        <DialogContent className="max-w-[95vw] sm:max-w-3xl max-h-[90dvh] overflow-auto">
+          <DialogHeader>
+            <DialogTitle>Certificate Preview</DialogTitle>
+          </DialogHeader>
+          {preview && (
+            <div className="space-y-4">
+              <div
+                className="w-full rounded-md border"
+                dangerouslySetInnerHTML={{ __html: buildCertificateSvg(preview) }}
+              />
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                <Button size="sm" onClick={() => downloadCertificate(preview)}>
+                  <Download className="mr-2 h-4 w-4" /> Download
+                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button size="sm" variant="destructive" disabled={deletingId === preview.id}>
+                      {deletingId === preview.id ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <Trash2 className="mr-2 h-4 w-4" />
+                      )}
+                      Delete
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete this certificate?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This permanently deletes your certificate for "{preview.course_name}". This action cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        onClick={() => deleteCertificate(preview)}
+                      >
+                        Delete
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </DashboardShell>
   );
 }
