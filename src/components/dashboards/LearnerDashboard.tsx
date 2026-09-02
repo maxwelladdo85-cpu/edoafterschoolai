@@ -57,7 +57,7 @@ export function LearnerDashboard() {
           .order("created_at", { ascending: false })
           .limit(1)
           .maybeSingle(),
-        supabase.from("profiles").select("full_name, avatar_url").eq("id", user.id).maybeSingle(),
+        supabase.from("profiles").select("full_name, avatar_url, school:schools(name)").eq("id", user.id).maybeSingle(),
       ]);
       if (cancelled) return;
       setEnrollments((eRes.data as any) ?? []);
