@@ -43,6 +43,8 @@ function CoursePlayer() {
   const [completed, setCompleted] = useState<Set<string>>(new Set());
   const [savingComplete, setSavingComplete] = useState(false);
   const [showCongrats, setShowCongrats] = useState(false);
+  const [viewedLessons, setViewedLessons] = useState<Set<string>>(new Set());
+  const [savingViewed, setSavingViewed] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) nav({ to: "/login" });
