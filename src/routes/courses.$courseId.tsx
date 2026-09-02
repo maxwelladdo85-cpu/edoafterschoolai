@@ -178,6 +178,21 @@ function CoursePlayer() {
     }
   };
 
+  const markViewed = async () => {
+    if (!user || !activeLesson || savingViewed || viewedLessons.has(activeLesson.id)) return;
+    setSavingViewed(true);
+    const { error } = await supabase
+      .from("lesson_views")
+      .insert({ learner_id: user.id, lesson_id: activeLesson.id });
+    setSavingViewed(false);
+    if (error) {
+      toast.error(error.message ?? "Could not record view");
+      return;
+    }
+    setViewedLessons((prev) => new Set(prev).add(activeLesson.id));
+    toast.success("Marked as viewed");
+  };
+
   const goTo = (idx: number) => {
     const target = flatLessons[idx];
     if (!target) return;
