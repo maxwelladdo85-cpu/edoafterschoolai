@@ -200,7 +200,7 @@ function MessagesPage() {
                       {!mine && (
                         <button
                           onClick={() => deleteMessage(m.id)}
-                          className="rounded p-1 text-muted-foreground opacity-0 transition hover:bg-destructive/10 hover:text-destructive group-hover:opacity-100 focus:opacity-100"
+                          className="rounded p-1 text-muted-foreground transition hover:bg-destructive/10 hover:text-destructive md:opacity-0 md:group-hover:opacity-100 focus:opacity-100"
                           aria-label="Delete message"
                           title="Delete message"
                         >
