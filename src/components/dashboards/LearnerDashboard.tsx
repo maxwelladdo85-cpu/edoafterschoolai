@@ -30,6 +30,7 @@ export function LearnerDashboard() {
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [vark, setVark] = useState<VarkResult | null>(null);
+  const [profileName, setProfileName] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
