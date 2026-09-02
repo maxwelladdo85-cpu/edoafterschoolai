@@ -43,6 +43,8 @@ function CoursePlayer() {
   const [completed, setCompleted] = useState<Set<string>>(new Set());
   const [savingComplete, setSavingComplete] = useState(false);
   const [showCongrats, setShowCongrats] = useState(false);
+  const [viewedLessons, setViewedLessons] = useState<Set<string>>(new Set());
+  const [savingViewed, setSavingViewed] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) nav({ to: "/login" });
@@ -101,6 +103,16 @@ function CoursePlayer() {
         lastViewedId = (lastView as any)?.lesson_id ?? null;
       } else {
         setCompleted(new Set());
+        if (isStaff && lessonIds.length) {
+          const { data: views } = await supabase
+            .from("lesson_views")
+            .select("lesson_id")
+            .eq("learner_id", user.id)
+            .in("lesson_id", lessonIds);
+          setViewedLessons(new Set((views ?? []).map((v: any) => v.lesson_id)));
+        } else {
+          setViewedLessons(new Set());
+        }
       }
       setActiveId(lastViewedId ?? allLessons[0]?.id ?? null);
       setLoading(false);
@@ -164,6 +176,21 @@ function CoursePlayer() {
     } finally {
       setSavingComplete(false);
     }
+  };
+
+  const markViewed = async () => {
+    if (!user || !activeLesson || savingViewed || viewedLessons.has(activeLesson.id)) return;
+    setSavingViewed(true);
+    const { error } = await supabase
+      .from("lesson_views")
+      .insert({ learner_id: user.id, lesson_id: activeLesson.id });
+    setSavingViewed(false);
+    if (error) {
+      toast.error(error.message ?? "Could not record view");
+      return;
+    }
+    setViewedLessons((prev) => new Set(prev).add(activeLesson.id));
+    toast.success("Marked as viewed");
   };
 
   const goTo = (idx: number) => {
@@ -341,6 +368,17 @@ function CoursePlayer() {
                     Lesson {activeIdx + 1} of {totalLessons}
                   </p>
                   <div className="flex gap-2">
+                    {isStaff && role === "teacher" && (
+                      viewedLessons.has(activeLesson.id) ? (
+                        <Button variant="outline" disabled>
+                          <CheckCircle2 className="mr-2 h-4 w-4 text-emerald-600" /> Viewed
+                        </Button>
+                      ) : (
+                        <Button variant="default" onClick={markViewed} disabled={savingViewed}>
+                          <Eye className="mr-2 h-4 w-4" /> Mark as viewed
+                        </Button>
+                      )
+                    )}
                     {!isStaff && (
                       <Button
                         variant={isActiveCompleted ? "outline" : "default"}
