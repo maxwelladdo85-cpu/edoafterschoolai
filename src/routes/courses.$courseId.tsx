@@ -523,19 +523,22 @@ function PdfJsViewer({ url, maxHeightClass = "max-h-[70vh]" }: { url: string; ma
         const pdfjs = await import("pdfjs-dist");
         const workerUrl = (await import("pdfjs-dist/build/pdf.worker.min.mjs?url")).default;
         pdfjs.GlobalWorkerOptions.workerSrc = workerUrl;
-        const doc = await pdfjs.getDocument({ url }).promise;
+        // Stream the file in chunks so large PDFs start displaying fast
+        const doc = await pdfjs.getDocument({ url, rangeChunkSize: 65536 * 4 }).promise;
         if (cancelled) return;
         setPageCount(doc.numPages);
         const container = containerRef.current;
         if (!container) return;
         container.innerHTML = "";
+        // Cap resolution so phones don't render huge canvases (main slowness cause)
+        const pixelRatio = Math.min(window.devicePixelRatio || 1, 1.5);
         for (let p = 1; p <= doc.numPages; p++) {
           if (cancelled) return;
           const page = await doc.getPage(p);
           const base = page.getViewport({ scale: 1 });
           const width = container.clientWidth || base.width;
           const scale = width / base.width;
-          const viewport = page.getViewport({ scale: scale * (window.devicePixelRatio || 1) });
+          const viewport = page.getViewport({ scale: scale * pixelRatio });
           const canvas = document.createElement("canvas");
           canvas.width = viewport.width;
           canvas.height = viewport.height;
@@ -547,6 +550,8 @@ function PdfJsViewer({ url, maxHeightClass = "max-h-[70vh]" }: { url: string; ma
           const ctx = canvas.getContext("2d");
           if (!ctx) continue;
           await page.render({ canvas, canvasContext: ctx, viewport } as any).promise;
+          // Show pages progressively instead of waiting for the whole document
+          if (!cancelled) setStatus("ready");
         }
         if (!cancelled) setStatus("ready");
       } catch (e) {
