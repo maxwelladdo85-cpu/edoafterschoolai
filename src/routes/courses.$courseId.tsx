@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/DashboardShell";
@@ -512,7 +512,7 @@ function EmptyMedia({ label }: { label: string }) {
 // Chrome / iOS Safari) because pages are drawn to canvas, not embedded frames
 // that Chrome blocks.
 function PdfJsViewer({ url, maxHeightClass = "max-h-[70vh]" }: { url: string; maxHeightClass?: string }) {
-  const containerRef = React.useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
   const [pageCount, setPageCount] = useState(0);
 
@@ -615,9 +615,9 @@ function PdfMaterial({ url, title }: { url: string; title: string }) {
           </div>
           <div className="flex items-center justify-between border-t p-3 text-xs text-muted-foreground">
             <span>Viewing within the app · downloads disabled</span>
-            <button type="button" className="underline" onClick={() => setUseFallback((v) => !v)}>
-              Switch to {useFallback ? "direct" : "compatible"} viewer
-            </button>
+            <a href={url} target="_blank" rel="noreferrer" className="underline">
+              Open in browser
+            </a>
           </div>
         </DialogContent>
       </Dialog>
