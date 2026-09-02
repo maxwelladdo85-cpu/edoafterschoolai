@@ -610,12 +610,8 @@ function PdfMaterial({ url, title }: { url: string; title: string }) {
           <DialogHeader className="border-b p-4">
             <DialogTitle className="truncate pr-8">{title}</DialogTitle>
           </DialogHeader>
-          <div className="h-[80vh] w-full bg-muted">
-            <iframe
-              src={useFallback ? gviewSrc : directSrc}
-              title={title}
-              className="h-full w-full"
-            />
+          <div className="w-full bg-muted">
+            {open && <PdfJsViewer url={url} maxHeightClass="max-h-[80vh] rounded-none border-0" />}
           </div>
           <div className="flex items-center justify-between border-t p-3 text-xs text-muted-foreground">
             <span>Viewing within the app · downloads disabled</span>
