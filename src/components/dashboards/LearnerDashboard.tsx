@@ -65,6 +65,7 @@ export function LearnerDashboard() {
       setVark((vRes.data as any) ?? null);
       setProfileName(((pRes as any)?.data?.full_name ?? null) as string | null);
       setAvatarUrl(((pRes as any)?.data?.avatar_url ?? null) as string | null);
+      setSchoolName((((pRes as any)?.data?.school as any)?.name ?? null) as string | null);
     })();
     return () => { cancelled = true; };
   }, [user]);
