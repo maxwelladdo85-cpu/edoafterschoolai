@@ -30,12 +30,13 @@ export function LearnerDashboard() {
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [vark, setVark] = useState<VarkResult | null>(null);
+  const [profileName, setProfileName] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
     let cancelled = false;
     (async () => {
-      const [eRes, nRes, vRes] = await Promise.all([
+      const [eRes, nRes, vRes, pRes] = await Promise.all([
         supabase
           .from("enrollments")
           .select("id, progress, course_id, course:courses(title, subject, description, created_at)")
@@ -53,16 +54,19 @@ export function LearnerDashboard() {
           .order("created_at", { ascending: false })
           .limit(1)
           .maybeSingle(),
+        supabase.from("profiles").select("full_name").eq("id", user.id).maybeSingle(),
       ]);
       if (cancelled) return;
       setEnrollments((eRes.data as any) ?? []);
       setNotifications(nRes.data ?? []);
       setVark((vRes.data as any) ?? null);
+      setProfileName(((pRes as any)?.data?.full_name ?? null) as string | null);
     })();
     return () => { cancelled = true; };
   }, [user]);
 
-  const firstName = (user?.user_metadata?.full_name as string | undefined)?.split(" ")[0] ?? "Learner";
+  const firstName =
+    (profileName ?? (user?.user_metadata?.full_name as string | undefined) ?? "").trim().split(" ")[0] || "Learner";
 
   return (
     <div className="space-y-8">
