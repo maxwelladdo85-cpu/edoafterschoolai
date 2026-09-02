@@ -44,6 +44,8 @@ function CoursesLibrary() {
   const [enrolledMap, setEnrolledMap] = useState<Map<string, number>>(new Map());
   const [loading, setLoading] = useState(true);
   const [enrollingId, setEnrollingId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<CourseRow | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const isTeacher = role === "teacher";
   const isScripter = role === "scripter";
   const isAdmin = role === "admin";
@@ -100,6 +102,17 @@ function CoursesLibrary() {
     });
     toast.success("Enrolled — opening course");
     nav({ to: "/courses/$courseId", params: { courseId } });
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    const { error } = await supabase.from("courses").delete().eq("id", deleteTarget.id);
+    setDeleting(false);
+    if (error) return toast.error(error.message);
+    setCourses((prev) => prev.filter((c) => c.id !== deleteTarget.id));
+    toast.success("Lesson deleted");
+    setDeleteTarget(null);
   };
 
 
