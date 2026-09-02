@@ -368,6 +368,17 @@ function CoursePlayer() {
                     Lesson {activeIdx + 1} of {totalLessons}
                   </p>
                   <div className="flex gap-2">
+                    {isStaff && role === "teacher" && (
+                      viewedLessons.has(activeLesson.id) ? (
+                        <Button variant="outline" disabled>
+                          <CheckCircle2 className="mr-2 h-4 w-4 text-emerald-600" /> Viewed
+                        </Button>
+                      ) : (
+                        <Button variant="default" onClick={markViewed} disabled={savingViewed}>
+                          <Eye className="mr-2 h-4 w-4" /> Mark as viewed
+                        </Button>
+                      )
+                    )}
                     {!isStaff && (
                       <Button
                         variant={isActiveCompleted ? "outline" : "default"}
