@@ -510,7 +510,12 @@ function EmptyMedia({ label }: { label: string }) {
 
 function PdfMaterial({ url, title }: { url: string; title: string }) {
   const [open, setOpen] = useState(false);
-  const [useFallback, setUseFallback] = useState(false);
+  // Mobile browsers (Android Chrome, iOS Safari) can't render PDFs inline and
+  // force a download/app switch — default them to the compatible web viewer.
+  const [useFallback, setUseFallback] = useState(() => {
+    if (typeof navigator === "undefined") return false;
+    return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+  });
   const directSrc = `${url}#toolbar=0&navpanes=0&view=FitH`;
   const gviewSrc = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(url)}`;
   return (
@@ -536,6 +541,10 @@ function PdfMaterial({ url, title }: { url: string; title: string }) {
         <button type="button" className="underline" onClick={() => setUseFallback((v) => !v)}>
           Try {useFallback ? "direct" : "compatible"} viewer
         </button>
+        {" · "}
+        <a href={url} target="_blank" rel="noreferrer" className="underline">
+          Open in your browser (Chrome, Safari…)
+        </a>
       </p>
 
       <Dialog open={open} onOpenChange={setOpen}>
