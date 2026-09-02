@@ -33,6 +33,7 @@ export function LearnerDashboard() {
   const [vark, setVark] = useState<VarkResult | null>(null);
   const [profileName, setProfileName] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [schoolName, setSchoolName] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
