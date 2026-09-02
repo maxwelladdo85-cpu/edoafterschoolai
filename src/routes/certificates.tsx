@@ -183,9 +183,41 @@ function CertificatesPage() {
                 </p>
                 <p className="text-[10px] font-mono text-muted-foreground">ID: {c.certificate_code}</p>
                 <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
+                  <Button size="sm" variant="outline" onClick={() => setPreview(c)}>
+                    <Eye className="mr-2 h-4 w-4" /> View
+                  </Button>
                   <Button size="sm" onClick={() => downloadCertificate(c)}>
                     <Download className="mr-2 h-4 w-4" /> Download
                   </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button size="sm" variant="destructive" disabled={deletingId === c.id}>
+                        {deletingId === c.id ? (
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : (
+                          <Trash2 className="mr-2 h-4 w-4" />
+                        )}
+                        Delete
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete this certificate?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This permanently deletes your certificate for "{c.course_name}". This action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          onClick={() => deleteCertificate(c)}
+                        >
+                          Delete
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                   <Link to="/courses/$courseId" params={{ courseId: c.course_id }} className="text-xs text-primary hover:underline">
                     View course →
                   </Link>
